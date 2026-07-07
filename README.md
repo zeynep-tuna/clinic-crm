@@ -33,4 +33,4 @@ ClinicCRM is designed to help healthcare clinics manage patients, doctors, appoi
 ## Team Members
 
 - Zeynep Tuna
-- Beyza
+- Beyza Tunçer
