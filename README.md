@@ -4,33 +4,87 @@ ClinicCRM is a web-based clinic management system developed for small and medium
 
 ## Project Description
 
-ClinicCRM is designed to help healthcare clinics manage patients, doctors, appointments, treatments, payments and digital consent forms through a modern web application.
+ClinicCRM is designed to help healthcare clinics manage patients, appointments, doctors and payment processes from a single platform.
 
-## Features
+The project is being developed as a full-stack web application using modern technologies.
 
-- Patient Management
-- Doctor Management
-- Appointment Management
-- Treatment Management
-- Payment Tracking
-- Digital Consent Forms
-- Dashboard
-- User Authentication
+---
 
 ## Technologies
 
+### Frontend
 - Next.js
+- React
 - TypeScript
 - Tailwind CSS
+
+### Backend
 - ASP.NET Core Web API
 - Entity Framework Core
+
+### Database
 - SQL Server
 
-## Project Status
+---
 
-🚧 In Development
+## Planned Features
 
-## Team Members
+- Patient Management
+- Appointment Management
+- Doctor Management
+- Payment Tracking
+- Consent Forms
+- Dashboard
+- Authentication & Authorization
 
-- Zeynep Tuna
-- Beyza Tunçer
+---
+
+## Project Structure
+
+```text
+ClinicCRM
+│
+├── frontend
+│   ├── app
+│   ├── components
+│   ├── data
+│   └── public
+│
+├── backend
+│
+└── README.md
+```
+
+---
+
+## Week 1 Goals
+
+- Define the project scope.
+- Create the project structure.
+- Set up the Next.js project.
+- Build the first reusable React components.
+- Prepare the landing page.
+- Create the GitHub repository.
+
+---
+
+## Completed in Week 1
+
+- Project repository created.
+- Next.js project initialized.
+- Folder structure prepared.
+- FeatureCard component created.
+- Landing page feature data prepared.
+- First reusable React component tested successfully.
+
+---
+
+## Future Development
+
+- Patient CRUD
+- Appointment CRUD
+- Doctor CRUD
+- Dashboard
+- Authentication (JWT)
+- SQL Server integration
+- REST API development
