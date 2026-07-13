@@ -1,0 +1,38 @@
+[
+  {
+    "PaymentId": 1,
+    "PatientName": "Ayşe Demir",
+    "TreatmentName": "Dental Cleaning",
+    "Amount": 1500,
+    "PaymentStatus": "Paid",
+    "PaymentMethod": "Credit Card",
+    "PaymentDate": "2026-07-14"
+  },
+  {
+    "PaymentId": 2,
+    "PatientName": "Mehmet Kaya",
+    "TreatmentName": "Root Canal Treatment",
+    "Amount": 3500,
+    "PaymentStatus": "Pending",
+    "PaymentMethod": "Cash",
+    "PaymentDate": "2026-07-14"
+  },
+  {
+    "PaymentId": 3,
+    "PatientName": "Zeynep Yıldız",
+    "TreatmentName": "Tooth Extraction",
+    "Amount": 2000,
+    "PaymentStatus": "Partial",
+    "PaymentMethod": "Bank Transfer",
+    "PaymentDate": "2026-07-13"
+  },
+  {
+    "PaymentId": 4,
+    "PatientName": "Ali Çelik",
+    "TreatmentName": "Dental Implant",
+    "Amount": 12000,
+    "PaymentStatus": "Refunded",
+    "PaymentMethod": "Insurance",
+    "PaymentDate": "2026-07-12"
+  }
+]

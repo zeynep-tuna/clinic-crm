@@ -136,6 +136,10 @@ The project currently includes technical documentation for:
 
 - Doctor entity fields
 - Doctor mock data
+- Payment entity fields
+- Payment mock data
+- Payment status definitions
+- Payment method definitions
 - Project folder structure
 
 Additional documentation will be added as the project progresses.
