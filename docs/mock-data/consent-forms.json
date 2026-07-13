@@ -1,0 +1,38 @@
+[
+  {
+    "ConsentFormId": 1,
+    "PatientName": "Ayşe Demir",
+    "FormTitle": "General Treatment Consent",
+    "FormType": "General",
+    "SignedDate": "2026-07-14",
+    "Status": "Signed",
+    "FileUrl": "documents/consent1.pdf"
+  },
+  {
+    "ConsentFormId": 2,
+    "PatientName": "Mehmet Kaya",
+    "FormTitle": "Dental Treatment Consent",
+    "FormType": "Dental",
+    "SignedDate": "2026-07-14",
+    "Status": "Pending",
+    "FileUrl": ""
+  },
+  {
+    "ConsentFormId": 3,
+    "PatientName": "Ali Çelik",
+    "FormTitle": "Radiology Consent",
+    "FormType": "Radiology",
+    "SignedDate": "2026-07-13",
+    "Status": "Signed",
+    "FileUrl": "documents/radiology.pdf"
+  },
+  {
+    "ConsentFormId": 4,
+    "PatientName": "Zeynep Yıldız",
+    "FormTitle": "Surgery Consent",
+    "FormType": "Surgery",
+    "SignedDate": "",
+    "Status": "Missing",
+    "FileUrl": ""
+  }
+]

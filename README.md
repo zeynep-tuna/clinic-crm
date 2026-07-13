@@ -141,5 +141,9 @@ The project currently includes technical documentation for:
 - Payment status definitions
 - Payment method definitions
 - Project folder structure
+- Consent form entity fields
+- Consent form status definitions
+- Consent form type definitions
+- Consent form mock data
 
 Additional documentation will be added as the project progresses.
