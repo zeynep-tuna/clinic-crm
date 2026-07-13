@@ -1,0 +1,38 @@
+[
+  {
+    "DoctorId": 1,
+    "FullName": "Dr. Elif Yılmaz",
+    "Specialty": "Diş Hekimliği",
+    "Phone": "0555 111 22 33",
+    "Email": "elif.yilmaz@cliniccrm.com",
+    "Status": "Aktif",
+    "TodayAppointmentCount": 6
+  },
+  {
+    "DoctorId": 2,
+    "FullName": "Dr. Ahmet Can",
+    "Specialty": "Kardiyoloji",
+    "Phone": "0555 222 33 44",
+    "Email": "ahmet.can@cliniccrm.com",
+    "Status": "Aktif",
+    "TodayAppointmentCount": 4
+  },
+  {
+    "DoctorId": 3,
+    "FullName": "Dr. Selin Arı",
+    "Specialty": "Dermatoloji",
+    "Phone": "0555 333 44 55",
+    "Email": "selin.ari@cliniccrm.com",
+    "Status": "İzinli",
+    "TodayAppointmentCount": 0
+  },
+  {
+    "DoctorId": 4,
+    "FullName": "Dr. Mert Koç",
+    "Specialty": "Ortopedi",
+    "Phone": "0555 444 55 66",
+    "Email": "mert.koc@cliniccrm.com",
+    "Status": "Aktif",
+    "TodayAppointmentCount": 5
+  }
+]

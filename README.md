@@ -39,18 +39,44 @@ The project is being developed as a full-stack web application using modern tech
 
 ---
 
+---
+
+## User Roles
+
+The system supports three different user roles:
+
+- Admin
+- Doctor
+- Secretary
+
+## Main Modules
+
+- Dashboard
+- Patient Management
+- Appointment Management
+- Doctor Management
+- Payment Tracking
+- Digital Consent Forms
+
 ## Project Structure
 
 ```text
 ClinicCRM
+│
+├── assets
+├── backend
+├── database
+│   └── doctor-fields.md
+│
+├── docs
+│   └── mock-data
+│       └── doctors.json
 │
 ├── frontend
 │   ├── app
 │   ├── components
 │   ├── data
 │   └── public
-│
-├── backend
 │
 └── README.md
 ```
@@ -79,6 +105,19 @@ ClinicCRM
 
 ---
 
+---
+
+## Designed Screens
+
+- Landing Page
+- Login Page
+- Dashboard
+- Patient List
+- Patient Detail
+- Add Patient
+- Appointments
+- Doctors
+
 ## Future Development
 
 - Patient CRUD
@@ -88,3 +127,15 @@ ClinicCRM
 - Authentication (JWT)
 - SQL Server integration
 - REST API development
+
+---
+
+## Documentation
+
+The project currently includes technical documentation for:
+
+- Doctor entity fields
+- Doctor mock data
+- Project folder structure
+
+Additional documentation will be added as the project progresses.
