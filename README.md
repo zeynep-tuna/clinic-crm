@@ -39,15 +39,15 @@ The project is being developed as a full-stack web application using modern tech
 
 ---
 
----
-
 ## User Roles
 
 The system supports three different user roles:
 
-- Admin
-- Doctor
-- Secretary
+| Role | Responsibility |
+|------|----------------|
+| Admin | Full system management |
+| Doctor | Manage own patients and appointments |
+| Secretary | Patient registration, appointments and payment tracking |
 
 ## Main Modules
 
@@ -65,12 +65,29 @@ ClinicCRM
 │
 ├── assets
 ├── backend
+│
 ├── database
-│   └── doctor-fields.md
+│   ├── doctor-fields.md
+│   ├── payment-fields.md
+│   ├── payment-methods.md
+│   ├── payment-status.md
+│   ├── consent-form-fields.md
+│   ├── consent-form-status.md
+│   ├── consent-form-types.md
+│   ├── role-permissions.md
+│   └── user-roles.md
 │
 ├── docs
-│   └── mock-data
-│       └── doctors.json
+│   ├── mock-data
+│   │   ├── doctors.json
+│   │   ├── payments.json
+│   │   └── consent-forms.json
+│   │
+│   ├── api-design.md
+│   ├── appointment-plan.md
+│   ├── dashboard-plan.md
+│   ├── patient-list-plan.md
+│   └── patient-model.md
 │
 ├── frontend
 │   ├── app
@@ -80,6 +97,7 @@ ClinicCRM
 │
 └── README.md
 ```
+
 
 ---
 
@@ -105,8 +123,6 @@ ClinicCRM
 
 ---
 
----
-
 ## Designed Screens
 
 - Landing Page
@@ -118,6 +134,16 @@ ClinicCRM
 - Appointments
 - Doctors
 
+## Role-Based Access
+
+ClinicCRM supports three user roles:
+
+- Admin
+- Doctor
+- Secretary
+
+Each role has different permissions based on the system requirements.
+
 ## Future Development
 
 - Patient CRUD
@@ -127,7 +153,8 @@ ClinicCRM
 - Authentication (JWT)
 - SQL Server integration
 - REST API development
-
+- Digital Consent Management
+- Role-Based Authorization
 ---
 
 ## Documentation
@@ -136,14 +163,20 @@ The project currently includes technical documentation for:
 
 - Doctor entity fields
 - Doctor mock data
+
 - Payment entity fields
-- Payment mock data
 - Payment status definitions
 - Payment method definitions
-- Project folder structure
+- Payment mock data
+
 - Consent form entity fields
 - Consent form status definitions
 - Consent form type definitions
 - Consent form mock data
+
+- User roles
+- Role permissions
+
+- Project folder structure
 
 Additional documentation will be added as the project progresses.
