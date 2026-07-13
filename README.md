@@ -13,16 +13,19 @@ The project is being developed as a full-stack web application using modern tech
 ## Technologies
 
 ### Frontend
+
 - Next.js
 - React
 - TypeScript
 - Tailwind CSS
 
 ### Backend
+
 - ASP.NET Core Web API
 - Entity Framework Core
 
 ### Database
+
 - SQL Server
 
 ---
@@ -49,6 +52,8 @@ The system supports three different user roles:
 | Doctor | Manage own patients and appointments |
 | Secretary | Patient registration, appointments and payment tracking |
 
+---
+
 ## Main Modules
 
 - Dashboard
@@ -57,6 +62,8 @@ The system supports three different user roles:
 - Doctor Management
 - Payment Tracking
 - Digital Consent Forms
+
+---
 
 ## Project Structure
 
@@ -98,7 +105,6 @@ ClinicCRM
 └── README.md
 ```
 
-
 ---
 
 ## Week 1 Goals
@@ -134,15 +140,24 @@ ClinicCRM
 - Appointments
 - Doctors
 
+---
+
 ## Role-Based Access
 
-ClinicCRM supports three user roles:
+The ClinicCRM system uses role-based authorization to control access to different modules.
 
-- Admin
-- Doctor
-- Secretary
+| Module | Admin | Doctor | Secretary |
+|--------|:-----:|:------:|:---------:|
+| Dashboard | ✓ | ✓ | ✓ |
+| Patients | ✓ | Own Patients | ✓ |
+| Appointments | ✓ | Own Appointments | Create / Update |
+| Doctors | Manage | View | View Schedule |
+| Payments | Full Access | No Access | Update Status |
+| Consent Forms | Manage | View | Upload / Track |
+| Reports | ✓ | ✗ | ✗ |
+| Settings | ✓ | ✗ | ✗ |
 
-Each role has different permissions based on the system requirements.
+---
 
 ## Future Development
 
@@ -151,31 +166,42 @@ Each role has different permissions based on the system requirements.
 - Doctor CRUD
 - Dashboard
 - Authentication (JWT)
-- SQL Server integration
-- REST API development
+- SQL Server Integration
+- REST API Development
 - Digital Consent Management
 - Role-Based Authorization
+
 ---
 
 ## Documentation
 
 The project currently includes technical documentation for:
 
+### Doctor Module
+
 - Doctor entity fields
 - Doctor mock data
+
+### Payment Module
 
 - Payment entity fields
 - Payment status definitions
 - Payment method definitions
 - Payment mock data
 
+### Consent Forms Module
+
 - Consent form entity fields
 - Consent form status definitions
 - Consent form type definitions
 - Consent form mock data
 
+### User Management
+
 - User roles
 - Role permissions
+
+### General
 
 - Project folder structure
 
