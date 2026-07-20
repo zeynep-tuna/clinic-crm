@@ -133,12 +133,16 @@ ClinicCRM
 
 - Landing Page
 - Login Page
-- Dashboard
+- Admin Dashboard
+- Doctor Dashboard
+- Secretary Dashboard
 - Patient List
 - Patient Detail
 - Add Patient
 - Appointments
 - Doctors
+- Payments
+- Consent Forms
 
 ---
 
@@ -206,3 +210,76 @@ The project currently includes technical documentation for:
 - Project folder structure
 
 Additional documentation will be added as the project progresses.
+
+---
+
+## Installation
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/zeynep-tuna/clinic-crm.git
+```
+
+### 2. Navigate to the frontend folder
+
+```bash
+cd ClinicCRM/frontend
+```
+
+### 3. Install dependencies
+
+```bash
+npm install
+```
+
+### 4. Start the development server
+
+```bash
+npm run dev
+```
+
+After starting the server, open the following address in your browser:
+
+```
+http://localhost:3000
+```
+
+---
+
+## Project Status
+
+Current Development Phase:
+
+- ✅ Project Planning Completed
+- ✅ UI/UX Design Completed
+- 🚧 Frontend Development In Progress
+- ⏳ Backend Development Planned
+- ⏳ Database Integration Planned
+- ⏳ Authentication & Authorization Planned
+
+---
+
+## Screenshots
+
+Project design screenshots are stored in the following directory:
+
+```text
+docs/screenshots/
+```
+
+The folder contains exported UI designs from Figma that are used as references during frontend development.
+
+---
+
+## Repository
+
+GitHub Repository:
+
+https://github.com/zeynep-tuna/clinic-crm
+
+---
+
+## License
+
+This project was developed for educational purposes as a university software engineering project.
