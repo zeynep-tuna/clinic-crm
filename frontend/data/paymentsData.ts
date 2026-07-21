@@ -1,0 +1,42 @@
+export const paymentsData = [
+  {
+    id: 1,
+    patientName: "Ayşe Demir",
+    amount: "₺2,500",
+    paymentDate: "22.07.2026",
+    method: "Credit Card",
+    status: "Paid",
+  },
+  {
+    id: 2,
+    patientName: "Mehmet Kaya",
+    amount: "₺1,800",
+    paymentDate: "22.07.2026",
+    method: "Cash",
+    status: "Paid",
+  },
+  {
+    id: 3,
+    patientName: "Ali Yıldız",
+    amount: "₺3,200",
+    paymentDate: "23.07.2026",
+    method: "Bank Transfer",
+    status: "Pending",
+  },
+  {
+    id: 4,
+    patientName: "Fatma Öz",
+    amount: "₺950",
+    paymentDate: "23.07.2026",
+    method: "Cash",
+    status: "Overdue",
+  },
+  {
+    id: 5,
+    patientName: "Can Yılmaz",
+    amount: "₺1,450",
+    paymentDate: "24.07.2026",
+    method: "Credit Card",
+    status: "Paid",
+  },
+];
