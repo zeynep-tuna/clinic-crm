@@ -1,4 +1,5 @@
 import PatientsTable from "@/components/patients/PatientsTable";
+import AddPatientModal from "@/components/patients/AddPatientModal";
 
 export default function PatientsPage() {
   return (
@@ -11,12 +12,7 @@ export default function PatientsPage() {
           </p>
         </div>
 
-        <button
-          type="button"
-          className="rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)] hover:bg-[#4c3fd1]"
-        >
-          + Yeni Hasta Ekle
-        </button>
+        <AddPatientModal />
       </div>
 
       <PatientsTable />
