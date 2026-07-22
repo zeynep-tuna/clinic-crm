@@ -1,7 +1,25 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+
+const pageTitles: Record<string, string> = {
+  "/dashboard": "Dashboard",
+  "/patients": "Hastalar",
+  "/appointments": "Randevular",
+  "/doctors": "Doktorlar",
+  "/payments": "Ödemeler",
+  "/consent-forms": "Onam Formları",
+  "/reports": "Raporlar",
+  "/settings": "Ayarlar",
+};
+
 export default function Topbar() {
+  const pathname = usePathname();
+  const title = pageTitles[pathname] ?? "Dashboard";
+
   return (
     <header className="flex h-21 shrink-0 items-center justify-between border-b border-[#E3E8F0] bg-white px-8">
-      <h1 className="text-xl font-semibold text-[#0B1F55]">Dashboard</h1>
+      <h1 className="text-xl font-semibold text-[#0B1F55]">{title}</h1>
 
       <div className="flex items-center gap-6">
         <div className="relative">
