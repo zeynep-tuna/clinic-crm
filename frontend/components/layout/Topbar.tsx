@@ -2,20 +2,29 @@
 
 import { usePathname } from "next/navigation";
 
-const pageTitles: Record<string, string> = {
-  "/dashboard": "Dashboard",
-  "/patients": "Hastalar",
-  "/appointments": "Randevular",
-  "/doctors": "Doktorlar",
-  "/payments": "Ödemeler",
-  "/consent-forms": "Onam Formları",
-  "/reports": "Raporlar",
-  "/settings": "Ayarlar",
-};
+const pageTitles: { href: string; title: string }[] = [
+  { href: "/dashboard", title: "Dashboard" },
+  { href: "/patients", title: "Hastalar" },
+  { href: "/appointments", title: "Randevular" },
+  { href: "/doctors", title: "Doktorlar" },
+  { href: "/payments", title: "Ödemeler" },
+  { href: "/consent-forms", title: "Onam Formları" },
+  { href: "/reports", title: "Raporlar" },
+  { href: "/settings", title: "Ayarlar" },
+];
+
+function isRouteActive(pathname: string, href: string) {
+  if (href === "/dashboard") {
+    return pathname === href;
+  }
+
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export default function Topbar() {
   const pathname = usePathname();
-  const title = pageTitles[pathname] ?? "Dashboard";
+  const title =
+    pageTitles.find((item) => isRouteActive(pathname, item.href))?.title ?? "Dashboard";
 
   return (
     <header className="flex h-21 shrink-0 items-center justify-between border-b border-[#E3E8F0] bg-white px-8">

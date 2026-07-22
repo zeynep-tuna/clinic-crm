@@ -96,6 +96,14 @@ function NavIconGlyph({ icon }: { icon: NavIcon }) {
   }
 }
 
+function isRouteActive(pathname: string, href: string) {
+  if (href === "/dashboard") {
+    return pathname === href;
+  }
+
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export default function Sidebar() {
   const pathname = usePathname();
 
@@ -107,7 +115,7 @@ export default function Sidebar() {
 
       <nav className="flex flex-1 flex-col gap-1 p-4">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = isRouteActive(pathname, item.href);
 
           return (
             <Link

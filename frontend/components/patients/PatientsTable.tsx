@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { patients, type PatientStatus } from "@/data/patients";
 
@@ -148,13 +149,13 @@ export default function PatientsTable() {
                 </td>
                 <td className="py-5">
                   <div className="flex items-center gap-2 text-[#667085]">
-                    <button
-                      type="button"
+                    <Link
+                      href={`/patients/${patient.id}`}
                       aria-label="Görüntüle"
                       className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
                     >
                       <EyeIcon />
-                    </button>
+                    </Link>
                     <button
                       type="button"
                       aria-label="Düzenle"
