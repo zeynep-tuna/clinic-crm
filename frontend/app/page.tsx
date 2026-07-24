@@ -1,18 +1,11 @@
-import FeatureCard from "@/components/FeatureCard";
-import { features } from "@/data/features";
+import LandingNavbar from "@/components/landing/LandingNavbar";
+import LandingHero from "@/components/landing/LandingHero";
 
 export default function Home() {
   return (
     <main>
-      <h1>ClinicCRM</h1>
-
-      {features.map((feature) => (
-        <FeatureCard
-          key={feature.title}
-          title={feature.title}
-          description={feature.description}
-        />
-      ))}
+      <LandingNavbar />
+      <LandingHero />
     </main>
   );
 }
