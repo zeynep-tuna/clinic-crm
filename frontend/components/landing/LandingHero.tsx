@@ -13,11 +13,11 @@ function CheckIcon() {
 
 export default function LandingHero() {
   return (
-    <section className="relative overflow-hidden bg-[#F7F8FF] px-6 py-16 lg:px-10 lg:py-24">
+    <section className="relative overflow-hidden bg-[#F7F8FF] px-6 py-14 lg:px-10 lg:py-20">
       <div className="pointer-events-none absolute -right-32 -top-32 z-0 h-104 w-104 rounded-full bg-[#DCD8FF] opacity-60 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-32 -left-32 z-0 h-104 w-104 rounded-full bg-[#DCD8FF] opacity-60 blur-3xl" />
 
-      <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 lg:grid-cols-2">
+      <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
         <div>
           <h1 className="text-4xl font-extrabold leading-tight text-[#0B1F55] sm:text-5xl">
             Sağlık Klinikleri İçin Modern CRM Yazılımı
@@ -56,7 +56,7 @@ export default function LandingHero() {
           </div>
         </div>
 
-        <div className="relative">
+        <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
           <DashboardPreviewMock />
         </div>
       </div>

@@ -75,6 +75,16 @@ function GridIcon() {
   );
 }
 
+function WindowDots() {
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="h-2 w-2 rounded-full bg-[#EF4444]" />
+      <span className="h-2 w-2 rounded-full bg-[#F59E0B]" />
+      <span className="h-2 w-2 rounded-full bg-[#16A34A]" />
+    </div>
+  );
+}
+
 function StatMini({
   icon,
   label,
@@ -99,15 +109,14 @@ const sidebarNavIcons = [<GridIcon key="grid" />, <UsersIcon key="users" />, <Ca
 
 const appointmentRows = [
   { time: "09:00", name: "Ayşe Demir", doctor: "Dr. Elif Kaya", statusColor: "#16A34A" },
-  { time: "10:30", name: "Mehmet Kaya", doctor: "Dr. Ahmet Can", statusColor: "#16A34A" },
-  { time: "11:15", name: "Zeynep Aydın", doctor: "Dr. Selin Arı", statusColor: "#F59E0B" },
+  { time: "10:30", name: "Mehmet Kaya", doctor: "Dr. Ahmet Can", statusColor: "#F59E0B" },
 ];
 
 const chartPoints = [18, 32, 26, 44, 38, 55, 62];
 
 function MiniLineChart() {
   const width = 260;
-  const height = 56;
+  const height = 64;
   const max = Math.max(...chartPoints);
   const step = width / (chartPoints.length - 1);
   const linePoints = chartPoints
@@ -116,7 +125,7 @@ function MiniLineChart() {
   const areaPoints = `0,${height} ${linePoints} ${width},${height}`;
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="mt-2 h-14 w-full">
+    <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="mt-2 h-16 w-full">
       <polygon points={areaPoints} fill="#5B4DE3" fillOpacity={0.08} />
       <polyline
         points={linePoints}
@@ -130,14 +139,54 @@ function MiniLineChart() {
   );
 }
 
+const patientRows: { name: string; status: "Aktif" | "Bekliyor" }[] = [
+  { name: "Ayşe Demir", status: "Aktif" },
+  { name: "Mehmet Kaya", status: "Aktif" },
+  { name: "Zeynep Aydın", status: "Bekliyor" },
+];
+
+const patientStatusClass: Record<"Aktif" | "Bekliyor", string> = {
+  Aktif: "bg-[#DCFCE7] text-[#16A34A]",
+  Bekliyor: "bg-[#FEF3C7] text-[#F59E0B]",
+};
+
+function PatientsMiniMockup() {
+  return (
+    <div className="absolute -bottom-12 -left-8 z-20 hidden w-60 rounded-[22px] border border-[#E3E8F0] bg-white p-4 shadow-[0_22px_40px_rgba(16,24,40,0.16),0_6px_12px_rgba(16,24,40,0.08)] lg:block">
+      <div className="flex items-center justify-between border-b border-[#E3E8F0] pb-2.5">
+        <WindowDots />
+        <span className="text-xs font-bold text-[#0B1F55]">Hastalar</span>
+      </div>
+
+      <div className="mt-3 space-y-2.5">
+        {patientRows.map((patient) => (
+          <div key={patient.name} className="flex items-center justify-between gap-2">
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EEF0FF] text-[10px] font-semibold text-[#5B4DE3]">
+                {patient.name.charAt(0)}
+              </span>
+              <span className="truncate text-xs font-medium text-[#0B1F55]">{patient.name}</span>
+            </div>
+            <span
+              className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${patientStatusClass[patient.status]}`}
+            >
+              {patient.status}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardPreviewMock() {
   return (
-    <div className="relative pb-14 pl-3 sm:pb-20 sm:pl-10">
-      {/* soft purple glow behind the screen mockup */}
-      <div className="pointer-events-none absolute inset-6 -z-10 rounded-[36px] bg-[#5B4DE3]/20 blur-3xl" />
+    <div className="relative w-full pb-20 lg:pb-24">
+      {/* soft purple glow wrapping the whole showcase */}
+      <div className="pointer-events-none absolute -inset-8 -z-10 rounded-[44px] bg-[#5B4DE3]/12 blur-3xl" />
 
-      {/* main screen mockup */}
-      <div className="relative z-10 overflow-hidden rounded-[28px] border border-[#E3E8F0] bg-white shadow-[0_24px_48px_rgba(16,24,40,0.14),0_4px_12px_rgba(16,24,40,0.06)]">
+      {/* main dashboard mockup */}
+      <div className="relative z-10 overflow-hidden rounded-[28px] border border-[#E3E8F0] bg-white shadow-[0_20px_40px_rgba(16,24,40,0.12),0_4px_10px_rgba(16,24,40,0.06)]">
         <div className="flex">
           <div className="hidden w-16 shrink-0 flex-col items-center gap-5 border-r border-[#E3E8F0] bg-[#F7F8FF] py-5 sm:flex">
             <MiniHeartIcon />
@@ -155,9 +204,12 @@ export default function DashboardPreviewMock() {
             </div>
           </div>
 
-          <div className="flex-1 p-5 sm:p-6">
-            <div className="flex items-center justify-between border-b border-[#E3E8F0] pb-3">
-              <span className="text-base font-bold text-[#0B1F55]">Dashboard</span>
+          <div className="flex-1 p-6 sm:p-7">
+            <div className="flex items-center justify-between border-b border-[#E3E8F0] pb-4">
+              <div className="flex items-center gap-3">
+                <WindowDots />
+                <span className="text-base font-bold text-[#0B1F55]">Dashboard</span>
+              </div>
 
               <div className="flex items-center gap-2.5">
                 <div className="flex items-center gap-1.5 rounded-lg border border-[#E3E8F0] px-2.5 py-1.5 text-xs text-[#98A2B3]">
@@ -173,15 +225,15 @@ export default function DashboardPreviewMock() {
               </div>
             </div>
 
-            <div className="mt-4 grid grid-cols-3 gap-3">
+            <div className="mt-5 grid grid-cols-3 gap-3.5">
               <StatMini icon={<CalendarIcon />} label="Bugünkü Randevu" value="28" />
               <StatMini icon={<WalletIcon />} label="Bekleyen Ödeme" value="₺24.680" />
               <StatMini icon={<UsersIcon />} label="Toplam Hasta" value="1.248" />
             </div>
 
-            <div className="mt-5">
+            <div className="mt-6">
               <p className="text-sm font-semibold text-[#0B1F55]">Bugünkü Randevular</p>
-              <div className="mt-2.5 space-y-2">
+              <div className="mt-3 space-y-2.5">
                 {appointmentRows.map((row) => (
                   <div
                     key={row.time}
@@ -206,7 +258,7 @@ export default function DashboardPreviewMock() {
               </div>
             </div>
 
-            <div className="mt-5 rounded-xl border border-[#E3E8F0] p-3.5">
+            <div className="mt-6 rounded-xl border border-[#E3E8F0] p-4">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold text-[#0B1F55]">Gelir Özeti</p>
                 <p className="text-sm font-bold text-[#5B4DE3]">₺186.450</p>
@@ -217,26 +269,8 @@ export default function DashboardPreviewMock() {
         </div>
       </div>
 
-      {/* small overlapping payment card */}
-      <div className="absolute -bottom-6 -left-3 z-20 hidden w-44 rounded-2xl border border-[#E3E8F0] bg-white p-4 shadow-[0_16px_32px_rgba(16,24,40,0.14),0_4px_8px_rgba(16,24,40,0.06)] sm:-bottom-8 sm:-left-6 sm:block">
-        <p className="text-xs font-semibold text-[#0B1F55]">Bekleyen Ödeme</p>
-        <p className="mt-1 text-xl font-bold text-[#F59E0B]">₺24.680</p>
-
-        <div className="mt-3 space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#EEF0FF] text-[10px] font-semibold text-[#5B4DE3]">
-              A
-            </span>
-            <span className="text-[11px] text-[#667085]">Ayşe Demir · 15.05.2024</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#EEF0FF] text-[10px] font-semibold text-[#5B4DE3]">
-              M
-            </span>
-            <span className="text-[11px] text-[#667085]">Mehmet Kaya · 14.05.2024</span>
-          </div>
-        </div>
-      </div>
+      {/* second screen: Hastalar mini mockup, overlapping front/bottom-left */}
+      <PatientsMiniMockup />
     </div>
   );
 }
