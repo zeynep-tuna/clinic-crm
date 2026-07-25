@@ -1,0 +1,42 @@
+import { doctorUpcomingAppointments } from "@/data/doctorDashboard";
+
+function CalendarIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
+      <rect x="4" y="5" width="16" height="15" rx="2" />
+      <path strokeLinecap="round" d="M4 10h16M8 3v4M16 3v4" />
+    </svg>
+  );
+}
+
+export default function DoctorUpcomingAppointments() {
+  return (
+    <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+      <div className="flex items-center justify-between">
+        <h2 className="text-base font-semibold text-[#0B1F55]">Yaklaşan Randevular</h2>
+        <button
+          type="button"
+          className="rounded-lg border border-[#E3E8F0] px-3 py-1.5 text-xs font-semibold text-[#0B1F55] hover:bg-[#F7F8FF]"
+        >
+          Tümünü Gör
+        </button>
+      </div>
+
+      <div className="mt-4 space-y-3">
+        {doctorUpcomingAppointments.map((appointment) => (
+          <div key={appointment.id} className="flex items-start gap-3 rounded-xl border border-[#E3E8F0] p-3">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#EEF0FF] text-[#5B4DE3]">
+              <CalendarIcon />
+            </span>
+            <div>
+              <p className="text-sm font-medium text-[#0B1F55]">
+                {appointment.patientName} - {appointment.treatment}
+              </p>
+              <p className="text-xs text-[#667085]">{appointment.time}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
