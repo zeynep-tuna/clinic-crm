@@ -16,13 +16,17 @@ function HeartIcon() {
 
 const navLinks = [
   { label: "Anasayfa", href: "/" },
-  { label: "Özellikler", href: "#ozellikler" },
+  { label: "Özellikler", href: "/features" },
   { label: "Hizmetler", href: "#hizmetler" },
   { label: "Blog", href: "#blog" },
   { label: "İletişim", href: "#iletisim" },
 ];
 
-export default function LandingNavbar() {
+type LandingNavbarProps = {
+  activeHref?: string;
+};
+
+export default function LandingNavbar({ activeHref }: LandingNavbarProps) {
   return (
     <header className="border-b border-[#E3E8F0] bg-white/80 backdrop-blur">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-4 lg:px-10">
@@ -32,15 +36,22 @@ export default function LandingNavbar() {
         </Link>
 
         <nav className="hidden items-center gap-8 lg:flex">
-          {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="text-sm font-medium text-[#0B1F55] hover:text-[#5B4DE3]"
-            >
-              {link.label}
-            </a>
-          ))}
+          {navLinks.map((link) => {
+            const isActive = link.href === activeHref;
+            return (
+              <a
+                key={link.label}
+                href={link.href}
+                className={`text-sm font-medium ${
+                  isActive
+                    ? "border-b-2 border-[#5B4DE3] pb-1 text-[#5B4DE3]"
+                    : "text-[#0B1F55] hover:text-[#5B4DE3]"
+                }`}
+              >
+                {link.label}
+              </a>
+            );
+          })}
         </nav>
 
         <div className="flex items-center gap-3">
