@@ -95,12 +95,12 @@ function StatMini({
   value: string;
 }) {
   return (
-    <div className="rounded-xl border border-[#E3E8F0] p-3">
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#EEF0FF] text-[#5B4DE3]">
+    <div className="rounded-xl border border-[#E3E8F0] p-2.5">
+      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#EEF0FF] text-[#5B4DE3]">
         {icon}
       </div>
-      <p className="mt-2 text-xs text-[#667085]">{label}</p>
-      <p className="text-base font-bold text-[#0B1F55]">{value}</p>
+      <p className="mt-1.5 text-[11px] text-[#667085]">{label}</p>
+      <p className="text-sm font-bold text-[#0B1F55]">{value}</p>
     </div>
   );
 }
@@ -116,16 +116,16 @@ const chartPoints = [18, 32, 26, 44, 38, 55, 62];
 
 function MiniLineChart() {
   const width = 260;
-  const height = 64;
+  const height = 44;
   const max = Math.max(...chartPoints);
   const step = width / (chartPoints.length - 1);
   const linePoints = chartPoints
-    .map((value, index) => `${index * step},${height - (value / max) * (height - 8)}`)
+    .map((value, index) => `${index * step},${height - (value / max) * (height - 6)}`)
     .join(" ");
   const areaPoints = `0,${height} ${linePoints} ${width},${height}`;
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="mt-2 h-16 w-full">
+    <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="mt-1.5 h-11 w-full">
       <polygon points={areaPoints} fill="#5B4DE3" fillOpacity={0.08} />
       <polyline
         points={linePoints}
@@ -141,7 +141,6 @@ function MiniLineChart() {
 
 const patientRows: { name: string; status: "Aktif" | "Bekliyor" }[] = [
   { name: "Ayşe Demir", status: "Aktif" },
-  { name: "Mehmet Kaya", status: "Aktif" },
   { name: "Zeynep Aydın", status: "Bekliyor" },
 ];
 
@@ -152,23 +151,23 @@ const patientStatusClass: Record<"Aktif" | "Bekliyor", string> = {
 
 function PatientsMiniMockup() {
   return (
-    <div className="absolute -bottom-12 -left-8 z-20 hidden w-60 rounded-[22px] border border-[#E3E8F0] bg-white p-4 shadow-[0_22px_40px_rgba(16,24,40,0.16),0_6px_12px_rgba(16,24,40,0.08)] lg:block">
+    <div className="absolute -bottom-8 -left-8 z-20 hidden w-96 rounded-2xl border border-[#E3E8F0] bg-white p-4 shadow-[0_18px_32px_rgba(16,24,40,0.16),0_4px_10px_rgba(16,24,40,0.08)] lg:block">
       <div className="flex items-center justify-between border-b border-[#E3E8F0] pb-2.5">
         <WindowDots />
-        <span className="text-xs font-bold text-[#0B1F55]">Hastalar</span>
+        <span className="text-sm font-bold text-[#0B1F55]">Hastalar</span>
       </div>
 
-      <div className="mt-3 space-y-2.5">
+      <div className="mt-3 space-y-2">
         {patientRows.map((patient) => (
           <div key={patient.name} className="flex items-center justify-between gap-2">
-            <div className="flex min-w-0 items-center gap-2">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EEF0FF] text-[10px] font-semibold text-[#5B4DE3]">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EEF0FF] text-xs font-semibold text-[#5B4DE3]">
                 {patient.name.charAt(0)}
               </span>
-              <span className="truncate text-xs font-medium text-[#0B1F55]">{patient.name}</span>
+              <span className="truncate text-sm font-medium text-[#0B1F55]">{patient.name}</span>
             </div>
             <span
-              className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${patientStatusClass[patient.status]}`}
+              className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${patientStatusClass[patient.status]}`}
             >
               {patient.status}
             </span>
@@ -181,20 +180,19 @@ function PatientsMiniMockup() {
 
 export default function DashboardPreviewMock() {
   return (
-    <div className="relative w-full pb-20 lg:pb-24">
+    <div className="relative w-full pb-10 lg:pb-14">
       {/* soft purple glow wrapping the whole showcase */}
-      <div className="pointer-events-none absolute -inset-8 -z-10 rounded-[44px] bg-[#5B4DE3]/12 blur-3xl" />
+      <div className="pointer-events-none absolute -inset-6 -z-10 rounded-[40px] bg-[#5B4DE3]/12 blur-3xl" />
 
-      {/* main dashboard mockup */}
-      <div className="relative z-10 overflow-hidden rounded-[28px] border border-[#E3E8F0] bg-white shadow-[0_20px_40px_rgba(16,24,40,0.12),0_4px_10px_rgba(16,24,40,0.06)]">
-        <div className="flex">
-          <div className="hidden w-16 shrink-0 flex-col items-center gap-5 border-r border-[#E3E8F0] bg-[#F7F8FF] py-5 sm:flex">
+      {/* main dashboard mockup: wide, landscape aspect ratio so it reads as a browser/tablet screen, not a tall poster */}
+      <div className="relative z-10 flex w-full overflow-hidden rounded-[28px] border border-[#E3E8F0] bg-white shadow-[0_20px_40px_rgba(16,24,40,0.12),0_4px_10px_rgba(16,24,40,0.06)] sm:aspect-16/10 sm:max-h-115">
+          <div className="hidden w-16 shrink-0 flex-col items-center gap-4 border-r border-[#E3E8F0] bg-[#F7F8FF] py-4 sm:flex">
             <MiniHeartIcon />
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-2">
               {sidebarNavIcons.map((icon, index) => (
                 <div
                   key={index}
-                  className={`flex h-9 w-9 items-center justify-center rounded-xl ${
+                  className={`flex h-8 w-8 items-center justify-center rounded-xl ${
                     index === 0 ? "bg-[#EEF0FF] text-[#5B4DE3]" : "text-[#98A2B3]"
                   }`}
                 >
@@ -204,52 +202,52 @@ export default function DashboardPreviewMock() {
             </div>
           </div>
 
-          <div className="flex-1 p-6 sm:p-7">
-            <div className="flex items-center justify-between border-b border-[#E3E8F0] pb-4">
+          <div className="flex min-w-0 flex-1 flex-col p-5 sm:p-6">
+            <div className="flex items-center justify-between border-b border-[#E3E8F0] pb-3">
               <div className="flex items-center gap-3">
                 <WindowDots />
-                <span className="text-base font-bold text-[#0B1F55]">Dashboard</span>
+                <span className="text-sm font-bold text-[#0B1F55]">Dashboard</span>
               </div>
 
-              <div className="flex items-center gap-2.5">
-                <div className="flex items-center gap-1.5 rounded-lg border border-[#E3E8F0] px-2.5 py-1.5 text-xs text-[#98A2B3]">
+              <div className="flex items-center gap-2">
+                <div className="hidden items-center gap-1.5 rounded-lg border border-[#E3E8F0] px-2.5 py-1.5 text-xs text-[#98A2B3] md:flex">
                   <SearchIcon />
                   Ara...
                 </div>
-                <div className="flex h-7 w-7 items-center justify-center rounded-full border border-[#E3E8F0] text-[#667085]">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full border border-[#E3E8F0] text-[#667085]">
                   <BellIcon />
                 </div>
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#EEF0FF] text-xs font-semibold text-[#5B4DE3]">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EEF0FF] text-[11px] font-semibold text-[#5B4DE3]">
                   A
                 </div>
               </div>
             </div>
 
-            <div className="mt-5 grid grid-cols-3 gap-3.5">
+            <div className="mt-3 grid grid-cols-3 gap-2.5">
               <StatMini icon={<CalendarIcon />} label="Bugünkü Randevu" value="28" />
               <StatMini icon={<WalletIcon />} label="Bekleyen Ödeme" value="₺24.680" />
               <StatMini icon={<UsersIcon />} label="Toplam Hasta" value="1.248" />
             </div>
 
-            <div className="mt-6">
-              <p className="text-sm font-semibold text-[#0B1F55]">Bugünkü Randevular</p>
-              <div className="mt-3 space-y-2.5">
+            <div className="mt-3">
+              <p className="text-xs font-semibold text-[#0B1F55]">Bugünkü Randevular</p>
+              <div className="mt-2 space-y-1.5">
                 {appointmentRows.map((row) => (
                   <div
                     key={row.time}
-                    className="flex items-center justify-between rounded-xl border border-[#E3E8F0] px-3 py-2.5"
+                    className="flex items-center justify-between rounded-lg border border-[#E3E8F0] px-2.5 py-2"
                   >
-                    <div className="flex items-center gap-2.5">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EEF0FF] text-[10px] font-semibold text-[#5B4DE3]">
+                    <div className="flex items-center gap-2">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#EEF0FF] text-[9px] font-semibold text-[#5B4DE3]">
                         {row.name.charAt(0)}
                       </span>
-                      <span className="text-xs font-semibold text-[#0B1F55]">{row.time}</span>
-                      <span className="text-xs text-[#0B1F55]">{row.name}</span>
+                      <span className="text-[11px] font-semibold text-[#0B1F55]">{row.time}</span>
+                      <span className="text-[11px] text-[#0B1F55]">{row.name}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="hidden text-xs text-[#667085] sm:inline">{row.doctor}</span>
+                      <span className="hidden text-[11px] text-[#667085] md:inline">{row.doctor}</span>
                       <span
-                        className="h-2 w-2 rounded-full"
+                        className="h-1.5 w-1.5 rounded-full"
                         style={{ backgroundColor: row.statusColor }}
                       />
                     </div>
@@ -258,18 +256,17 @@ export default function DashboardPreviewMock() {
               </div>
             </div>
 
-            <div className="mt-6 rounded-xl border border-[#E3E8F0] p-4">
+            <div className="mt-3 rounded-xl border border-[#E3E8F0] p-3">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-[#0B1F55]">Gelir Özeti</p>
-                <p className="text-sm font-bold text-[#5B4DE3]">₺186.450</p>
+                <p className="text-xs font-semibold text-[#0B1F55]">Gelir Özeti</p>
+                <p className="text-xs font-bold text-[#5B4DE3]">₺186.450</p>
               </div>
               <MiniLineChart />
             </div>
           </div>
-        </div>
       </div>
 
-      {/* second screen: Hastalar mini mockup, overlapping front/bottom-left */}
+      {/* second screen: Hastalar mini mockup, overlapping front/bottom-left, kept compact so it stays fully on-screen */}
       <PatientsMiniMockup />
     </div>
   );
