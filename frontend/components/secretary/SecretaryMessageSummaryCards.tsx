@@ -9,6 +9,13 @@ const iconByCardId: Record<string, SummaryIcon> = {
   urgent: "urgent",
 };
 
+const iconColorByCardId: Record<string, string> = {
+  total: "bg-[#DBEAFE] text-[#2563EB]",
+  unread: "bg-[#EEF0FF] text-[#5B4DE3]",
+  today: "bg-[#DCFCE7] text-[#16A34A]",
+  urgent: "bg-[#FEE2E2] text-[#EF4444]",
+};
+
 function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
   switch (icon) {
     case "total":
@@ -62,7 +69,9 @@ export default function SecretaryMessageSummaryCards() {
               <p className="mt-2 text-2xl font-bold text-[#0B1F55]">{card.value}</p>
             </div>
 
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#EEF0FF] text-[#5B4DE3]">
+            <div
+              className={`flex h-11 w-11 items-center justify-center rounded-2xl ${iconColorByCardId[card.id] ?? "bg-[#EEF0FF] text-[#5B4DE3]"}`}
+            >
               <SummaryIconGlyph icon={iconByCardId[card.id] ?? "total"} />
             </div>
           </div>

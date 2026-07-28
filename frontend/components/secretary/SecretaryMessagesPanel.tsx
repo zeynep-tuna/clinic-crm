@@ -19,6 +19,12 @@ const priorityBadgeClass: Record<string, string> = {
   Normal: "bg-[#DBEAFE] text-[#2563EB]",
 };
 
+const senderTypeAvatarClass: Record<string, string> = {
+  Hasta: "bg-[#DCFCE7] text-[#16A34A]",
+  Doktor: "bg-[#DBEAFE] text-[#2563EB]",
+  Yönetim: "bg-[#EEF0FF] text-[#5B4DE3]",
+};
+
 function initials(name: string) {
   const parts = name.split(" ").filter((part) => part !== "Dr." && part !== "Dr");
   return parts
@@ -60,8 +66,8 @@ export default function SecretaryMessagesPanel() {
     secretaryMessageRows[0];
 
   return (
-    <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.1fr_1fr]">
-      <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1.1fr_1fr]">
+      <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
         <div className="relative">
           <svg
             viewBox="0 0 24 24"
@@ -119,7 +125,9 @@ export default function SecretaryMessagesPanel() {
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EEF0FF] text-xs font-semibold text-[#5B4DE3]">
+                  <div
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${senderTypeAvatarClass[message.senderType]}`}
+                  >
                     {initials(message.senderName)}
                   </div>
 
