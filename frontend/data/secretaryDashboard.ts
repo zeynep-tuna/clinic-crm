@@ -106,14 +106,38 @@ export const secretaryRecentPatients: SecretaryRecentPatient[] = [
   { id: "4", name: "Ali Yıldız", addedLabel: "2 gün önce eklendi" },
 ];
 
+export type SecretaryTaskCategory = "appointment" | "payment" | "consent" | "schedule";
+
 export interface SecretaryUpcomingTask {
   id: string;
   text: string;
+  category: SecretaryTaskCategory;
+  timeLabel: string;
 }
 
 export const secretaryUpcomingTasks: SecretaryUpcomingTask[] = [
-  { id: "1", text: "15:30 randevusu için hasta bilgilendirmesi yapılacak." },
-  { id: "2", text: "Bekleyen ödeme hatırlatması gönderilecek." },
-  { id: "3", text: "Onam formu eksik olan hastalar kontrol edilecek." },
-  { id: "4", text: "Yarınki doktor takvimi hazırlanacak." },
+  {
+    id: "1",
+    text: "15:30 randevusu için hasta bilgilendirmesi yapılacak.",
+    category: "appointment",
+    timeLabel: "15:30",
+  },
+  {
+    id: "2",
+    text: "Bekleyen ödeme hatırlatması gönderilecek.",
+    category: "payment",
+    timeLabel: "Bugün",
+  },
+  {
+    id: "3",
+    text: "Onam formu eksik olan hastalar kontrol edilecek.",
+    category: "consent",
+    timeLabel: "Bugün",
+  },
+  {
+    id: "4",
+    text: "Yarınki doktor takvimi hazırlanacak.",
+    category: "schedule",
+    timeLabel: "Yarın",
+  },
 ];

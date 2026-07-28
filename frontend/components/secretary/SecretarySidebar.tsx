@@ -123,18 +123,17 @@ export default function SecretarySidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-screen w-65 shrink-0 flex-col border-r border-[#E3E8F0] bg-white">
-      <div className="flex h-18 items-center gap-2.5 border-b border-[#E3E8F0] px-5">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#5B4DE3]">
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={1.75} className="h-5 w-5">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 20s-7-4.5-9.5-9A5 5 0 0 1 12 6a5 5 0 0 1 9.5 5c-2.5 4.5-9.5 9-9.5 9Z"
-            />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8.5 12h2l1-2 2 4 1-2h2" />
-          </svg>
-        </div>
+    <aside className="flex h-screen w-65 shrink-0 flex-col border-r border-[#E3E8F0]/60 bg-white">
+      <div className="flex h-18 items-center gap-2.5 border-b border-[#E3E8F0]/60 px-5">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#5B4DE3" strokeWidth={1.75} className="h-7 w-7 shrink-0">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="#EEF0FF"
+            d="M12 20s-7-4.5-9.5-9A5 5 0 0 1 12 6a5 5 0 0 1 9.5 5c-2.5 4.5-9.5 9-9.5 9Z"
+          />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8.5 12h2l1-2 2 4 1-2h2" />
+        </svg>
         <span className="text-lg font-bold text-[#0B1F55]">ClinicCRM</span>
       </div>
 
@@ -160,11 +159,11 @@ export default function SecretarySidebar() {
         })}
       </nav>
 
-      <div className="border-t border-[#E3E8F0] px-3 py-4">
+      <div className="border-t border-[#F1F4FA] px-3 pt-4 pb-5">
         <Link
           href="/login"
           onClick={(event) => event.currentTarget.blur()}
-          className="flex h-11 items-center gap-2.5 rounded-xl px-3.5 text-sm font-medium text-[#667085] outline-none transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55] focus-visible:ring-2 focus-visible:ring-[#5B4DE3]/20"
+          className="flex h-11 items-center gap-2.5 rounded-xl px-3.5 text-sm font-medium text-[#667085] outline-none transition-colors hover:bg-[#FEF2F2] hover:text-[#EF4444] focus-visible:ring-2 focus-visible:ring-[#5B4DE3]/20"
         >
           <LogoutIcon />
           Çıkış Yap

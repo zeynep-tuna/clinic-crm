@@ -28,7 +28,7 @@ export default function SecretaryTopbar() {
     pageTitles.find((item) => isRouteActive(pathname, item.href))?.title ?? "Sekreter Dashboard";
 
   return (
-    <header className="flex min-h-18 shrink-0 flex-wrap items-center justify-between gap-4 border-b border-[#E3E8F0] bg-white px-6 py-3">
+    <header className="flex min-h-18 shrink-0 flex-wrap items-center justify-between gap-4 border-b border-[#E3E8F0]/60 bg-white px-6 py-3">
       <h1 className="text-lg font-semibold text-[#0B1F55]">{title}</h1>
 
       <div className="flex items-center gap-4">
@@ -71,15 +71,21 @@ export default function SecretaryTopbar() {
           </svg>
         </button>
 
-        <div className="flex items-center gap-2.5 border-l border-[#E3E8F0] pl-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EEF0FF] text-sm font-semibold text-[#5B4DE3]">
+        <button
+          type="button"
+          className="flex items-center gap-2.5 rounded-lg border-l border-[#E3E8F0]/60 py-1 pl-4 pr-1.5 transition-colors hover:bg-[#F7F8FF]"
+        >
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EEF0FF] text-sm font-semibold text-[#5B4DE3]">
             ZK
           </div>
-          <div className="leading-tight">
+          <div className="text-left leading-tight">
             <p className="text-sm font-medium text-[#0B1F55]">{secretaryProfile.name}</p>
             <p className="text-xs text-[#667085]">{secretaryProfile.role}</p>
           </div>
-        </div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4 shrink-0 text-[#667085]">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
+          </svg>
+        </button>
       </div>
     </header>
   );
