@@ -1,36 +1,8 @@
-"use client";
-
-import { usePathname } from "next/navigation";
 import { secretaryProfile } from "@/data/secretaryDashboard";
 
-const pageTitles: { href: string; title: string }[] = [
-  { href: "/secretary/dashboard", title: "Sekreter Dashboard" },
-  { href: "/secretary/patients", title: "Hastalar" },
-  { href: "/secretary/appointments", title: "Randevular" },
-  { href: "/secretary/doctor-schedule", title: "Doktor Takvimi" },
-  { href: "/secretary/payments", title: "Ödemeler" },
-  { href: "/secretary/consent-forms", title: "Onam Formları" },
-  { href: "/secretary/messages", title: "Mesajlar" },
-  { href: "/secretary/settings", title: "Ayarlar" },
-];
-
-function isRouteActive(pathname: string, href: string) {
-  if (href === "/secretary/dashboard") {
-    return pathname === href;
-  }
-
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
-
 export default function SecretaryTopbar() {
-  const pathname = usePathname();
-  const title =
-    pageTitles.find((item) => isRouteActive(pathname, item.href))?.title ?? "Sekreter Dashboard";
-
   return (
-    <header className="flex min-h-18 shrink-0 flex-wrap items-center justify-between gap-4 border-b border-[#E3E8F0]/60 bg-white px-6 py-3">
-      <h1 className="text-lg font-semibold text-[#0B1F55]">{title}</h1>
-
+    <header className="flex min-h-18 shrink-0 flex-wrap items-center justify-end gap-4 border-b border-[#E3E8F0]/60 bg-white px-6 py-3">
       <div className="flex items-center gap-4">
         <div className="relative hidden md:block">
           <svg
@@ -45,7 +17,7 @@ export default function SecretaryTopbar() {
           </svg>
           <input
             type="text"
-            placeholder="Hasta ara..."
+            placeholder="Genel arama..."
             className="w-56 rounded-xl border border-[#E3E8F0] bg-[#F7F8FF] py-1.5 pl-9 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
           />
         </div>
