@@ -1,7 +1,14 @@
+"use client";
+
+import { useState } from "react";
 import SecretaryDoctorScheduleSummaryCards from "@/components/secretary/SecretaryDoctorScheduleSummaryCards";
-import SecretaryDoctorScheduleTable from "@/components/secretary/SecretaryDoctorScheduleTable";
+import SecretaryDoctorScheduleTable, {
+  type FilterValue,
+} from "@/components/secretary/SecretaryDoctorScheduleTable";
 
 export default function SecretaryDoctorSchedulePage() {
+  const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
+
   return (
     <div className="flex flex-col gap-5">
       <div>
@@ -11,9 +18,9 @@ export default function SecretaryDoctorSchedulePage() {
         </p>
       </div>
 
-      <SecretaryDoctorScheduleSummaryCards />
+      <SecretaryDoctorScheduleSummaryCards activeFilter={activeFilter} onFilterChange={setActiveFilter} />
 
-      <SecretaryDoctorScheduleTable />
+      <SecretaryDoctorScheduleTable activeFilter={activeFilter} onFilterChange={setActiveFilter} />
     </div>
   );
 }

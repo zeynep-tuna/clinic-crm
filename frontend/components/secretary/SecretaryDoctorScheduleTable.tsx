@@ -7,7 +7,7 @@ import {
   type SecretaryDoctorWorkload,
 } from "@/data/secretaryDoctorSchedule";
 
-type FilterValue = "Tümü" | "Aktif" | "Yoğun" | "Müsait" | "İzinli";
+export type FilterValue = "Tümü" | "Aktif" | "Yoğun" | "Müsait" | "İzinli";
 
 const filters: FilterValue[] = ["Tümü", "Aktif", "Yoğun", "Müsait", "İzinli"];
 
@@ -33,13 +33,17 @@ function getDoctorInitials(name: string) {
     .toUpperCase();
 }
 
-function EyeIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z" />
-      <circle cx="12" cy="12" r="2.75" />
-    </svg>
-  );
+const avatarPalette = [
+  "bg-[#EEF0FF] text-[#5B4DE3]",
+  "bg-[#DBEAFE] text-[#2563EB]",
+  "bg-[#CCFBF1] text-[#0F766E]",
+  "bg-[#FFEDD5] text-[#C2410C]",
+  "bg-[#F3F4F6] text-[#475467]",
+];
+
+function getAvatarColor(id: string) {
+  const sum = id.split("").reduce((total, char) => total + char.charCodeAt(0), 0);
+  return avatarPalette[sum % avatarPalette.length];
 }
 
 function CalendarIcon() {
@@ -61,9 +65,16 @@ function MoreIcon() {
   );
 }
 
-export default function SecretaryDoctorScheduleTable() {
+interface SecretaryDoctorScheduleTableProps {
+  activeFilter: FilterValue;
+  onFilterChange: (filter: FilterValue) => void;
+}
+
+export default function SecretaryDoctorScheduleTable({
+  activeFilter,
+  onFilterChange,
+}: SecretaryDoctorScheduleTableProps) {
   const [search, setSearch] = useState("");
-  const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
 
   const filteredDoctors = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -103,7 +114,7 @@ export default function SecretaryDoctorScheduleTable() {
             type="text"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Doktor veya uzmanlık ara..."
+            placeholder="Bu listede doktor veya uzmanlık ara..."
             className="w-full rounded-xl border border-[#E3E8F0] bg-white py-2 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
           />
         </div>
@@ -116,11 +127,11 @@ export default function SecretaryDoctorScheduleTable() {
               <button
                 key={filter}
                 type="button"
-                onClick={() => setActiveFilter(filter)}
+                onClick={() => onFilterChange(filter)}
                 className={`rounded-xl border px-3.5 py-1.5 text-sm font-medium transition-colors ${
                   isActive
-                    ? "border-[#EEF0FF] bg-[#EEF0FF] text-[#5B4DE3]"
-                    : "border-[#E3E8F0] text-[#0B1F55] hover:bg-[#F7F8FF]"
+                    ? "border-[#5B4DE3] bg-[#5B4DE3] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06),0_2px_6px_rgba(91,77,227,0.25)]"
+                    : "border-[#E3E8F0] text-[#0B1F55] hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
                 }`}
               >
                 {filter}
@@ -131,9 +142,9 @@ export default function SecretaryDoctorScheduleTable() {
       </div>
 
       <div className="mt-5 overflow-x-auto">
-        <table className="w-full min-w-[880px] text-left">
+        <table className="w-full min-w-220 text-left">
           <thead>
-            <tr className="border-b border-[#E3E8F0] text-sm text-[#667085]">
+            <tr className="border-b border-[#E3E8F0] text-xs font-semibold tracking-wide text-[#667085] uppercase">
               <th className="pb-2.5 font-medium">Doktor</th>
               <th className="pb-2.5 font-medium">Uzmanlık</th>
               <th className="pb-2.5 font-medium">Bugünkü Randevu</th>
@@ -145,10 +156,16 @@ export default function SecretaryDoctorScheduleTable() {
           </thead>
           <tbody>
             {filteredDoctors.map((doctor) => (
-              <tr key={doctor.id} className="border-b border-[#E3E8F0]/60 last:border-0">
+              <tr
+                key={doctor.id}
+                onClick={() => console.log("Doktor takvimine git:", doctor.id)}
+                className="cursor-pointer border-b border-[#E3E8F0]/60 transition-colors last:border-0 hover:bg-[#F8F9FF]"
+              >
                 <td className="py-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EEF0FF] text-sm font-semibold text-[#5B4DE3]">
+                    <div
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${getAvatarColor(doctor.id)}`}
+                    >
                       {getDoctorInitials(doctor.name)}
                     </div>
                     <span className="text-sm font-medium text-[#0B1F55]">{doctor.name}</span>
@@ -172,25 +189,20 @@ export default function SecretaryDoctorScheduleTable() {
                   </span>
                 </td>
                 <td className="py-4">
-                  <div className="flex items-center gap-2 text-[#667085]">
-                    <button
-                      type="button"
-                      aria-label="Görüntüle"
-                      className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
-                    >
-                      <EyeIcon />
-                    </button>
+                  <div className="flex items-center gap-3 text-[#667085]">
                     <button
                       type="button"
                       aria-label="Takvim"
-                      className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
+                      onClick={(event) => event.stopPropagation()}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
                     >
                       <CalendarIcon />
                     </button>
                     <button
                       type="button"
                       aria-label="Diğer işlemler"
-                      className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
+                      onClick={(event) => event.stopPropagation()}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
                     >
                       <MoreIcon />
                     </button>

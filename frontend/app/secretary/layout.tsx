@@ -13,7 +13,7 @@ export default function SecretaryLayout({
       <div className="flex flex-1 flex-col">
         <SecretaryTopbar />
 
-        <main className="flex-1 overflow-y-auto p-10">{children}</main>
+        <main className="flex-1 overflow-y-auto px-10 pt-6 pb-10">{children}</main>
       </div>
     </div>
   );
