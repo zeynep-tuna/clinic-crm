@@ -10,9 +10,9 @@ export interface SecretaryConsentFormSummary {
 
 export const secretaryConsentFormSummary: SecretaryConsentFormSummary[] = [
   { id: "total", title: "Toplam Form", value: "28" },
-  { id: "signed", title: "İmzalanan", value: "18" },
-  { id: "pending", title: "Bekleyen", value: "7" },
-  { id: "missing", title: "Eksik", value: "3" },
+  { id: "signed", title: "İmzalanmış Form", value: "18" },
+  { id: "pending", title: "Bekleyen Form", value: "7" },
+  { id: "missing", title: "Eksik Form", value: "3" },
 ];
 
 export interface SecretaryConsentFormRow {

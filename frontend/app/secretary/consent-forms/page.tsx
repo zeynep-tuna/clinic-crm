@@ -1,7 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import SecretaryConsentFormSummaryCards from "@/components/secretary/SecretaryConsentFormSummaryCards";
-import SecretaryConsentFormsTable from "@/components/secretary/SecretaryConsentFormsTable";
+import SecretaryConsentFormsTable, { type FilterValue } from "@/components/secretary/SecretaryConsentFormsTable";
 
 export default function SecretaryConsentFormsPage() {
+  const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -20,9 +25,9 @@ export default function SecretaryConsentFormsPage() {
         </button>
       </div>
 
-      <SecretaryConsentFormSummaryCards />
+      <SecretaryConsentFormSummaryCards activeFilter={activeFilter} onFilterChange={setActiveFilter} />
 
-      <SecretaryConsentFormsTable />
+      <SecretaryConsentFormsTable activeFilter={activeFilter} onFilterChange={setActiveFilter} />
     </div>
   );
 }
