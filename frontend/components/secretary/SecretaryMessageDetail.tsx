@@ -38,7 +38,7 @@ export default function SecretaryMessageDetail({ message }: { message: Secretary
   };
 
   return (
-    <div className="flex flex-col rounded-[20px] border border-[#E3E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="flex flex-col rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
       <div className="flex items-start justify-between gap-4 border-b border-[#E3E8F0] pb-4">
         <div className="flex items-center gap-3">
           <div
@@ -81,13 +81,13 @@ export default function SecretaryMessageDetail({ message }: { message: Secretary
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <button
             type="button"
-            className="rounded-lg border border-[#E3E8F0] px-3 py-1.5 text-xs font-semibold text-[#0B1F55] hover:bg-[#F7F8FF]"
+            className="flex h-9 items-center justify-center rounded-xl border border-[#E3E8F0] px-3.5 text-xs font-semibold text-[#0B1F55] transition-colors hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
           >
             Okundu İşaretle
           </button>
           <button
             type="button"
-            className="rounded-lg border border-[#E3E8F0] px-3 py-1.5 text-xs font-semibold text-[#0B1F55] hover:bg-[#F7F8FF]"
+            className="flex h-9 items-center justify-center rounded-xl border border-[#E3E8F0] px-3.5 text-xs font-semibold text-[#0B1F55] transition-colors hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
           >
             Hasta Kartı
           </button>
@@ -99,15 +99,15 @@ export default function SecretaryMessageDetail({ message }: { message: Secretary
         <textarea
           value={reply}
           onChange={(event) => setReply(event.target.value)}
-          rows={2}
+          rows={3}
           placeholder="Cevabınızı yazın..."
-          className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+          className="w-full resize-none rounded-xl border border-[#E3E8F0] bg-[#F7F8FF]/40 px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
         />
 
-        <div className="mt-2.5 flex justify-end">
+        <div className="mt-3 flex justify-end">
           <button
             type="submit"
-            className="rounded-xl bg-[#5B4DE3] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#4c3fd1]"
+            className="rounded-xl bg-[#5B4DE3] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.06)] transition-colors hover:bg-[#4c3fd1]"
           >
             Cevabı Gönder
           </button>

@@ -1,4 +1,5 @@
 import { secretaryMessageSummary } from "@/data/secretaryMessages";
+import type { FilterValue } from "@/components/secretary/SecretaryMessagesPanel";
 
 type SummaryIcon = "total" | "unread" | "today" | "urgent";
 
@@ -9,18 +10,25 @@ const iconByCardId: Record<string, SummaryIcon> = {
   urgent: "urgent",
 };
 
-const iconColorByCardId: Record<string, string> = {
+const colorByCardId: Record<string, string> = {
   total: "bg-[#DBEAFE] text-[#2563EB]",
   unread: "bg-[#EEF0FF] text-[#5B4DE3]",
   today: "bg-[#DCFCE7] text-[#16A34A]",
   urgent: "bg-[#FEE2E2] text-[#EF4444]",
 };
 
+const filterByCardId: Record<string, FilterValue> = {
+  total: "Tümü",
+  unread: "Okunmamış",
+  today: "Tümü",
+  urgent: "Acil",
+};
+
 function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
   switch (icon) {
     case "total":
       return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-5 w-5">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4.5 w-4.5">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -30,21 +38,21 @@ function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
       );
     case "unread":
       return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-5 w-5">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4.5 w-4.5">
           <circle cx="12" cy="12" r="8.5" />
           <circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none" />
         </svg>
       );
     case "today":
       return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-5 w-5">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4.5 w-4.5">
           <rect x="4" y="5" width="16" height="15" rx="2" />
           <path strokeLinecap="round" d="M4 10h16M8 3v4M16 3v4" />
         </svg>
       );
     case "urgent":
       return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-5 w-5">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4.5 w-4.5">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 3.5 21 19.5H3L12 3.5Z" />
           <path strokeLinecap="round" d="M12 10v3.5" />
           <circle cx="12" cy="16.3" r="0.9" fill="currentColor" stroke="none" />
@@ -55,28 +63,42 @@ function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
   }
 }
 
-export default function SecretaryMessageSummaryCards() {
-  return (
-    <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
-      {secretaryMessageSummary.map((card) => (
-        <div
-          key={card.id}
-          className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]"
-        >
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-sm text-[#667085]">{card.title}</p>
-              <p className="mt-2 text-2xl font-bold text-[#0B1F55]">{card.value}</p>
-            </div>
+interface SecretaryMessageSummaryCardsProps {
+  activeFilter: FilterValue;
+  onFilterChange: (filter: FilterValue) => void;
+}
 
-            <div
-              className={`flex h-11 w-11 items-center justify-center rounded-2xl ${iconColorByCardId[card.id] ?? "bg-[#EEF0FF] text-[#5B4DE3]"}`}
+export default function SecretaryMessageSummaryCards({
+  activeFilter,
+  onFilterChange,
+}: SecretaryMessageSummaryCardsProps) {
+  return (
+    <div className="grid grid-cols-2 gap-4 rounded-[20px] border border-[#E3E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)] sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-[#E3E8F0]/60">
+      {secretaryMessageSummary.map((card) => {
+        const filterValue = filterByCardId[card.id] ?? "Tümü";
+        const isSelected = card.id === "today" ? false : activeFilter === filterValue;
+
+        return (
+          <button
+            key={card.id}
+            type="button"
+            onClick={() => onFilterChange(filterValue)}
+            className={`flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 text-left transition-colors sm:px-5 ${
+              isSelected ? "bg-[#F7F8FF]" : "hover:bg-[#F7F8FF]"
+            }`}
+          >
+            <span
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${colorByCardId[card.id] ?? "bg-[#EEF0FF] text-[#5B4DE3]"}`}
             >
               <SummaryIconGlyph icon={iconByCardId[card.id] ?? "total"} />
+            </span>
+            <div>
+              <p className="text-xl font-bold text-[#0B1F55]">{card.value}</p>
+              <p className="text-xs text-[#667085]">{card.title}</p>
             </div>
-          </div>
-        </div>
-      ))}
+          </button>
+        );
+      })}
     </div>
   );
 }

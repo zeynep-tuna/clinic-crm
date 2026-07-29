@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { secretaryMessageRows } from "@/data/secretaryMessages";
 import SecretaryMessageDetail from "@/components/secretary/SecretaryMessageDetail";
 
-type FilterValue = "Tümü" | "Okunmamış" | "Hasta" | "Doktor" | "Acil";
+export type FilterValue = "Tümü" | "Okunmamış" | "Hasta" | "Doktor" | "Acil";
 
 const filters: FilterValue[] = ["Tümü", "Okunmamış", "Hasta", "Doktor", "Acil"];
 
@@ -34,9 +34,13 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-export default function SecretaryMessagesPanel() {
+interface SecretaryMessagesPanelProps {
+  activeFilter: FilterValue;
+  onFilterChange: (filter: FilterValue) => void;
+}
+
+export default function SecretaryMessagesPanel({ activeFilter, onFilterChange }: SecretaryMessagesPanelProps) {
   const [search, setSearch] = useState("");
-  const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
   const [selectedId, setSelectedId] = useState(secretaryMessageRows[0].id);
 
   const filteredMessages = useMemo(() => {
@@ -83,7 +87,7 @@ export default function SecretaryMessagesPanel() {
             type="text"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Mesaj veya kişi ara..."
+            placeholder="Bu listede mesaj veya kişi ara..."
             className="w-full rounded-xl border border-[#E3E8F0] bg-white py-2 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
           />
         </div>
@@ -96,11 +100,11 @@ export default function SecretaryMessagesPanel() {
               <button
                 key={filter}
                 type="button"
-                onClick={() => setActiveFilter(filter)}
+                onClick={() => onFilterChange(filter)}
                 className={`rounded-xl border px-3.5 py-1.5 text-sm font-medium transition-colors ${
                   isActive
-                    ? "border-[#EEF0FF] bg-[#EEF0FF] text-[#5B4DE3]"
-                    : "border-[#E3E8F0] text-[#0B1F55] hover:bg-[#F7F8FF]"
+                    ? "border-[#5B4DE3] bg-[#5B4DE3] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06),0_2px_6px_rgba(91,77,227,0.25)]"
+                    : "border-[#E3E8F0] text-[#0B1F55] hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
                 }`}
               >
                 {filter}
@@ -118,10 +122,10 @@ export default function SecretaryMessagesPanel() {
                 key={message.id}
                 type="button"
                 onClick={() => setSelectedId(message.id)}
-                className={`w-full rounded-xl border p-3 text-left transition-colors ${
+                className={`w-full rounded-lg border p-2.5 text-left transition-colors ${
                   isSelected
                     ? "border-[#5B4DE3] bg-[#F7F8FF]"
-                    : "border-[#E3E8F0] hover:bg-[#F7F8FF]"
+                    : "border-[#EEF2F8] hover:bg-[#F8F9FF]"
                 }`}
               >
                 <div className="flex items-start gap-3">
@@ -135,7 +139,7 @@ export default function SecretaryMessagesPanel() {
                     <div className="flex items-center justify-between gap-2">
                       <p
                         className={`truncate text-sm ${
-                          message.status === "Okunmamış" ? "font-bold text-[#0B1F55]" : "font-medium text-[#0B1F55]"
+                          message.status === "Okunmamış" ? "font-bold text-[#0B1F55]" : "font-medium text-[#667085]"
                         }`}
                       >
                         {message.senderName}
@@ -143,7 +147,13 @@ export default function SecretaryMessagesPanel() {
                       <span className="shrink-0 text-xs text-[#667085]">{message.timeLabel}</span>
                     </div>
 
-                    <p className="mt-0.5 truncate text-sm text-[#0B1F55]">{message.subject}</p>
+                    <p
+                      className={`mt-0.5 truncate text-sm ${
+                        message.status === "Okunmamış" ? "font-semibold text-[#0B1F55]" : "font-normal text-[#667085]"
+                      }`}
+                    >
+                      {message.subject}
+                    </p>
                     <p className="mt-0.5 truncate text-xs text-[#667085]">{message.body}</p>
 
                     <div className="mt-2 flex items-center gap-1.5">
