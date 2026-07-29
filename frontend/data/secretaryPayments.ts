@@ -9,7 +9,7 @@ export interface SecretaryPaymentSummary {
 export const secretaryPaymentSummary: SecretaryPaymentSummary[] = [
   { id: "total-revenue", title: "Toplam Gelir", value: "₺186.450" },
   { id: "pending", title: "Bekleyen Ödeme", value: "₺24.680" },
-  { id: "completed", title: "Tamamlanan", value: "₺126.450" },
+  { id: "completed", title: "Tahsil Edilen", value: "₺126.450" },
   { id: "refunded", title: "İade Edilen", value: "₺35.320" },
 ];
 

@@ -64,13 +64,13 @@ export default function SecretaryDashboardPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.3fr_1fr_1fr]">
         <SecretaryTodayAppointments />
-        <SecretaryPaymentStatus />
+        <SecretaryUpcomingTasks />
         <SecretaryDoctorSchedule />
       </div>
 
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[2fr_1fr]">
         <SecretaryRecentPatients />
-        <SecretaryUpcomingTasks />
+        <SecretaryPaymentStatus />
       </div>
     </div>
   );

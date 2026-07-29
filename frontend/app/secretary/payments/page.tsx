@@ -1,7 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import SecretaryPaymentSummaryCards from "@/components/secretary/SecretaryPaymentSummaryCards";
-import SecretaryPaymentsTable from "@/components/secretary/SecretaryPaymentsTable";
+import SecretaryPaymentsTable, { type FilterValue } from "@/components/secretary/SecretaryPaymentsTable";
 
 export default function SecretaryPaymentsPage() {
+  const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -14,15 +19,15 @@ export default function SecretaryPaymentsPage() {
 
         <button
           type="button"
-          className="rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#4c3fd1]"
+          className="rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)] transition-colors hover:bg-[#4c3fd1]"
         >
           + Yeni Ödeme Ekle
         </button>
       </div>
 
-      <SecretaryPaymentSummaryCards />
+      <SecretaryPaymentSummaryCards activeFilter={activeFilter} onFilterChange={setActiveFilter} />
 
-      <SecretaryPaymentsTable />
+      <SecretaryPaymentsTable activeFilter={activeFilter} onFilterChange={setActiveFilter} />
     </div>
   );
 }
