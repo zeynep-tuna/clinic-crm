@@ -4,7 +4,7 @@ import LandingHero from "@/components/landing/LandingHero";
 export default function Home() {
   return (
     <main>
-      <LandingNavbar />
+      <LandingNavbar activeHref="/" />
       <LandingHero />
     </main>
   );

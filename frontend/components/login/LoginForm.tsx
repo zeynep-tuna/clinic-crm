@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 function HeartIcon() {
   return (
@@ -127,9 +128,9 @@ export default function LoginForm() {
 
       <p className="mt-6 text-center text-sm text-[#667085]">
         Hesabınız yok mu?{" "}
-        <a href="#" className="font-medium text-[#5B4DE3] hover:underline">
+        <Link href="/demo-request" className="font-medium text-[#5B4DE3] hover:underline">
           Demo Talep Et
-        </a>
+        </Link>
       </p>
     </div>
   );

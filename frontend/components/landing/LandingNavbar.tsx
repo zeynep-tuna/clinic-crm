@@ -17,9 +17,10 @@ function HeartIcon() {
 const navLinks = [
   { label: "Anasayfa", href: "/" },
   { label: "Özellikler", href: "/features" },
-  { label: "Hizmetler", href: "#hizmetler" },
-  { label: "Blog", href: "#blog" },
-  { label: "İletişim", href: "#iletisim" },
+  { label: "Hizmetler", href: "/services" },
+  { label: "Fiyatlandırma", href: "/pricing" },
+  { label: "Blog", href: "/blog" },
+  { label: "İletişim", href: "/contact" },
 ];
 
 type LandingNavbarProps = {
@@ -35,11 +36,11 @@ export default function LandingNavbar({ activeHref }: LandingNavbarProps) {
           <span className="text-xl font-bold text-[#0B1F55]">ClinicCRM</span>
         </Link>
 
-        <nav className="hidden items-center gap-8 lg:flex">
+        <nav className="hidden items-center gap-6 lg:flex">
           {navLinks.map((link) => {
             const isActive = link.href === activeHref;
             return (
-              <a
+              <Link
                 key={link.label}
                 href={link.href}
                 className={`text-sm font-medium ${
@@ -49,7 +50,7 @@ export default function LandingNavbar({ activeHref }: LandingNavbarProps) {
                 }`}
               >
                 {link.label}
-              </a>
+              </Link>
             );
           })}
         </nav>
@@ -61,12 +62,12 @@ export default function LandingNavbar({ activeHref }: LandingNavbarProps) {
           >
             Giriş Yap
           </Link>
-          <button
-            type="button"
+          <Link
+            href="/demo-request"
             className="rounded-xl bg-[#5B4DE3] px-4 py-2 text-sm font-semibold text-white hover:bg-[#4c3fd1]"
           >
             Demo Talep Et
-          </button>
+          </Link>
         </div>
       </div>
     </header>
