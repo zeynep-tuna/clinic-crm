@@ -38,7 +38,7 @@ export const secretaryDoctorScheduleRows: SecretaryDoctorScheduleRow[] = [
   {
     id: "2",
     name: "Dr. Ahmet Can",
-    specialty: "Kardiyoloji",
+    specialty: "Ortodontist",
     todayAppointments: 4,
     availableSlot: "14:00 - 15:00",
     workload: "Orta",
@@ -47,7 +47,7 @@ export const secretaryDoctorScheduleRows: SecretaryDoctorScheduleRow[] = [
   {
     id: "3",
     name: "Dr. Selin Arı",
-    specialty: "Dermatoloji",
+    specialty: "Endodontist",
     todayAppointments: 3,
     availableSlot: "13:30 - 15:30",
     workload: "Müsait",
@@ -56,7 +56,7 @@ export const secretaryDoctorScheduleRows: SecretaryDoctorScheduleRow[] = [
   {
     id: "4",
     name: "Dr. Mert Koç",
-    specialty: "Ortopedi",
+    specialty: "Periodontolog",
     todayAppointments: 2,
     availableSlot: "15:00 - 17:00",
     workload: "Müsait",
@@ -65,7 +65,7 @@ export const secretaryDoctorScheduleRows: SecretaryDoctorScheduleRow[] = [
   {
     id: "5",
     name: "Dr. Pınar Işık",
-    specialty: "Göz Hastalıkları",
+    specialty: "Çocuk Diş Hekimi",
     todayAppointments: 0,
     availableSlot: "Kapalı",
     workload: "İzinli",

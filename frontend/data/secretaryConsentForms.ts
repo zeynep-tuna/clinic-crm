@@ -1,6 +1,6 @@
 export type SecretaryConsentFormStatus = "İmzalandı" | "Bekliyor" | "Eksik";
 
-export type SecretaryConsentFormType = "Tedavi" | "KVKK" | "Cerrahi" | "Görüntüleme" | "Muayene";
+export type SecretaryConsentFormType = "Tedavi" | "İmplant" | "Ortodonti" | "Cerrahi" | "KVKK" | "Muayene";
 
 export interface SecretaryConsentFormSummary {
   id: string;
@@ -56,8 +56,8 @@ export const secretaryConsentFormRows: SecretaryConsentFormRow[] = [
   {
     id: "4",
     patientName: "Ali Yıldız",
-    formName: "Görüntüleme Onam Formu",
-    formType: "Görüntüleme",
+    formName: "İmplant Tedavisi Onam Formu",
+    formType: "İmplant",
     date: "12.05.2024",
     fileType: "PDF",
     status: "İmzalandı",

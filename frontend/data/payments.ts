@@ -23,7 +23,7 @@ export const payments: Payment[] = [
   {
     id: "2",
     patientName: "Mehmet Kaya",
-    treatment: "Kardiyoloji Muayenesi",
+    treatment: "Ortodonti Muayenesi",
     amount: 2500,
     status: "Bekliyor",
     method: "Nakit",
@@ -32,7 +32,7 @@ export const payments: Payment[] = [
   {
     id: "3",
     patientName: "Zeynep Aydın",
-    treatment: "Dermatoloji Kontrolü",
+    treatment: "Kanal Tedavisi",
     amount: 850,
     status: "Kısmi Ödeme",
     method: "Havale/EFT",
@@ -41,7 +41,7 @@ export const payments: Payment[] = [
   {
     id: "4",
     patientName: "Ali Yıldız",
-    treatment: "Ortopedi Tedavisi",
+    treatment: "İmplant Kontrolü",
     amount: 3200,
     status: "Ödendi",
     method: "Kredi Kartı",
@@ -50,7 +50,7 @@ export const payments: Payment[] = [
   {
     id: "5",
     patientName: "Fatma Öz",
-    treatment: "Göz Muayenesi",
+    treatment: "Diş Beyazlatma",
     amount: 1100,
     status: "İade",
     method: "Kredi Kartı",

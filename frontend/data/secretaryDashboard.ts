@@ -88,9 +88,9 @@ export interface SecretaryDoctorScheduleItem {
 
 export const secretaryDoctorSchedule: SecretaryDoctorScheduleItem[] = [
   { id: "1", name: "Dr. Elif Kaya", department: "Diş Hekimliği", appointmentCount: 6 },
-  { id: "2", name: "Dr. Ahmet Can", department: "Kardiyoloji", appointmentCount: 4 },
-  { id: "3", name: "Dr. Selin Arı", department: "Dermatoloji", appointmentCount: 3 },
-  { id: "4", name: "Dr. Mert Koç", department: "Ortopedi", appointmentCount: 2 },
+  { id: "2", name: "Dr. Ahmet Can", department: "Ortodonti", appointmentCount: 4 },
+  { id: "3", name: "Dr. Selin Arı", department: "Endodonti", appointmentCount: 3 },
+  { id: "4", name: "Dr. Mert Koç", department: "Periodontoloji", appointmentCount: 2 },
 ];
 
 export interface SecretaryRecentPatient {

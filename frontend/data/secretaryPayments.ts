@@ -36,7 +36,7 @@ export const secretaryPaymentRows: SecretaryPaymentRow[] = [
   {
     id: "2",
     patientName: "Mehmet Kaya",
-    treatment: "Kardiyoloji Muayenesi",
+    treatment: "Ortodonti Muayenesi",
     amount: "₺2.500",
     paymentMethod: "Nakit",
     date: "14.05.2024",
@@ -45,7 +45,7 @@ export const secretaryPaymentRows: SecretaryPaymentRow[] = [
   {
     id: "3",
     patientName: "Zeynep Aydın",
-    treatment: "Dermatoloji Kontrolü",
+    treatment: "Kanal Tedavisi",
     amount: "₺850",
     paymentMethod: "Havale/EFT",
     date: "13.05.2024",
@@ -54,7 +54,7 @@ export const secretaryPaymentRows: SecretaryPaymentRow[] = [
   {
     id: "4",
     patientName: "Ali Yıldız",
-    treatment: "Ortopedi Tedavisi",
+    treatment: "İmplant Kontrolü",
     amount: "₺3.200",
     paymentMethod: "Kredi Kartı",
     date: "12.05.2024",
@@ -63,7 +63,7 @@ export const secretaryPaymentRows: SecretaryPaymentRow[] = [
   {
     id: "5",
     patientName: "Fatma Öz",
-    treatment: "Göz Muayenesi",
+    treatment: "Diş Beyazlatma",
     amount: "₺1.100",
     paymentMethod: "Kredi Kartı",
     date: "11.05.2024",

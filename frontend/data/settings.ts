@@ -21,7 +21,7 @@ export interface SettingsFormState {
 }
 
 export const initialSettingsFormState: SettingsFormState = {
-  clinicName: "ClinicCRM Sağlık Merkezi",
+  clinicName: "ClinicCRM Diş Kliniği",
   phone: "+90 555 000 11 22",
   email: "info@cliniccrm.com",
   address: "Atatürk Cad. No:123 Kadıköy / İstanbul",

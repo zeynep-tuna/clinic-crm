@@ -17,7 +17,7 @@ const plans: PricingPlan[] = [
   {
     id: "starter",
     name: "Başlangıç",
-    description: "Küçük klinikler için temel dijital yönetim paketi.",
+    description: "Küçük diş klinikleri için temel dijital yönetim paketi.",
     features: [
       "Hasta kayıt yönetimi",
       "Randevu takibi",
@@ -31,10 +31,10 @@ const plans: PricingPlan[] = [
   {
     id: "professional",
     name: "Profesyonel",
-    description: "Büyüyen klinikler için en çok tercih edilen kapsamlı paket.",
+    description: "Büyüyen diş klinikleri için randevu, hasta, ödeme ve onam süreçlerini kapsayan paket.",
     includesPrevious: "Başlangıç paketindeki her şey",
     features: [
-      "Doktor paneli",
+      "Diş hekimi paneli",
       "Dijital onam formları",
       "Gelişmiş ödeme takibi",
       "Rol bazlı yönetim",
@@ -49,7 +49,7 @@ const plans: PricingPlan[] = [
   {
     id: "enterprise",
     name: "Kurumsal",
-    description: "Çoklu klinik, özel entegrasyon ve kurumsal destek ihtiyaçları için.",
+    description: "Çok hekimli veya çok şubeli diş klinikleri için gelişmiş çözüm.",
     includesPrevious: "Profesyonel paketindeki her şey",
     features: [
       "Çoklu klinik desteği",
@@ -83,7 +83,7 @@ export default function PricingPage() {
         <div className="relative z-10 mx-auto max-w-7xl px-6 py-14 lg:px-10 lg:py-16">
           <div className="mx-auto max-w-2xl text-center">
             <h1 className="text-3xl font-extrabold leading-tight text-[#0B1F55] sm:text-4xl">
-              Kliniğiniz için uygun paketi seçin
+              Diş kliniğiniz için uygun paketi seçin
             </h1>
             <p className="mt-3 text-base text-[#667085]">
               Hasta yönetimi, randevu takibi, ödeme süreçleri ve dijital onam formlarını tek panelde yönetin.

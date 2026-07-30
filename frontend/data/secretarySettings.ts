@@ -17,7 +17,7 @@ export const secretarySettingsProfile: SecretarySettingsProfile = {
   role: "Sekreter",
   phone: "+90 555 222 33 44",
   email: "zeynep.kaya@cliniccrm.com",
-  clinic: "ClinicCRM Sağlık Merkezi",
+  clinic: "ClinicCRM Diş Kliniği",
   department: "Ön Büro",
   workStatus: "Aktif",
   todayTasks: 27,

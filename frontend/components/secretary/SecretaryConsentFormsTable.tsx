@@ -19,9 +19,10 @@ const statusBadgeClass: Record<SecretaryConsentFormStatus, string> = {
 
 const formTypeBadgeClass: Record<SecretaryConsentFormType, string> = {
   Tedavi: "bg-[#EEF0FF] text-[#5B4DE3]",
-  KVKK: "bg-[#DBEAFE] text-[#2563EB]",
+  İmplant: "bg-[#FEF3C7] text-[#F59E0B]",
+  Ortodonti: "bg-[#CCFBF1] text-[#0F766E]",
   Cerrahi: "bg-[#FEE2E2] text-[#EF4444]",
-  Görüntüleme: "bg-[#FEF3C7] text-[#F59E0B]",
+  KVKK: "bg-[#DBEAFE] text-[#2563EB]",
   Muayene: "bg-[#DCFCE7] text-[#16A34A]",
 };
 

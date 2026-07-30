@@ -73,7 +73,7 @@ export const todayAppointments: TodayAppointment[] = [
     time: "10:30",
     patientName: "Mehmet Kaya",
     doctorName: "Dr. Ahmet Can",
-    department: "Kardiyoloji",
+    department: "Ortodonti",
     status: "Onaylandı",
   },
   {
@@ -81,7 +81,7 @@ export const todayAppointments: TodayAppointment[] = [
     time: "11:15",
     patientName: "Zeynep Aydın",
     doctorName: "Dr. Selin Arı",
-    department: "Dermatoloji",
+    department: "Endodonti",
     status: "Bekliyor",
   },
   {
@@ -89,7 +89,7 @@ export const todayAppointments: TodayAppointment[] = [
     time: "14:00",
     patientName: "Ali Yıldız",
     doctorName: "Dr. Mert Koç",
-    department: "Ortopedi",
+    department: "Periodontoloji",
     status: "Bekliyor",
   },
   {
@@ -97,7 +97,7 @@ export const todayAppointments: TodayAppointment[] = [
     time: "15:30",
     patientName: "Fatma Öz",
     doctorName: "Dr. Pınar Işık",
-    department: "Göz Hastalıkları",
+    department: "Çocuk Diş Hekimliği",
     status: "Onaylandı",
   },
 ];

@@ -1,6 +1,6 @@
 export type ConsentFormStatus = "İmzalandı" | "Bekliyor" | "Eksik";
 
-export type ConsentFormType = "Tedavi" | "KVKK" | "Cerrahi" | "Görüntüleme" | "Muayene";
+export type ConsentFormType = "Tedavi" | "İmplant" | "Ortodonti" | "Cerrahi" | "KVKK" | "Muayene";
 
 export interface ConsentForm {
   id: string;
@@ -39,8 +39,8 @@ export const consentForms: ConsentForm[] = [
   {
     id: "4",
     patientName: "Ali Yıldız",
-    formTitle: "Görüntüleme Onam Formu",
-    formType: "Görüntüleme",
+    formTitle: "İmplant Tedavisi Onam Formu",
+    formType: "İmplant",
     date: "12.05.2024",
     status: "İmzalandı",
   },

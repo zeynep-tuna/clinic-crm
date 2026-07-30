@@ -103,7 +103,7 @@ export const doctorPerformance: DoctorPerformanceEntry[] = [
   {
     id: "2",
     fullName: "Dr. Buse Güneş",
-    specialty: "Kardiyoloji",
+    specialty: "Ortodontist",
     totalAppointments: 36,
     totalRevenue: 45200,
     performance: 88,
@@ -111,7 +111,7 @@ export const doctorPerformance: DoctorPerformanceEntry[] = [
   {
     id: "3",
     fullName: "Dr. Mehmet Hızlı",
-    specialty: "Dermatoloji",
+    specialty: "Endodontist",
     totalAppointments: 28,
     totalRevenue: 21400,
     performance: 76,
@@ -119,7 +119,7 @@ export const doctorPerformance: DoctorPerformanceEntry[] = [
   {
     id: "4",
     fullName: "Dr. Deniz Yılmaz",
-    specialty: "Ortopedi",
+    specialty: "Periodontolog",
     totalAppointments: 32,
     totalRevenue: 35600,
     performance: 84,
@@ -127,7 +127,7 @@ export const doctorPerformance: DoctorPerformanceEntry[] = [
   {
     id: "5",
     fullName: "Dr. Elif Aydın",
-    specialty: "Göz Hastalıkları",
+    specialty: "Çocuk Diş Hekimi",
     totalAppointments: 24,
     totalRevenue: 18250,
     performance: 72,

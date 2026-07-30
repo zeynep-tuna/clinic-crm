@@ -21,10 +21,10 @@ const doctorOptions = [
 
 const departmentOptions = [
   "Diş Hekimliği",
-  "Kardiyoloji",
-  "Dermatoloji",
-  "Ortopedi",
-  "Göz Hastalıkları",
+  "Ortodonti",
+  "Endodonti",
+  "Periodontoloji",
+  "Çocuk Diş Hekimliği",
 ];
 
 const appointmentTypeOptions = ["Muayene", "Kontrol", "Tedavi", "Konsültasyon"];

@@ -11,7 +11,7 @@ const patientOptions = [
   "Elif Arslan",
 ];
 
-const formTypeOptions = ["Tedavi", "KVKK", "Cerrahi", "Görüntüleme", "Muayene"];
+const formTypeOptions = ["Tedavi", "İmplant", "Ortodonti", "Cerrahi", "KVKK", "Muayene"];
 
 const statusOptions = ["İmzalandı", "Bekliyor", "Eksik"];
 

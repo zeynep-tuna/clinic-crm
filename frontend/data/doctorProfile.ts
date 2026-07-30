@@ -18,7 +18,7 @@ export const doctorProfileInfo: DoctorProfileInfo = {
   specialty: "Diş Hekimliği",
   phone: "+90 555 111 22 33",
   email: "elif.kaya@cliniccrm.com",
-  clinic: "ClinicCRM Sağlık Merkezi",
+  clinic: "ClinicCRM Diş Kliniği",
   experience: "8 yıl",
   patientCount: 186,
   todayAppointments: 12,

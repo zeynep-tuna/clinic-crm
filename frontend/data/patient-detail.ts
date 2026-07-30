@@ -145,9 +145,9 @@ const patientDetails: Record<string, PatientDetail> = {
     treatmentHistory: [
       {
         date: "10.05.2024",
-        treatment: "Kontrol",
+        treatment: "Ortodonti Kontrolü",
         doctor: "Dr. Ahmet Can",
-        description: "Genel sağlık kontrolü",
+        description: "Genel diş ve ortodonti kontrolü",
       },
     ],
     upcomingAppointments: [
@@ -155,7 +155,7 @@ const patientDetails: Record<string, PatientDetail> = {
         day: "05",
         month: "HAZ",
         time: "13:00",
-        treatment: "Kardiyoloji Kontrolü",
+        treatment: "Ortodonti Kontrolü",
         doctor: "Dr. Ahmet Can",
         status: "Onaylandı",
       },
@@ -188,9 +188,9 @@ const patientDetails: Record<string, PatientDetail> = {
     treatmentHistory: [
       {
         date: "02.05.2024",
-        treatment: "Cilt Muayenesi",
+        treatment: "Kanal Tedavisi Değerlendirmesi",
         doctor: "Dr. Selin Arı",
-        description: "Ön değerlendirme muayenesi",
+        description: "Diş ağrısı ön değerlendirme muayenesi",
       },
     ],
     upcomingAppointments: [
@@ -231,9 +231,9 @@ const patientDetails: Record<string, PatientDetail> = {
     treatmentHistory: [
       {
         date: "18.04.2024",
-        treatment: "Fizik Tedavi",
+        treatment: "Periodontal Tedavi",
         doctor: "Dr. Mert Koç",
-        description: "Diz eklemi fizik tedavi seansı",
+        description: "Diş eti (periodontal) tedavi seansı",
       },
     ],
     upcomingAppointments: [
@@ -241,7 +241,7 @@ const patientDetails: Record<string, PatientDetail> = {
         day: "20",
         month: "HAZ",
         time: "10:30",
-        treatment: "Ortopedi Kontrolü",
+        treatment: "Periodontal Kontrol",
         doctor: "Dr. Mert Koç",
         status: "Onaylandı",
       },
@@ -256,7 +256,7 @@ const patientDetails: Record<string, PatientDetail> = {
       {
         date: "18.04.2024",
         doctor: "Dr. Mert Koç",
-        note: "Fizik tedavi seansı tamamlandı. Egzersiz programına devam edilmesi önerildi.",
+        note: "Periodontal tedavi seansı tamamlandı. Ağız bakım rutinine devam edilmesi önerildi.",
       },
     ],
   },
@@ -274,9 +274,9 @@ const patientDetails: Record<string, PatientDetail> = {
     treatmentHistory: [
       {
         date: "05.04.2024",
-        treatment: "Göz Muayenesi",
+        treatment: "Çocuk Diş Muayenesi",
         doctor: "Dr. Pınar Işık",
-        description: "Genel göz muayenesi",
+        description: "Genel çocuk diş muayenesi",
       },
     ],
     upcomingAppointments: [],

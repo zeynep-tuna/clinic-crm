@@ -6,7 +6,7 @@ export default function FeaturesHero() {
       </span>
 
       <h1 className="mt-4 text-3xl font-extrabold leading-tight text-[#0B1F55] sm:text-4xl">
-        Klinik Süreçlerinizi Kolaylaştıran Özellikler
+        Diş Kliniği Süreçlerinizi Kolaylaştıran Özellikler
       </h1>
 
       <p className="mt-3 text-base text-[#667085]">

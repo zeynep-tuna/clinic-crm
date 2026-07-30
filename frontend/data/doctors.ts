@@ -23,7 +23,7 @@ export const doctors: Doctor[] = [
   {
     id: "2",
     fullName: "Dr. Buse Güneş",
-    specialty: "Kardiyoloji",
+    specialty: "Ortodontist",
     phone: "+90 555 222 33 44",
     email: "buse.gunes@example.com",
     todayAppointments: 6,
@@ -32,7 +32,7 @@ export const doctors: Doctor[] = [
   {
     id: "3",
     fullName: "Dr. Mehmet Hızlı",
-    specialty: "Dermatoloji",
+    specialty: "Endodontist",
     phone: "+90 555 333 44 55",
     email: "mehmet.hizli@example.com",
     todayAppointments: 4,
@@ -41,7 +41,7 @@ export const doctors: Doctor[] = [
   {
     id: "4",
     fullName: "Dr. Deniz Yılmaz",
-    specialty: "Ortopedi",
+    specialty: "Periodontolog",
     phone: "+90 555 444 55 66",
     email: "deniz.yilmaz@example.com",
     todayAppointments: 5,
@@ -50,7 +50,7 @@ export const doctors: Doctor[] = [
   {
     id: "5",
     fullName: "Dr. Elif Aydın",
-    specialty: "Göz Hastalıkları",
+    specialty: "Çocuk Diş Hekimi",
     phone: "+90 555 555 66 77",
     email: "elif.aydin@example.com",
     todayAppointments: 3,
@@ -59,7 +59,7 @@ export const doctors: Doctor[] = [
   {
     id: "6",
     fullName: "Dr. Hakan Şahin",
-    specialty: "Nöroloji",
+    specialty: "Ağız, Diş ve Çene Cerrahisi Uzmanı",
     phone: "+90 555 666 77 88",
     email: "hakan.sahin@example.com",
     todayAppointments: 2,

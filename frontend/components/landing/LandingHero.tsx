@@ -20,12 +20,12 @@ export default function LandingHero() {
       <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 lg:grid-cols-[1fr_1.15fr] lg:gap-12">
         <div>
           <h1 className="text-4xl font-extrabold leading-tight text-[#0B1F55] sm:text-5xl">
-            Sağlık Klinikleri İçin Modern CRM Yazılımı
+            Diş Klinikleri İçin Modern CRM Yazılımı
           </h1>
 
           <p className="mt-6 max-w-xl text-base text-[#667085] sm:text-lg">
-            Hasta kayıtlarından randevu yönetimine, doktor takibinden ödeme süreçlerine kadar tüm
-            klinik operasyonlarınızı tek panelden yönetin.
+            Hasta kayıtlarından randevu yönetimine, diş hekimi takibinden ödeme süreçlerine kadar tüm
+            diş kliniği operasyonlarınızı tek panelden yönetin.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-4">

@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 
 const specialtyOptions = [
-  "Diş Hekimliği",
-  "Kardiyoloji",
-  "Dermatoloji",
-  "Ortopedi",
-  "Göz Hastalıkları",
-  "Nöroloji",
+  "Diş Hekimi",
+  "Ortodontist",
+  "Endodontist",
+  "Periodontolog",
+  "Protetik Diş Tedavisi Uzmanı",
+  "Çocuk Diş Hekimi",
+  "Ağız, Diş ve Çene Cerrahisi Uzmanı",
 ];
 
 const statusOptions = ["Aktif", "İzinli", "Pasif"];

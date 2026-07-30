@@ -6,11 +6,11 @@ import LandingNavbar from "@/components/landing/LandingNavbar";
 
 const clinicTypeOptions = [
   "Diş Kliniği",
-  "Genel Poliklinik",
-  "Estetik ve Güzellik",
-  "Fizik Tedavi",
-  "Veteriner Kliniği",
-  "Diğer",
+  "Ağız ve Diş Sağlığı Kliniği",
+  "Ortodonti Kliniği",
+  "İmplantoloji Kliniği",
+  "Estetik Diş Hekimliği Kliniği",
+  "Çocuk Diş Kliniği",
 ];
 
 const preferredTimeOptions = [
@@ -93,7 +93,7 @@ export default function DemoRequestPage() {
               ClinicCRM demosu talep edin
             </h1>
             <p className="mt-3 text-base text-[#667085]">
-              Kliniğiniz için en uygun yönetim paneli çözümünü birlikte planlayalım.
+              Diş kliniğiniz için en uygun yönetim paneli çözümünü birlikte planlayalım.
             </p>
           </div>
 
@@ -201,7 +201,7 @@ export default function DemoRequestPage() {
                       value={form.note}
                       onChange={(event) => updateField("note", event.target.value)}
                       rows={3}
-                      placeholder="Kliniğiniz hakkında kısaca bilgi verin..."
+                      placeholder="Diş kliniğiniz hakkında kısaca bilgi verin..."
                       className="w-full resize-none rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                     />
                   </div>
