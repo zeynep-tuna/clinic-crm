@@ -90,6 +90,24 @@ function CheckCircleIcon() {
   );
 }
 
+function LinkedInIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="h-4.5 w-4.5">
+      <path d="M6.94 8.5H4.1V19h2.84V8.5ZM5.52 4a1.65 1.65 0 1 0 0 3.3 1.65 1.65 0 0 0 0-3.3ZM19.9 19h-2.84v-5.6c0-1.34-.03-3.06-1.87-3.06-1.87 0-2.16 1.46-2.16 2.96V19H10.2V8.5h2.72v1.43h.04c.38-.72 1.31-1.48 2.7-1.48 2.89 0 3.42 1.9 3.42 4.38V19Z" />
+    </svg>
+  );
+}
+
+function InstagramIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4.5 w-4.5">
+      <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 function MapPinIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="#5B4DE3" strokeWidth={1.6} className="h-9 w-9">
@@ -119,7 +137,7 @@ const contactInfo = [
   {
     Icon: LocationIcon,
     label: "Konum",
-    value: "Türkiye",
+    value: "İstanbul, Türkiye",
   },
   {
     Icon: ClockIcon,
@@ -134,8 +152,8 @@ const contactInfo = [
 ];
 
 const socialLinks = [
-  { label: "LinkedIn", initials: "in" },
-  { label: "Instagram", initials: "IG" },
+  { label: "LinkedIn", Icon: LinkedInIcon },
+  { label: "Instagram", Icon: InstagramIcon },
 ];
 
 const faqItems = [
@@ -318,7 +336,7 @@ export default function ContactPage() {
                       className={`flex h-12 w-full items-center justify-center rounded-xl px-6 text-sm font-semibold transition-colors sm:w-auto ${
                         consentChecked
                           ? "bg-[#5B4DE3] text-white hover:bg-[#4c3fd1]"
-                          : "cursor-not-allowed bg-[#EEF0FF] text-[#98A2B3]"
+                          : "cursor-not-allowed bg-[#DCD8FF] text-[#667085]"
                       }`}
                     >
                       Gönder
@@ -369,34 +387,56 @@ export default function ContactPage() {
                           key={social.label}
                           href="#"
                           aria-label={social.label}
-                          className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EEF0FF] text-xs font-semibold text-[#5B4DE3] transition-colors hover:bg-[#DCD8FF]"
+                          className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EEF0FF] text-[#5B4DE3] transition-colors hover:bg-[#5B4DE3] hover:text-white"
                         >
-                          {social.initials}
+                          <social.Icon />
                         </a>
                       ))}
                     </div>
                   </div>
                 </div>
 
-                <div className="relative flex flex-col items-center justify-center overflow-hidden rounded-[20px] border border-[#E3E8F0] bg-linear-to-br from-[#EEF0FF] via-[#F5F3FF] to-[#DBEAFE] p-8 text-center">
-                  <div
-                    className="pointer-events-none absolute inset-0 opacity-50"
-                    style={{
-                      backgroundImage: "radial-gradient(#C7D2FE 1px, transparent 1px)",
-                      backgroundSize: "18px 18px",
-                    }}
-                  />
+                <div>
+                  <p className="mb-3 text-sm font-semibold text-[#0B1F55]">Konum Bilgisi</p>
 
-                  <span className="relative z-10 flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-[0_4px_16px_rgba(91,77,227,0.18)]">
-                    <MapPinIcon />
-                  </span>
+                  <div className="relative flex min-h-64 flex-col items-center justify-center overflow-hidden rounded-[20px] border border-[#E3E8F0] bg-linear-to-br from-[#EEF0FF] via-[#F5F3FF] to-[#DBEAFE] p-6">
+                    <div
+                      className="pointer-events-none absolute inset-0 opacity-60"
+                      style={{
+                        backgroundImage:
+                          "linear-gradient(#C7D2FE 1px, transparent 1px), linear-gradient(90deg, #C7D2FE 1px, transparent 1px)",
+                        backgroundSize: "28px 28px",
+                      }}
+                    />
+                    <div
+                      className="pointer-events-none absolute inset-0 opacity-40"
+                      style={{
+                        backgroundImage: "radial-gradient(#A5B4FC 1.5px, transparent 1.5px)",
+                        backgroundSize: "28px 28px",
+                        backgroundPosition: "14px 14px",
+                      }}
+                    />
 
-                  <p className="relative z-10 mt-4 text-sm font-bold text-[#0B1F55]">Konum Bilgisi</p>
-                  <p className="relative z-10 mt-1 text-sm text-[#667085]">
-                    ClinicCRM iletişim merkezi
-                    <br />
-                    Türkiye
-                  </p>
+                    <div className="absolute right-4 top-4 z-10 flex flex-col overflow-hidden rounded-lg border border-[#E3E8F0] bg-white shadow-[0_1px_2px_rgba(16,24,40,0.06),0_2px_8px_rgba(16,24,40,0.08)]">
+                      <span className="flex h-8 w-8 items-center justify-center border-b border-[#E3E8F0] text-sm font-semibold text-[#0B1F55]">
+                        +
+                      </span>
+                      <span className="flex h-8 w-8 items-center justify-center text-sm font-semibold text-[#0B1F55]">
+                        −
+                      </span>
+                    </div>
+
+                    <div className="relative z-10 flex flex-col items-center">
+                      <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-[0_4px_16px_rgba(91,77,227,0.18)]">
+                        <MapPinIcon />
+                      </span>
+
+                      <div className="mt-3 rounded-xl border border-[#E3E8F0] bg-white px-4 py-3 text-center shadow-[0_1px_2px_rgba(16,24,40,0.06),0_4px_12px_rgba(16,24,40,0.1)]">
+                        <p className="text-sm font-bold text-[#0B1F55]">ClinicCRM iletişim merkezi</p>
+                        <p className="mt-0.5 text-xs text-[#667085]">İstanbul, Türkiye</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
