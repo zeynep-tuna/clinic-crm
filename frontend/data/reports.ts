@@ -32,7 +32,7 @@ export const reportSummaryStats: ReportSummaryStat[] = [
   },
   {
     id: "active-doctors",
-    title: "Aktif Doktor",
+    title: "Aktif Hekim",
     value: 14,
     format: "number",
     trendPercent: 3.1,
@@ -95,7 +95,7 @@ export const doctorPerformance: DoctorPerformanceEntry[] = [
   {
     id: "1",
     fullName: "Dr. Ali Kaya",
-    specialty: "Diş Hekimliği",
+    specialty: "Diş Hekimi",
     totalAppointments: 48,
     totalRevenue: 38400,
     performance: 92,

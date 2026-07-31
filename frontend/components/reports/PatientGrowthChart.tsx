@@ -1,7 +1,7 @@
 import { patientGrowth } from "@/data/reports";
 
 const VIEW_WIDTH = 1100;
-const VIEW_HEIGHT = 160;
+const VIEW_HEIGHT = 130;
 const TOP_PADDING = 16;
 
 export default function PatientGrowthChart() {
@@ -21,19 +21,19 @@ export default function PatientGrowthChart() {
   const last = points[points.length - 1];
 
   return (
-    <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-7 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
       <div className="flex items-start justify-between">
         <h3 className="text-base font-bold text-[#0B1F55]">Hasta Artış Grafiği</h3>
-        <p className="text-sm text-[#667085]">
-          Bu ay <span className="font-semibold text-[#5B4DE3]">{last.count}</span> yeni hasta
-        </p>
+        <span className="inline-flex items-center rounded-full bg-[#EEF0FF] px-3 py-1 text-xs font-semibold text-[#5B4DE3]">
+          Bu ay {last.count} yeni hasta
+        </span>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-5">
         <svg
           viewBox={`0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`}
           preserveAspectRatio="none"
-          className="h-40 w-full"
+          className="h-32 w-full"
         >
           <polygon points={areaPath} fill="#5B4DE3" fillOpacity={0.1} />
           <polyline
@@ -45,7 +45,15 @@ export default function PatientGrowthChart() {
             strokeLinejoin="round"
           />
           {points.map((point) => (
-            <circle key={point.month} cx={point.x} cy={point.y} r={4} fill="#5B4DE3" />
+            <circle
+              key={point.month}
+              cx={point.x}
+              cy={point.y}
+              r={3.5}
+              fill="#5B4DE3"
+              stroke="white"
+              strokeWidth={1.5}
+            />
           ))}
         </svg>
 
@@ -56,7 +64,7 @@ export default function PatientGrowthChart() {
         </div>
       </div>
 
-      <p className="mt-4 text-xs text-[#667085]">
+      <p className="mt-3 text-xs text-[#667085]">
         {first.month}: <span className="font-medium text-[#0B1F55]">{first.count}</span> hasta →{" "}
         {last.month}: <span className="font-medium text-[#0B1F55]">{last.count}</span> hasta
       </p>

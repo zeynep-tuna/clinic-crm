@@ -11,11 +11,16 @@ const statusColor: Record<AppointmentDistributionStatus, string> = {
 };
 
 export default function AppointmentStatusDistribution() {
-  return (
-    <div className="flex h-full flex-col rounded-[20px] border border-[#E3E8F0] bg-white p-7 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
-      <h3 className="text-base font-bold text-[#0B1F55]">Randevu Durum Dağılımı</h3>
+  const total = appointmentStatusDistribution.reduce((sum, item) => sum + item.count, 0);
 
-      <div className="mt-6 flex-1 space-y-5">
+  return (
+    <div className="flex h-full flex-col rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+      <div className="flex items-center justify-between">
+        <h3 className="text-base font-bold text-[#0B1F55]">Randevu Durum Dağılımı</h3>
+        <span className="text-xs font-medium text-[#667085]">Toplam {total} randevu</span>
+      </div>
+
+      <div className="mt-5 flex-1 space-y-4">
         {appointmentStatusDistribution.map((item) => (
           <div key={item.status}>
             <div className="flex items-center justify-between text-sm">

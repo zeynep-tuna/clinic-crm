@@ -42,7 +42,10 @@ function UserPlusIcon() {
 function DoctorIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-5 w-5">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M8 3v5a4 4 0 0 0 8 0V3M12 15v2m0 0a4 4 0 1 0 0 4.001" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M7 3.5v5.5a3.5 3.5 0 0 0 7 0V3.5" />
+      <path strokeLinecap="round" d="M7 3.5H5.7M14 3.5h1.3" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 12v2.5a4.5 4.5 0 0 0 9 0v-1" />
+      <circle cx="19.5" cy="13.5" r="1.5" />
     </svg>
   );
 }
@@ -56,24 +59,24 @@ const icons = {
 
 export default function ReportSummaryCards() {
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
       {reportSummaryStats.map((stat) => (
         <div
           key={stat.id}
-          className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]"
+          className="rounded-[20px] border border-[#E3E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]"
         >
           <div className="flex items-start justify-between">
             <div>
               <p className="text-sm text-[#667085]">{stat.title}</p>
-              <p className="mt-2 text-2xl font-bold text-[#0B1F55]">{formatValue(stat)}</p>
+              <p className="mt-1.5 text-2xl font-bold text-[#0B1F55]">{formatValue(stat)}</p>
             </div>
 
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#EEF0FF] text-[#5B4DE3]">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#EEF0FF] text-[#5B4DE3]">
               {icons[stat.id as keyof typeof icons]}
             </div>
           </div>
 
-          <p className="mt-4 flex items-center gap-1 text-xs font-medium text-[#16A34A]">
+          <p className="mt-3 flex items-center gap-1 text-xs font-medium text-[#16A34A]">
             <span>↑</span>
             <span>{stat.trendPercent}% geçen aya göre</span>
           </p>
