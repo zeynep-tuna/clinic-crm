@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -24,9 +25,11 @@ const navItems: { label: string; href: string; icon: NavIcon }[] = [
   { label: "Ayarlar", href: "/settings", icon: "settings" },
 ];
 
+const STORAGE_KEY = "admin-sidebar-collapsed";
+
 function HeartIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="#5B4DE3" strokeWidth={1.75} className="h-6 w-6">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#5B4DE3" strokeWidth={1.75} className="h-6 w-6 shrink-0">
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -38,13 +41,39 @@ function HeartIcon() {
   );
 }
 
+function ChevronLeftIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.9} className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 6l-6 6 6 6" />
+    </svg>
+  );
+}
+
+function ChevronRightIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.9} className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+function LogoutIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-5 w-5 shrink-0">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 16l4-4-4-4" />
+      <path strokeLinecap="round" d="M19 12H9" />
+    </svg>
+  );
+}
+
 function NavIconGlyph({ icon }: { icon: NavIcon }) {
   const common = {
     viewBox: "0 0 24 24",
     fill: "none",
     stroke: "currentColor",
     strokeWidth: 1.75,
-    className: "h-5 w-5",
+    className: "h-5 w-5 shrink-0",
   };
 
   switch (icon) {
@@ -123,12 +152,38 @@ function isRouteActive(pathname: string, href: string) {
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (stored === "true") {
+      setCollapsed(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(STORAGE_KEY, String(collapsed));
+  }, [collapsed]);
 
   return (
-    <aside className="flex h-screen w-60 shrink-0 flex-col border-r border-[#E3E8F0]/70 bg-white">
-      <div className="flex h-16 items-center gap-2 border-b border-[#E3E8F0]/70 px-5">
+    <aside
+      className={`flex h-screen shrink-0 flex-col border-r border-[#E3E8F0]/70 bg-white transition-all duration-200 ease-in-out ${
+        collapsed ? "w-20" : "w-60"
+      }`}
+    >
+      <div
+        className={`flex h-16 items-center gap-2 border-b border-[#E3E8F0]/70 transition-all duration-200 ease-in-out ${
+          collapsed ? "justify-center px-2" : "px-5"
+        }`}
+      >
         <HeartIcon />
-        <span className="text-base font-bold text-[#0B1F55]">ClinicCRM</span>
+        <span
+          className={`overflow-hidden whitespace-nowrap text-base font-bold text-[#0B1F55] transition-all duration-200 ease-in-out ${
+            collapsed ? "max-w-0 opacity-0" : "max-w-40 opacity-100"
+          }`}
+        >
+          ClinicCRM
+        </span>
       </div>
 
       <nav className="flex flex-1 flex-col gap-1 p-3.5">
@@ -139,18 +194,67 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-2.5 rounded-xl px-3.5 py-2 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#5B4DE3]/20 ${
+              className={`group relative flex items-center rounded-xl py-2 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#5B4DE3]/20 ${
+                collapsed ? "justify-center px-0" : "gap-2.5 px-3.5"
+              } ${
                 isActive
                   ? "bg-[#EEF0FF] text-[#5B4DE3]"
                   : "text-[#667085] hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
               }`}
             >
               <NavIconGlyph icon={item.icon} />
-              {item.label}
+              <span
+                className={`overflow-hidden whitespace-nowrap transition-all duration-200 ease-in-out ${
+                  collapsed ? "max-w-0 opacity-0" : "max-w-40 opacity-100"
+                }`}
+              >
+                {item.label}
+              </span>
+
+              {collapsed && (
+                <span className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 -translate-y-1/2 whitespace-nowrap rounded-lg bg-[#0B1F55] px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-[0_4px_12px_rgba(16,24,40,0.18)] transition-opacity duration-150 group-hover:opacity-100">
+                  {item.label}
+                </span>
+              )}
             </Link>
           );
         })}
       </nav>
+
+      <div className="border-t border-[#EEF2F8] p-3.5">
+        <Link
+          href="/login"
+          className={`group relative flex items-center rounded-xl py-2 text-sm font-medium text-[#667085] outline-none transition-colors hover:bg-[#FEF2F2] hover:text-[#EF4444] focus-visible:ring-2 focus-visible:ring-[#5B4DE3]/20 ${
+            collapsed ? "justify-center px-0" : "gap-2.5 px-3.5"
+          }`}
+        >
+          <LogoutIcon />
+          <span
+            className={`overflow-hidden whitespace-nowrap transition-all duration-200 ease-in-out ${
+              collapsed ? "max-w-0 opacity-0" : "max-w-40 opacity-100"
+            }`}
+          >
+            Çıkış Yap
+          </span>
+
+          {collapsed && (
+            <span className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 -translate-y-1/2 whitespace-nowrap rounded-lg bg-[#0B1F55] px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-[0_4px_12px_rgba(16,24,40,0.18)] transition-opacity duration-150 group-hover:opacity-100">
+              Çıkış Yap
+            </span>
+          )}
+        </Link>
+
+        <div className={`mt-3 ${collapsed ? "flex justify-center" : "flex justify-end"}`}>
+          <button
+            type="button"
+            onClick={() => setCollapsed((previous) => !previous)}
+            aria-label={collapsed ? "Sidebar'ı genişlet" : "Sidebar'ı daralt"}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#E3E8F0] text-[#667085] transition-colors hover:bg-[#F7F8FF]"
+          >
+            {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+          </button>
+        </div>
+      </div>
     </aside>
   );
 }
