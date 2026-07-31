@@ -24,6 +24,20 @@ const navItems: { label: string; href: string; icon: NavIcon }[] = [
   { label: "Ayarlar", href: "/settings", icon: "settings" },
 ];
 
+function HeartIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="#5B4DE3" strokeWidth={1.75} className="h-6 w-6">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="#EEF0FF"
+        d="M12 20s-7-4.5-9.5-9A5 5 0 0 1 12 6a5 5 0 0 1 9.5 5c-2.5 4.5-9.5 9-9.5 9Z"
+      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8.5 12h2l1-2 2 4 1-2h2" />
+    </svg>
+  );
+}
+
 function NavIconGlyph({ icon }: { icon: NavIcon }) {
   const common = {
     viewBox: "0 0 24 24",
@@ -61,7 +75,10 @@ function NavIconGlyph({ icon }: { icon: NavIcon }) {
     case "doctors":
       return (
         <svg {...common}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M8 3v5a4 4 0 0 0 8 0V3M12 15v2m0 0a4 4 0 1 0 0 4.001" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M7 3.5v5.5a3.5 3.5 0 0 0 7 0V3.5" />
+          <path strokeLinecap="round" d="M7 3.5H5.7M14 3.5h1.3" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 12v2.5a4.5 4.5 0 0 0 9 0v-1" />
+          <circle cx="19.5" cy="13.5" r="1.5" />
         </svg>
       );
     case "payments":
@@ -108,12 +125,13 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-screen w-65 shrink-0 flex-col border-r border-[#E3E8F0] bg-white">
-      <div className="flex h-21 items-center border-b border-[#E3E8F0] px-6">
-        <span className="text-lg font-bold text-[#0B1F55]">ClinicCRM</span>
+    <aside className="flex h-screen w-60 shrink-0 flex-col border-r border-[#E3E8F0]/70 bg-white">
+      <div className="flex h-16 items-center gap-2 border-b border-[#E3E8F0]/70 px-5">
+        <HeartIcon />
+        <span className="text-base font-bold text-[#0B1F55]">ClinicCRM</span>
       </div>
 
-      <nav className="flex flex-1 flex-col gap-1 p-4">
+      <nav className="flex flex-1 flex-col gap-1 p-3.5">
         {navItems.map((item) => {
           const isActive = isRouteActive(pathname, item.href);
 
@@ -121,7 +139,7 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#5B4DE3]/20 ${
+              className={`flex items-center gap-2.5 rounded-xl px-3.5 py-2 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#5B4DE3]/20 ${
                 isActive
                   ? "bg-[#EEF0FF] text-[#5B4DE3]"
                   : "text-[#667085] hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
