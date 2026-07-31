@@ -1,35 +1,6 @@
-"use client";
-
-import { usePathname } from "next/navigation";
-
-const pageTitles: { href: string; title: string }[] = [
-  { href: "/dashboard", title: "Dashboard" },
-  { href: "/patients", title: "Hastalar" },
-  { href: "/appointments", title: "Randevular" },
-  { href: "/doctors", title: "Doktorlar" },
-  { href: "/payments", title: "Ödemeler" },
-  { href: "/consent-forms", title: "Onam Formları" },
-  { href: "/reports", title: "Raporlar" },
-  { href: "/settings", title: "Ayarlar" },
-];
-
-function isRouteActive(pathname: string, href: string) {
-  if (href === "/dashboard") {
-    return pathname === href;
-  }
-
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
-
 export default function Topbar() {
-  const pathname = usePathname();
-  const title =
-    pageTitles.find((item) => isRouteActive(pathname, item.href))?.title ?? "Dashboard";
-
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b border-[#E3E8F0]/70 bg-white px-6">
-      <h1 className="text-lg font-semibold text-[#0B1F55]">{title}</h1>
-
+    <header className="flex h-16 shrink-0 items-center justify-end border-b border-[#E3E8F0]/70 bg-white px-6">
       <div className="flex items-center gap-4">
         <div className="relative">
           <svg
