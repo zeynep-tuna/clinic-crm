@@ -47,7 +47,7 @@ export const consentForms: ConsentForm[] = [
   {
     id: "5",
     patientName: "Fatma Öz",
-    formTitle: "Muayene Onam Formu",
+    formTitle: "Muayene ve Tedavi Onam Formu",
     formType: "Muayene",
     date: "11.05.2024",
     status: "Bekliyor",
