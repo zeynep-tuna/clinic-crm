@@ -14,7 +14,7 @@ export const doctors: Doctor[] = [
   {
     id: "1",
     fullName: "Dr. Ali Kaya",
-    specialty: "Diş Hekimliği",
+    specialty: "Diş Hekimi",
     phone: "+90 555 111 22 33",
     email: "ali.kaya@example.com",
     todayAppointments: 8,
