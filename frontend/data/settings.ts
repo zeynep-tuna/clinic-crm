@@ -1,4 +1,4 @@
-export const defaultRoleOptions = ["Admin", "Doktor", "Sekreter", "Hemşire"];
+export const defaultRoleOptions = ["Admin", "Diş Hekimi", "Sekreter", "Hemşire"];
 
 export const sessionTimeoutOptions = ["15 dakika", "30 dakika", "1 saat", "2 saat"];
 

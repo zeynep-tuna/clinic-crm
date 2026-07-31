@@ -7,7 +7,12 @@ import UserRoleSection from "@/components/settings/UserRoleSection";
 import NotificationSettingsSection from "@/components/settings/NotificationSettingsSection";
 import SecuritySettingsSection from "@/components/settings/SecuritySettingsSection";
 
+const tabs = ["Klinik Bilgileri", "Kullanıcı ve Roller", "Bildirimler", "Güvenlik"] as const;
+
+type TabValue = (typeof tabs)[number];
+
 export default function SettingsForm() {
+  const [activeTab, setActiveTab] = useState<TabValue>("Klinik Bilgileri");
   const [form, setForm] = useState<SettingsFormState>(initialSettingsFormState);
 
   function updateField<K extends keyof SettingsFormState>(key: K, value: SettingsFormState[K]) {
@@ -20,22 +25,34 @@ export default function SettingsForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
-      <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-2">
-        <ClinicInfoSection form={form} updateField={updateField} />
-        <UserRoleSection form={form} updateField={updateField} />
-        <NotificationSettingsSection form={form} updateField={updateField} />
-        <SecuritySettingsSection form={form} updateField={updateField} />
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <div className="flex flex-wrap items-center gap-2">
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab;
+
+          return (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setActiveTab(tab)}
+              className={`flex h-10 items-center rounded-xl border px-4 text-sm font-medium transition-colors ${
+                isActive
+                  ? "border-[#5B4DE3] bg-[#5B4DE3] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06),0_2px_6px_rgba(91,77,227,0.25)]"
+                  : "border-[#E3E8F0] text-[#0B1F55] hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
+              }`}
+            >
+              {tab}
+            </button>
+          );
+        })}
       </div>
 
-      <div className="flex justify-end">
-        <button
-          type="submit"
-          className="rounded-xl bg-[#5B4DE3] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)] hover:bg-[#4c3fd1]"
-        >
-          Kaydet
-        </button>
-      </div>
+      {activeTab === "Klinik Bilgileri" && <ClinicInfoSection form={form} updateField={updateField} />}
+      {activeTab === "Kullanıcı ve Roller" && <UserRoleSection form={form} updateField={updateField} />}
+      {activeTab === "Bildirimler" && (
+        <NotificationSettingsSection form={form} updateField={updateField} />
+      )}
+      {activeTab === "Güvenlik" && <SecuritySettingsSection form={form} updateField={updateField} />}
     </form>
   );
 }

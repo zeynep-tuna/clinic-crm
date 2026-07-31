@@ -1,4 +1,4 @@
-const dateRangeOptions = ["Son 7 Gün", "Son 30 Gün", "Bu Ay", "Bu Yıl"];
+const dateRangeOptions = ["Son 30 Gün", "Son 3 Ay", "Son 6 Ay", "Bu Yıl"];
 
 const reportTypeOptions = [
   "Genel Rapor",
@@ -24,7 +24,7 @@ export default function ReportFilters() {
         <div>
           <label className="mb-1.5 block text-xs font-medium text-[#667085]">Tarih Aralığı</label>
           <select
-            defaultValue={dateRangeOptions[1]}
+            defaultValue={dateRangeOptions[2]}
             className="h-10 rounded-xl border border-[#E3E8F0] px-3.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
           >
             {dateRangeOptions.map((option) => (
@@ -70,6 +70,10 @@ export default function ReportFilters() {
           Uygula
         </button>
       </div>
+
+      <p className="mt-2.5 text-xs text-[#667085]">
+        Seçilen dönem tüm gelir, randevu, hasta artışı ve hekim performansı özetlerini kapsar.
+      </p>
     </div>
   );
 }

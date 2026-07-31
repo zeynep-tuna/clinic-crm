@@ -65,8 +65,9 @@ export default function PatientGrowthChart() {
       </div>
 
       <p className="mt-3 text-xs text-[#667085]">
-        {first.month}: <span className="font-medium text-[#0B1F55]">{first.count}</span> hasta →{" "}
-        {last.month}: <span className="font-medium text-[#0B1F55]">{last.count}</span> hasta
+        Son 6 ayda yeni hasta sayısı{" "}
+        <span className="font-medium text-[#0B1F55]">{first.count}</span>&apos;den{" "}
+        <span className="font-medium text-[#0B1F55]">{last.count}</span>&apos;e yükseldi.
       </p>
     </div>
   );
