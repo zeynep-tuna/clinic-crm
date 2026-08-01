@@ -1,39 +1,42 @@
-import { doctorAppointmentSummary } from "@/data/doctorAppointments";
-import type { FilterValue } from "@/components/doctor/DoctorAppointmentsTable";
+import { doctorPatients } from "@/data/doctorPatients";
+import type { FilterValue } from "@/components/doctor/DoctorPatientsTable";
 
-type SummaryIcon = "today" | "confirmed" | "pending" | "completed";
+type SummaryIcon = "total" | "active" | "pending" | "inTreatment";
 
-const iconByCardId: Record<string, SummaryIcon> = {
-  today: "today",
-  confirmed: "confirmed",
-  pending: "pending",
-  completed: "completed",
-};
+interface SummaryCard {
+  id: string;
+  icon: SummaryIcon;
+  title: string;
+  value: number;
+}
 
 const colorByCardId: Record<string, string> = {
-  today: "bg-[#EEF0FF] text-[#5B4DE3]",
-  confirmed: "bg-[#DCFCE7] text-[#16A34A]",
+  total: "bg-[#EEF0FF] text-[#5B4DE3]",
+  active: "bg-[#DCFCE7] text-[#16A34A]",
   pending: "bg-[#FEF3C7] text-[#F59E0B]",
-  completed: "bg-[#DBEAFE] text-[#2563EB]",
+  inTreatment: "bg-[#DBEAFE] text-[#2563EB]",
 };
 
 const filterByCardId: Record<string, FilterValue> = {
-  today: "Tümü",
-  confirmed: "Onaylandı",
-  pending: "Bekliyor",
-  completed: "Tamamlandı",
+  total: "Tümü",
+  active: "Aktif",
+  pending: "Kontrol Bekliyor",
+  inTreatment: "Tedavi Devam Ediyor",
 };
 
 function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
   switch (icon) {
-    case "today":
+    case "total":
       return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4.5 w-4.5">
-          <rect x="4" y="5" width="16" height="15" rx="2" />
-          <path strokeLinecap="round" d="M4 10h16M8 3v4M16 3v4" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M16 14a4 4 0 1 0-8 0M12 12a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM4 20c.5-3 3.5-5 8-5s7.5 2 8 5"
+          />
         </svg>
       );
-    case "confirmed":
+    case "active":
       return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4.5 w-4.5">
           <circle cx="12" cy="12" r="8.5" />
@@ -47,10 +50,15 @@ function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5V12l3 2" />
         </svg>
       );
-    case "completed":
+    case "inTreatment":
       return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4.5 w-4.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M4 12.5l4.5 4.5L20 6" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v6M9 6h6" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M7 11h10l-1.2 8.4a2 2 0 0 1-2 1.6H10.2a2 2 0 0 1-2-1.6L7 11Z"
+          />
         </svg>
       );
     default:
@@ -58,18 +66,30 @@ function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
   }
 }
 
-interface DoctorAppointmentSummaryCardsProps {
+interface DoctorPatientSummaryCardsProps {
   activeFilter: FilterValue;
   onFilterChange: (filter: FilterValue) => void;
 }
 
-export default function DoctorAppointmentSummaryCards({
+export default function DoctorPatientSummaryCards({
   activeFilter,
   onFilterChange,
-}: DoctorAppointmentSummaryCardsProps) {
+}: DoctorPatientSummaryCardsProps) {
+  const total = doctorPatients.length;
+  const active = doctorPatients.filter((patient) => patient.status === "Aktif").length;
+  const pendingCheck = doctorPatients.filter((patient) => patient.status === "Kontrol Bekliyor").length;
+  const inTreatment = doctorPatients.filter((patient) => patient.status === "Tedavi Devam Ediyor").length;
+
+  const cards: SummaryCard[] = [
+    { id: "total", icon: "total", title: "Toplam Hasta", value: total },
+    { id: "active", icon: "active", title: "Aktif Hasta", value: active },
+    { id: "pending", icon: "pending", title: "Kontrol Bekliyor", value: pendingCheck },
+    { id: "inTreatment", icon: "inTreatment", title: "Tedavisi Devam Eden", value: inTreatment },
+  ];
+
   return (
     <div className="grid grid-cols-2 gap-4 rounded-[20px] border border-[#E3E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)] sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-[#EEF2F8]">
-      {doctorAppointmentSummary.map((card) => {
+      {cards.map((card) => {
         const filterValue = filterByCardId[card.id] ?? "Tümü";
         const isSelected = activeFilter === filterValue;
 
@@ -83,9 +103,9 @@ export default function DoctorAppointmentSummaryCards({
             }`}
           >
             <span
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${colorByCardId[card.id] ?? "bg-[#EEF0FF] text-[#5B4DE3]"}`}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${colorByCardId[card.id]}`}
             >
-              <SummaryIconGlyph icon={iconByCardId[card.id] ?? "today"} />
+              <SummaryIconGlyph icon={card.icon} />
             </span>
             <div>
               <p className="text-xl font-bold text-[#0B1F55]">{card.value}</p>
