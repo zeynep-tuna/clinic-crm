@@ -16,20 +16,20 @@ export default function DoctorUpcomingAppointments() {
         <h2 className="text-base font-semibold text-[#0B1F55]">Yaklaşan Randevular</h2>
         <button
           type="button"
-          className="rounded-lg border border-[#E3E8F0] px-3 py-1.5 text-xs font-semibold text-[#0B1F55] hover:bg-[#F7F8FF]"
+          className="rounded-lg border border-[#E3E8F0] px-2.5 py-1 text-xs font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
         >
           Tümünü Gör
         </button>
       </div>
 
-      <div className="mt-4 space-y-3">
+      <div className="mt-3 divide-y divide-[#EEF2F8]">
         {doctorUpcomingAppointments.map((appointment) => (
-          <div key={appointment.id} className="flex items-start gap-3 rounded-xl border border-[#E3E8F0] p-3">
+          <div key={appointment.id} className="flex items-center gap-3 py-2.5">
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#EEF0FF] text-[#5B4DE3]">
               <CalendarIcon />
             </span>
-            <div>
-              <p className="text-sm font-medium text-[#0B1F55]">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-[#0B1F55]">
                 {appointment.patientName} - {appointment.treatment}
               </p>
               <p className="text-xs text-[#667085]">{appointment.time}</p>

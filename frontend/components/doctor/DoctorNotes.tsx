@@ -16,11 +16,11 @@ function NoteIcon() {
 export default function DoctorNotes() {
   return (
     <div className="flex h-full flex-col rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
-      <h2 className="text-base font-semibold text-[#0B1F55]">Tedavi Notları / Doktor Notları</h2>
+      <h2 className="text-base font-semibold text-[#0B1F55]">Tedavi Notları</h2>
 
-      <div className="mt-4 space-y-3">
+      <div className="mt-3 divide-y divide-[#EEF2F8]">
         {doctorNotes.map((note) => (
-          <div key={note.id} className="flex items-start gap-3 rounded-xl border border-[#E3E8F0] p-3">
+          <div key={note.id} className="flex items-start gap-3 py-3 first:pt-0">
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#EEF0FF] text-[#5B4DE3]">
               <NoteIcon />
             </span>
