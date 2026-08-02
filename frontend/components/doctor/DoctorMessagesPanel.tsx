@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { doctorMessageRows, type DoctorMessageRow } from "@/data/doctorMessages";
 import DoctorMessageDetail from "@/components/doctor/DoctorMessageDetail";
 import DoctorMessageSummaryCards from "@/components/doctor/DoctorMessageSummaryCards";
+import EmptyState from "@/components/common/EmptyState";
 
 export type FilterValue = "Tümü" | "Okunmamış" | "Hasta" | "Sekreter" | "Acil";
 
@@ -49,7 +50,7 @@ function initials(name: string) {
 export default function DoctorMessagesPanel() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
-  const [selectedId, setSelectedId] = useState(doctorMessageRows[0].id);
+  const [selectedId, setSelectedId] = useState(doctorMessageRows[0]?.id ?? "");
 
   const filteredMessages = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -124,6 +125,38 @@ export default function DoctorMessagesPanel() {
             })}
           </div>
 
+          {doctorMessageRows.length === 0 && (
+            <div className="mt-4">
+              <EmptyState
+                variant="empty"
+                title="Henüz mesaj bulunmuyor"
+                description="Hastalar, sekreterya veya klinik içi görüşmeler başladığında mesajlar burada görüntülenir."
+              />
+            </div>
+          )}
+
+          {doctorMessageRows.length > 0 && filteredMessages.length === 0 && (
+            <div className="mt-4">
+              <EmptyState
+                variant="search"
+                title="Eşleşen mesaj bulunamadı"
+                description="Hasta adı, konu veya mesaj içeriğini değiştirerek tekrar deneyin."
+                action={
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearch("");
+                      setActiveFilter("Tümü");
+                    }}
+                    className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+                  >
+                    Filtreleri temizle
+                  </button>
+                }
+              />
+            </div>
+          )}
+
           <div className="mt-4 space-y-2">
             {filteredMessages.map((message) => {
               const isSelected = message.id === selectedMessage.id;
@@ -178,16 +211,10 @@ export default function DoctorMessagesPanel() {
                 </button>
               );
             })}
-
-            {filteredMessages.length === 0 && (
-              <p className="py-10 text-center text-sm text-[#667085]">
-                Aramanızla eşleşen mesaj bulunamadı.
-              </p>
-            )}
           </div>
         </div>
 
-        <DoctorMessageDetail message={selectedMessage} />
+        {selectedMessage && <DoctorMessageDetail message={selectedMessage} />}
       </div>
     </div>
   );

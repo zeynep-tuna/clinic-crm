@@ -7,6 +7,7 @@ import {
   type DoctorTreatmentPlanStatus,
 } from "@/data/doctorTreatmentPlans";
 import DoctorTreatmentPlanSummaryCards from "@/components/doctor/DoctorTreatmentPlanSummaryCards";
+import EmptyState from "@/components/common/EmptyState";
 
 export type FilterValue = "Tümü" | DoctorTreatmentPlanStatus;
 
@@ -123,6 +124,35 @@ export default function DoctorTreatmentPlansTable() {
         </div>
 
         <div className="mt-5 overflow-x-auto">
+          {doctorTreatmentPlanRows.length === 0 && (
+            <EmptyState
+              variant="empty"
+              title="Henüz tedavi planı bulunmuyor"
+              description="Hastalar için oluşturduğunuz diş tedavi planları burada takip edilir."
+            />
+          )}
+
+          {doctorTreatmentPlanRows.length > 0 && filteredPlans.length === 0 && (
+            <EmptyState
+              variant="search"
+              title="Eşleşen tedavi planı bulunamadı"
+              description="Hasta adı, tedavi adı veya plan durumunu değiştirerek tekrar deneyin."
+              action={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch("");
+                    setActiveFilter("Tümü");
+                  }}
+                  className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+                >
+                  Filtreleri temizle
+                </button>
+              }
+            />
+          )}
+
+          {filteredPlans.length > 0 && (
           <table className="w-full min-w-220 text-left">
             <thead>
               <tr className="border-b border-[#EEF2F8] text-xs font-semibold tracking-wide text-[#667085] uppercase">
@@ -192,11 +222,6 @@ export default function DoctorTreatmentPlansTable() {
               ))}
             </tbody>
           </table>
-
-          {filteredPlans.length === 0 && (
-            <p className="py-10 text-center text-sm text-[#667085]">
-              Aramanızla eşleşen tedavi planı bulunamadı.
-            </p>
           )}
         </div>
 

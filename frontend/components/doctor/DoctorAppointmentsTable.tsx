@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { doctorAppointmentRows, type DoctorAppointmentStatus } from "@/data/doctorAppointments";
 import DoctorAppointmentSummaryCards from "@/components/doctor/DoctorAppointmentSummaryCards";
+import EmptyState from "@/components/common/EmptyState";
 
 export type FilterValue = "Tümü" | DoctorAppointmentStatus;
 
@@ -113,6 +114,35 @@ export default function DoctorAppointmentsTable() {
         </div>
 
         <div className="mt-5 overflow-x-auto">
+          {doctorAppointmentRows.length === 0 && (
+            <EmptyState
+              variant="empty"
+              title="Henüz randevunuz bulunmuyor"
+              description="Size atanmış muayene ve tedavi randevuları oluşturulduğunda burada görüntülenir."
+            />
+          )}
+
+          {doctorAppointmentRows.length > 0 && filteredAppointments.length === 0 && (
+            <EmptyState
+              variant="search"
+              title="Eşleşen randevu bulunamadı"
+              description="Hasta adı, işlem, tarih veya durum filtresini değiştirerek tekrar deneyin."
+              action={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch("");
+                    setActiveFilter("Tümü");
+                  }}
+                  className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+                >
+                  Filtreleri temizle
+                </button>
+              }
+            />
+          )}
+
+          {filteredAppointments.length > 0 && (
           <table className="w-full min-w-190 text-left">
             <thead>
               <tr className="border-b border-[#EEF2F8] text-xs font-semibold tracking-wide text-[#667085] uppercase">
@@ -174,11 +204,6 @@ export default function DoctorAppointmentsTable() {
               ))}
             </tbody>
           </table>
-
-          {filteredAppointments.length === 0 && (
-            <p className="py-10 text-center text-sm text-[#667085]">
-              Aramanızla eşleşen randevu bulunamadı.
-            </p>
           )}
         </div>
 
