@@ -10,11 +10,13 @@ export interface DoctorProfileInfo {
   todayAppointments: number;
   status: string;
   bio: string;
+  lastLogin: string;
+  twoFactorStatus: string;
 }
 
 export const doctorProfileInfo: DoctorProfileInfo = {
   fullName: "Dr. Elif Kaya",
-  role: "Doktor",
+  role: "Diş Hekimi",
   specialty: "Diş Hekimliği",
   phone: "+90 555 111 22 33",
   email: "elif.kaya@cliniccrm.com",
@@ -24,6 +26,8 @@ export const doctorProfileInfo: DoctorProfileInfo = {
   todayAppointments: 12,
   status: "Aktif",
   bio: "Diş sağlığı, koruyucu tedaviler ve hasta takip süreçlerinde deneyimli diş hekimi.",
+  lastLogin: "Bugün 09:30",
+  twoFactorStatus: "Kapalı",
 };
 
 export interface DoctorWorkingHourItem {

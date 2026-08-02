@@ -2,34 +2,37 @@ import { doctorProfileInfo } from "@/data/doctorProfile";
 
 export default function DoctorProfileCard() {
   return (
-    <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
-      <div className="flex flex-col items-center text-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#EEF0FF] text-2xl font-bold text-[#5B4DE3]">
+    <div className="flex flex-wrap items-center justify-between gap-5 rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+      <div className="flex items-center gap-4">
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#EEF0FF] text-xl font-bold text-[#5B4DE3]">
           EK
         </div>
 
-        <p className="mt-4 text-lg font-bold text-[#0B1F55]">{doctorProfileInfo.fullName}</p>
-        <p className="text-sm text-[#667085]">
-          {doctorProfileInfo.role} / {doctorProfileInfo.specialty}
-        </p>
-
-        <span className="mt-3 inline-block rounded-full bg-[#DCFCE7] px-3.5 py-1.5 text-xs font-semibold text-[#16A34A]">
-          {doctorProfileInfo.status}
-        </span>
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-lg font-bold text-[#0B1F55]">{doctorProfileInfo.fullName}</p>
+            <span className="inline-block rounded-full bg-[#DCFCE7] px-2.5 py-0.5 text-xs font-semibold text-[#16A34A]">
+              {doctorProfileInfo.status}
+            </span>
+          </div>
+          <p className="mt-0.5 text-sm text-[#667085]">
+            {doctorProfileInfo.role} · {doctorProfileInfo.specialty}
+          </p>
+        </div>
       </div>
 
-      <div className="mt-6 space-y-3 border-t border-[#E3E8F0] pt-5">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-[#667085]">Deneyim</span>
-          <span className="text-sm font-semibold text-[#0B1F55]">{doctorProfileInfo.experience}</span>
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="rounded-xl border border-[#E3E8F0] bg-[#F7F8FF] px-4 py-2 text-center">
+          <p className="text-xs text-[#667085]">Deneyim</p>
+          <p className="text-sm font-semibold text-[#0B1F55]">{doctorProfileInfo.experience}</p>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-[#667085]">Hasta Sayısı</span>
-          <span className="text-sm font-semibold text-[#0B1F55]">{doctorProfileInfo.patientCount}</span>
+        <div className="rounded-xl border border-[#E3E8F0] bg-[#F7F8FF] px-4 py-2 text-center">
+          <p className="text-xs text-[#667085]">Hasta Sayısı</p>
+          <p className="text-sm font-semibold text-[#0B1F55]">{doctorProfileInfo.patientCount}</p>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-[#667085]">Bugünkü Randevu</span>
-          <span className="text-sm font-semibold text-[#0B1F55]">{doctorProfileInfo.todayAppointments}</span>
+        <div className="rounded-xl border border-[#E3E8F0] bg-[#F7F8FF] px-4 py-2 text-center">
+          <p className="text-xs text-[#667085]">Bugünkü Randevu</p>
+          <p className="text-sm font-semibold text-[#0B1F55]">{doctorProfileInfo.todayAppointments}</p>
         </div>
       </div>
     </div>

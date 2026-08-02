@@ -41,9 +41,7 @@ export default function DoctorProfileForm() {
       onSubmit={handleSubmit}
       className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]"
     >
-      <h2 className="text-base font-semibold text-[#0B1F55]">Profil Bilgileri</h2>
-
-      <div className="mt-5 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
         <div>
           <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Ad Soyad</label>
           <input
@@ -118,7 +116,7 @@ export default function DoctorProfileForm() {
       <div className="mt-5 flex justify-end">
         <button
           type="submit"
-          className="rounded-xl bg-[#5B4DE3] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#4c3fd1]"
+          className="flex h-11 items-center rounded-xl bg-[#5B4DE3] px-5 text-sm font-semibold text-white hover:bg-[#4c3fd1]"
         >
           Kaydet
         </button>

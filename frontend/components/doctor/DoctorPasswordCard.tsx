@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { doctorProfileInfo } from "@/data/doctorProfile";
 
 interface DoctorPasswordFormState {
   currentPassword: string;
@@ -30,56 +31,71 @@ export default function DoctorPasswordCard() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]"
-    >
-      <h2 className="text-base font-semibold text-[#0B1F55]">Şifre Değiştir</h2>
+    <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+      <h2 className="text-base font-semibold text-[#0B1F55]">Güvenlik</h2>
+      <p className="mt-1 text-sm text-[#667085]">
+        Hesap şifrenizi güncelleyerek doktor paneli erişiminizi güvenli tutun.
+      </p>
 
-      <div className="mt-5 space-y-4">
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Mevcut Şifre</label>
-          <input
-            type="password"
-            value={form.currentPassword}
-            onChange={(event) => updateField("currentPassword", event.target.value)}
-            className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+      <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-[1.4fr_1fr]">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Yeni Şifre</label>
+            <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Mevcut Şifre</label>
             <input
               type="password"
-              value={form.newPassword}
-              onChange={(event) => updateField("newPassword", event.target.value)}
+              value={form.currentPassword}
+              onChange={(event) => updateField("currentPassword", event.target.value)}
               className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
             />
           </div>
 
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">
-              Yeni Şifre Tekrar
-            </label>
-            <input
-              type="password"
-              value={form.confirmPassword}
-              onChange={(event) => updateField("confirmPassword", event.target.value)}
-              className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
-            />
+          <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Yeni Şifre</label>
+              <input
+                type="password"
+                value={form.newPassword}
+                onChange={(event) => updateField("newPassword", event.target.value)}
+                className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">
+                Yeni Şifre Tekrar
+              </label>
+              <input
+                type="password"
+                value={form.confirmPassword}
+                onChange={(event) => updateField("confirmPassword", event.target.value)}
+                className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+              />
+            </div>
+          </div>
+
+          <div className="mt-1 flex justify-end">
+            <button
+              type="submit"
+              className="flex h-11 items-center rounded-xl border border-[#E3E8F0] px-6 text-sm font-semibold text-[#0B1F55] hover:bg-[#F7F8FF]"
+            >
+              Şifreyi Güncelle
+            </button>
+          </div>
+        </form>
+
+        <div className="flex h-fit flex-col gap-3 rounded-xl border border-[#EEF2F8] bg-[#F7F8FF] p-4">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm text-[#667085]">Son giriş</span>
+            <span className="text-sm font-medium text-[#0B1F55]">{doctorProfileInfo.lastLogin}</span>
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm text-[#667085]">İki aşamalı doğrulama</span>
+            <span className="inline-block shrink-0 rounded-full bg-[#F3F4F6] px-2.5 py-0.5 text-xs font-semibold text-[#667085]">
+              {doctorProfileInfo.twoFactorStatus}
+            </span>
           </div>
         </div>
       </div>
-
-      <div className="mt-5 flex justify-end">
-        <button
-          type="submit"
-          className="rounded-xl border border-[#E3E8F0] px-6 py-2.5 text-sm font-semibold text-[#0B1F55] hover:bg-[#F7F8FF]"
-        >
-          Şifreyi Güncelle
-        </button>
-      </div>
-    </form>
+    </div>
   );
 }
