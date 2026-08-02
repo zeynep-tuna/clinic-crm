@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { payments, paymentOverview, type PaymentStatus } from "@/data/payments";
+import EmptyState from "@/components/common/EmptyState";
+import AddPaymentModal from "@/components/payments/AddPaymentModal";
 
 type FilterValue = "Tümü" | PaymentStatus;
 
@@ -219,6 +221,36 @@ export default function PaymentsTable() {
         </div>
 
         <div className="mt-5 overflow-x-auto">
+          {payments.length === 0 && (
+            <EmptyState
+              variant="empty"
+              title="Henüz ödeme kaydı yok"
+              description="Hasta tedavi ödemeleri oluşturulduğunda tahsilat durumlarını buradan takip edebilirsiniz."
+              action={<AddPaymentModal />}
+            />
+          )}
+
+          {payments.length > 0 && filteredPayments.length === 0 && (
+            <EmptyState
+              variant="search"
+              title="Eşleşen ödeme kaydı bulunamadı"
+              description="Hasta adı, tedavi, ödeme yöntemi veya durum filtresini değiştirerek tekrar deneyin."
+              action={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch("");
+                    setActiveFilter("Tümü");
+                  }}
+                  className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+                >
+                  Filtreleri temizle
+                </button>
+              }
+            />
+          )}
+
+          {filteredPayments.length > 0 && (
           <table className="w-full min-w-240 table-fixed text-left">
             <thead>
               <tr className="border-b border-[#EAF0F8]/70 text-xs font-semibold tracking-wide text-[#667085] uppercase">
@@ -292,11 +324,6 @@ export default function PaymentsTable() {
               ))}
             </tbody>
           </table>
-
-          {filteredPayments.length === 0 && (
-            <p className="py-10 text-center text-sm text-[#667085]">
-              Aramanızla eşleşen ödeme bulunamadı.
-            </p>
           )}
         </div>
 

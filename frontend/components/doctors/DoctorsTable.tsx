@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { doctors, type DoctorStatus } from "@/data/doctors";
+import EmptyState from "@/components/common/EmptyState";
+import AddDoctorModal from "@/components/doctors/AddDoctorModal";
 
 type FilterValue = "Tümü" | DoctorStatus;
 
@@ -214,6 +216,36 @@ export default function DoctorsTable() {
         </div>
 
         <div className="mt-5 overflow-x-auto">
+          {doctors.length === 0 && (
+            <EmptyState
+              variant="empty"
+              title="Henüz hekim kaydı yok"
+              description="Diş kliniğinizde görev yapan hekimleri ekleyerek çalışma takibini başlatabilirsiniz."
+              action={<AddDoctorModal />}
+            />
+          )}
+
+          {doctors.length > 0 && filteredDoctors.length === 0 && (
+            <EmptyState
+              variant="search"
+              title="Eşleşen hekim bulunamadı"
+              description="Hekim adı, uzmanlık veya durum filtresini değiştirerek tekrar deneyin."
+              action={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch("");
+                    setActiveFilter("Tümü");
+                  }}
+                  className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+                >
+                  Filtreleri temizle
+                </button>
+              }
+            />
+          )}
+
+          {filteredDoctors.length > 0 && (
           <table className="w-full min-w-292 table-fixed text-left">
             <thead>
               <tr className="border-b border-[#EAF0F8]/70 text-xs font-semibold tracking-wide text-[#667085] uppercase">
@@ -283,11 +315,6 @@ export default function DoctorsTable() {
               ))}
             </tbody>
           </table>
-
-          {filteredDoctors.length === 0 && (
-            <p className="py-10 text-center text-sm text-[#667085]">
-              Aramanızla eşleşen doktor bulunamadı.
-            </p>
           )}
         </div>
 

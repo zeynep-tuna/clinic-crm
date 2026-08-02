@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { appointments, type AppointmentStatus } from "@/data/appointments";
+import EmptyState from "@/components/common/EmptyState";
+import AddAppointmentModal from "@/components/appointments/AddAppointmentModal";
 
 type FilterValue = "Tümü" | AppointmentStatus;
 
@@ -239,6 +241,36 @@ export default function AppointmentsTable() {
         </div>
 
         <div className="mt-5 overflow-x-auto">
+          {appointments.length === 0 && (
+            <EmptyState
+              variant="empty"
+              title="Henüz randevu bulunmuyor"
+              description="Diş kliniğinizdeki hasta randevularını planlamak için yeni randevu oluşturabilirsiniz."
+              action={<AddAppointmentModal />}
+            />
+          )}
+
+          {appointments.length > 0 && filteredAppointments.length === 0 && (
+            <EmptyState
+              variant="search"
+              title="Eşleşen randevu bulunamadı"
+              description="Hasta adı, hekim, bölüm veya durum filtresini değiştirerek tekrar deneyin."
+              action={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch("");
+                    setActiveFilter("Tümü");
+                  }}
+                  className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+                >
+                  Filtreleri temizle
+                </button>
+              }
+            />
+          )}
+
+          {filteredAppointments.length > 0 && (
           <table className="w-full min-w-240 text-left">
             <thead>
               <tr className="border-b border-[#EAF0F8]/70 text-xs font-semibold tracking-wide text-[#667085] uppercase">
@@ -324,11 +356,6 @@ export default function AppointmentsTable() {
               ))}
             </tbody>
           </table>
-
-          {filteredAppointments.length === 0 && (
-            <p className="py-10 text-center text-sm text-[#667085]">
-              Aramanızla eşleşen randevu bulunamadı.
-            </p>
           )}
         </div>
 

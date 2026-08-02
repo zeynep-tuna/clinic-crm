@@ -7,6 +7,8 @@ import {
   type ConsentFormStatus,
   type ConsentFormType,
 } from "@/data/consent-forms";
+import EmptyState from "@/components/common/EmptyState";
+import AddConsentFormModal from "@/components/consent-forms/AddConsentFormModal";
 
 type FilterValue = "Tümü" | ConsentFormStatus;
 
@@ -230,6 +232,36 @@ export default function ConsentFormsTable() {
         </div>
 
         <div className="mt-5 overflow-x-auto">
+          {consentForms.length === 0 && (
+            <EmptyState
+              variant="empty"
+              title="Henüz onam formu bulunmuyor"
+              description="Diş tedavileri için dijital onam formları oluşturarak hasta onay süreçlerini takip edebilirsiniz."
+              action={<AddConsentFormModal />}
+            />
+          )}
+
+          {consentForms.length > 0 && filteredForms.length === 0 && (
+            <EmptyState
+              variant="search"
+              title="Eşleşen onam formu bulunamadı"
+              description="Hasta adı, form adı, form türü veya imza durumunu değiştirerek tekrar deneyin."
+              action={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch("");
+                    setActiveFilter("Tümü");
+                  }}
+                  className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+                >
+                  Filtreleri temizle
+                </button>
+              }
+            />
+          )}
+
+          {filteredForms.length > 0 && (
           <table className="w-full min-w-240 table-fixed text-left">
             <thead>
               <tr className="border-b border-[#EAF0F8]/70 text-xs font-semibold tracking-wide text-[#667085] uppercase">
@@ -308,11 +340,6 @@ export default function ConsentFormsTable() {
               ))}
             </tbody>
           </table>
-
-          {filteredForms.length === 0 && (
-            <p className="py-10 text-center text-sm text-[#667085]">
-              Aramanızla eşleşen form bulunamadı.
-            </p>
           )}
         </div>
 

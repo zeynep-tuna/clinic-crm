@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { patients, type PatientStatus } from "@/data/patients";
+import EmptyState from "@/components/common/EmptyState";
+import AddPatientModal from "@/components/patients/AddPatientModal";
 
 type FilterValue = "Tümü" | PatientStatus;
 
@@ -205,6 +207,36 @@ export default function PatientsTable() {
         </div>
 
         <div className="mt-5 overflow-x-auto">
+          {patients.length === 0 && (
+            <EmptyState
+              variant="empty"
+              title="Henüz hasta kaydı yok"
+              description="Diş kliniğinizdeki hastaları takip etmek için yeni hasta kaydı oluşturabilirsiniz."
+              action={<AddPatientModal />}
+            />
+          )}
+
+          {patients.length > 0 && filteredPatients.length === 0 && (
+            <EmptyState
+              variant="search"
+              title="Eşleşen hasta bulunamadı"
+              description="Arama kelimenizi veya seçili filtreyi değiştirerek tekrar deneyin."
+              action={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch("");
+                    setActiveFilter("Tümü");
+                  }}
+                  className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+                >
+                  Filtreleri temizle
+                </button>
+              }
+            />
+          )}
+
+          {filteredPatients.length > 0 && (
           <table className="w-full min-w-220 text-left">
             <thead>
               <tr className="border-b border-[#EAF0F8]/70 text-xs font-semibold tracking-wide text-[#667085] uppercase">
@@ -271,11 +303,6 @@ export default function PatientsTable() {
               ))}
             </tbody>
           </table>
-
-          {filteredPatients.length === 0 && (
-            <p className="py-10 text-center text-sm text-[#667085]">
-              Aramanızla eşleşen hasta bulunamadı.
-            </p>
           )}
         </div>
 
