@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { DoctorMessageRow } from "@/data/doctorMessages";
+import { getSenderAvatarColor } from "@/components/doctor/DoctorMessagesPanel";
 
 const statusBadgeClass: Record<string, string> = {
   Okunmamış: "bg-[#EEF0FF] text-[#5B4DE3]",
@@ -16,8 +17,8 @@ const priorityBadgeClass: Record<string, string> = {
 
 const senderTypeBadgeClass: Record<string, string> = {
   Hasta: "bg-[#DCFCE7] text-[#16A34A]",
-  Sekreter: "bg-[#FEF3C7] text-[#F59E0B]",
-  Yönetim: "bg-[#EEF0FF] text-[#5B4DE3]",
+  Sekreter: "bg-[#EEF0FF] text-[#5B4DE3]",
+  Yönetim: "bg-[#DBEAFE] text-[#2563EB]",
 };
 
 function initials(name: string) {
@@ -38,10 +39,12 @@ export default function DoctorMessageDetail({ message }: { message: DoctorMessag
   };
 
   return (
-    <div className="flex h-full flex-col rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
-      <div className="flex items-start justify-between gap-4 border-b border-[#E3E8F0] pb-4">
+    <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)] lg:sticky lg:top-24">
+      <div className="flex items-start justify-between gap-4 border-b border-[#EEF2F8] pb-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#EEF0FF] text-sm font-semibold text-[#5B4DE3]">
+          <div
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${getSenderAvatarColor(message)}`}
+          >
             {initials(message.senderName)}
           </div>
           <div>
@@ -74,14 +77,14 @@ export default function DoctorMessageDetail({ message }: { message: DoctorMessag
         <p className="mt-3 text-sm text-[#0B1F55]">{message.body}</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="mt-auto pt-5">
+      <form onSubmit={handleSubmit} className="mt-5 border-t border-[#EEF2F8] pt-5">
         <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Cevap Yaz</label>
         <textarea
           value={reply}
           onChange={(event) => setReply(event.target.value)}
           rows={3}
           placeholder="Cevabınızı yazın..."
-          className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+          className="min-h-24 w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
         />
 
         <div className="mt-3 flex justify-end">

@@ -1,4 +1,3 @@
-import DoctorMessageSummaryCards from "@/components/doctor/DoctorMessageSummaryCards";
 import DoctorMessagesPanel from "@/components/doctor/DoctorMessagesPanel";
 
 export default function DoctorMessagesPage() {
@@ -7,11 +6,9 @@ export default function DoctorMessagesPage() {
       <div>
         <h1 className="text-2xl font-bold text-[#0B1F55]">Mesajlar</h1>
         <p className="mt-1 text-sm text-[#667085]">
-          Hasta ve klinik içi mesajlarınızı görüntüleyin ve takip edin.
+          Hastalarınızdan, sekreterden ve klinik yönetiminden gelen mesajları takip edin ve yanıtlayın.
         </p>
       </div>
-
-      <DoctorMessageSummaryCards />
 
       <DoctorMessagesPanel />
     </div>
