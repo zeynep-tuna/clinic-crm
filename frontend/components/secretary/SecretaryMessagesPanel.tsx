@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { secretaryMessageRows } from "@/data/secretaryMessages";
 import SecretaryMessageDetail from "@/components/secretary/SecretaryMessageDetail";
+import EmptyState from "@/components/common/EmptyState";
 
 export type FilterValue = "Tümü" | "Okunmamış" | "Hasta" | "Doktor" | "Acil";
 
@@ -41,7 +42,7 @@ interface SecretaryMessagesPanelProps {
 
 export default function SecretaryMessagesPanel({ activeFilter, onFilterChange }: SecretaryMessagesPanelProps) {
   const [search, setSearch] = useState("");
-  const [selectedId, setSelectedId] = useState(secretaryMessageRows[0].id);
+  const [selectedId, setSelectedId] = useState(secretaryMessageRows[0]?.id ?? "");
 
   const filteredMessages = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -113,6 +114,38 @@ export default function SecretaryMessagesPanel({ activeFilter, onFilterChange }:
           })}
         </div>
 
+        {secretaryMessageRows.length === 0 && (
+          <div className="mt-4">
+            <EmptyState
+              variant="empty"
+              title="Henüz mesaj bulunmuyor"
+              description="Hasta, hekim veya klinik içi mesajlaşmalar başladığında mesajlar burada görüntülenir."
+            />
+          </div>
+        )}
+
+        {secretaryMessageRows.length > 0 && filteredMessages.length === 0 && (
+          <div className="mt-4">
+            <EmptyState
+              variant="search"
+              title="Eşleşen mesaj bulunamadı"
+              description="Hasta adı, konu veya mesaj içeriğini değiştirerek tekrar deneyin."
+              action={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch("");
+                    onFilterChange("Tümü");
+                  }}
+                  className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+                >
+                  Filtreleri temizle
+                </button>
+              }
+            />
+          </div>
+        )}
+
         <div className="mt-4 space-y-2">
           {filteredMessages.map((message) => {
             const isSelected = message.id === selectedMessage.id;
@@ -173,16 +206,10 @@ export default function SecretaryMessagesPanel({ activeFilter, onFilterChange }:
               </button>
             );
           })}
-
-          {filteredMessages.length === 0 && (
-            <p className="py-10 text-center text-sm text-[#667085]">
-              Aramanızla eşleşen mesaj bulunamadı.
-            </p>
-          )}
         </div>
       </div>
 
-      <SecretaryMessageDetail message={selectedMessage} />
+      {selectedMessage && <SecretaryMessageDetail message={selectedMessage} />}
     </div>
   );
 }

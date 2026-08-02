@@ -6,6 +6,7 @@ import {
   type SecretaryConsentFormStatus,
   type SecretaryConsentFormType,
 } from "@/data/secretaryConsentForms";
+import EmptyState from "@/components/common/EmptyState";
 
 export type FilterValue = "Tümü" | SecretaryConsentFormStatus;
 
@@ -137,6 +138,43 @@ export default function SecretaryConsentFormsTable({
       </div>
 
       <div className="mt-5 overflow-x-auto">
+        {secretaryConsentFormRows.length === 0 && (
+          <EmptyState
+            variant="empty"
+            title="Henüz onam formu bulunmuyor"
+            description="Diş tedavileri için dijital onam formları oluşturulduğunda burada takip edebilirsiniz."
+            action={
+              <button
+                type="button"
+                className="flex h-10 items-center justify-center rounded-xl bg-[#5B4DE3] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#4c3fd1]"
+              >
+                + Yeni Onam Formu Ekle
+              </button>
+            }
+          />
+        )}
+
+        {secretaryConsentFormRows.length > 0 && filteredForms.length === 0 && (
+          <EmptyState
+            variant="search"
+            title="Eşleşen onam formu bulunamadı"
+            description="Hasta adı, form türü veya imza durumunu değiştirerek tekrar deneyin."
+            action={
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  onFilterChange("Tümü");
+                }}
+                className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+              >
+                Filtreleri temizle
+              </button>
+            }
+          />
+        )}
+
+        {filteredForms.length > 0 && (
         <table className="w-full min-w-230 text-left">
           <thead>
             <tr className="border-b border-[#EAF0F8] text-xs font-semibold tracking-wide text-[#667085] uppercase">
@@ -219,11 +257,6 @@ export default function SecretaryConsentFormsTable({
             ))}
           </tbody>
         </table>
-
-        {filteredForms.length === 0 && (
-          <p className="py-10 text-center text-sm text-[#667085]">
-            Aramanızla eşleşen onam formu bulunamadı.
-          </p>
         )}
       </div>
 

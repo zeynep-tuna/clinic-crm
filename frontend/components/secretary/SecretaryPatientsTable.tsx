@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { secretaryPatientRows, type SecretaryPatientStatus } from "@/data/secretaryPatients";
+import EmptyState from "@/components/common/EmptyState";
 
 export type FilterValue = "Tümü" | SecretaryPatientStatus;
 
@@ -110,6 +111,43 @@ export default function SecretaryPatientsTable({ activeFilter, onFilterChange }:
       </div>
 
       <div className="mt-5 overflow-x-auto">
+        {secretaryPatientRows.length === 0 && (
+          <EmptyState
+            variant="empty"
+            title="Henüz hasta kaydı yok"
+            description="Diş kliniğine gelen hastaları takip etmek için yeni hasta kaydı oluşturabilirsiniz."
+            action={
+              <button
+                type="button"
+                className="flex h-10 items-center justify-center rounded-xl bg-[#5B4DE3] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#4c3fd1]"
+              >
+                + Yeni Hasta Ekle
+              </button>
+            }
+          />
+        )}
+
+        {secretaryPatientRows.length > 0 && filteredPatients.length === 0 && (
+          <EmptyState
+            variant="search"
+            title="Eşleşen hasta bulunamadı"
+            description="Hasta adı, telefon numarası veya seçili filtreyi değiştirerek tekrar deneyin."
+            action={
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  onFilterChange("Tümü");
+                }}
+                className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+              >
+                Filtreleri temizle
+              </button>
+            }
+          />
+        )}
+
+        {filteredPatients.length > 0 && (
         <table className="w-full min-w-[880px] text-left">
           <thead>
             <tr className="border-b border-[#EAF0F8] text-xs font-semibold tracking-wide text-[#667085] uppercase">
@@ -174,11 +212,6 @@ export default function SecretaryPatientsTable({ activeFilter, onFilterChange }:
             ))}
           </tbody>
         </table>
-
-        {filteredPatients.length === 0 && (
-          <p className="py-10 text-center text-sm text-[#667085]">
-            Aramanızla eşleşen hasta bulunamadı.
-          </p>
         )}
       </div>
 

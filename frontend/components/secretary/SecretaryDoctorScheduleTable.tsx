@@ -6,6 +6,7 @@ import {
   type SecretaryDoctorStatus,
   type SecretaryDoctorWorkload,
 } from "@/data/secretaryDoctorSchedule";
+import EmptyState from "@/components/common/EmptyState";
 
 export type FilterValue = "Tümü" | "Aktif" | "Yoğun" | "Müsait" | "İzinli";
 
@@ -142,6 +143,35 @@ export default function SecretaryDoctorScheduleTable({
       </div>
 
       <div className="mt-5 overflow-x-auto">
+        {secretaryDoctorScheduleRows.length === 0 && (
+          <EmptyState
+            variant="empty"
+            title="Hekim takviminde kayıt bulunmuyor"
+            description="Diş hekimlerinin günlük randevu planları oluşturulduğunda burada görüntülenir."
+          />
+        )}
+
+        {secretaryDoctorScheduleRows.length > 0 && filteredDoctors.length === 0 && (
+          <EmptyState
+            variant="search"
+            title="Eşleşen takvim kaydı bulunamadı"
+            description="Hekim adı, tarih veya randevu durumunu değiştirerek tekrar deneyin."
+            action={
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  onFilterChange("Tümü");
+                }}
+                className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+              >
+                Filtreleri temizle
+              </button>
+            }
+          />
+        )}
+
+        {filteredDoctors.length > 0 && (
         <table className="w-full min-w-220 text-left">
           <thead>
             <tr className="border-b border-[#EAF0F8] text-xs font-semibold tracking-wide text-[#667085] uppercase">
@@ -212,11 +242,6 @@ export default function SecretaryDoctorScheduleTable({
             ))}
           </tbody>
         </table>
-
-        {filteredDoctors.length === 0 && (
-          <p className="py-10 text-center text-sm text-[#667085]">
-            Aramanızla eşleşen doktor bulunamadı.
-          </p>
         )}
       </div>
 

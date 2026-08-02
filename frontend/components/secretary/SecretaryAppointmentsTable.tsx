@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { secretaryAppointmentRows, type SecretaryAppointmentStatus } from "@/data/secretaryAppointments";
+import EmptyState from "@/components/common/EmptyState";
 
 export type FilterValue = "Tümü" | SecretaryAppointmentStatus;
 
@@ -115,6 +116,43 @@ export default function SecretaryAppointmentsTable({
       </div>
 
       <div className="mt-5 overflow-x-auto">
+        {secretaryAppointmentRows.length === 0 && (
+          <EmptyState
+            variant="empty"
+            title="Henüz randevu bulunmuyor"
+            description="Hastaların muayene ve tedavi randevularını planlamak için yeni randevu oluşturabilirsiniz."
+            action={
+              <button
+                type="button"
+                className="flex h-10 items-center justify-center rounded-xl bg-[#5B4DE3] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#4c3fd1]"
+              >
+                + Yeni Randevu Ekle
+              </button>
+            }
+          />
+        )}
+
+        {secretaryAppointmentRows.length > 0 && filteredAppointments.length === 0 && (
+          <EmptyState
+            variant="search"
+            title="Eşleşen randevu bulunamadı"
+            description="Hasta adı, hekim adı, tarih veya durum filtresini değiştirerek tekrar deneyin."
+            action={
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  onFilterChange("Tümü");
+                }}
+                className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+              >
+                Filtreleri temizle
+              </button>
+            }
+          />
+        )}
+
+        {filteredAppointments.length > 0 && (
         <table className="w-full min-w-220 text-left">
           <thead>
             <tr className="border-b border-[#EAF0F8] text-xs font-semibold tracking-wide text-[#667085] uppercase">
@@ -179,11 +217,6 @@ export default function SecretaryAppointmentsTable({
             ))}
           </tbody>
         </table>
-
-        {filteredAppointments.length === 0 && (
-          <p className="py-10 text-center text-sm text-[#667085]">
-            Aramanızla eşleşen randevu bulunamadı.
-          </p>
         )}
       </div>
 

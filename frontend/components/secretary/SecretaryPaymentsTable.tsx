@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { secretaryPaymentRows, type SecretaryPaymentStatus } from "@/data/secretaryPayments";
+import EmptyState from "@/components/common/EmptyState";
 
 export type FilterValue = "Tümü" | SecretaryPaymentStatus;
 
@@ -112,6 +113,43 @@ export default function SecretaryPaymentsTable({ activeFilter, onFilterChange }:
       </div>
 
       <div className="mt-5 overflow-x-auto">
+        {secretaryPaymentRows.length === 0 && (
+          <EmptyState
+            variant="empty"
+            title="Henüz ödeme kaydı yok"
+            description="Hasta tedavi ödemeleri oluşturulduğunda tahsilat durumlarını buradan takip edebilirsiniz."
+            action={
+              <button
+                type="button"
+                className="flex h-10 items-center justify-center rounded-xl bg-[#5B4DE3] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#4c3fd1]"
+              >
+                + Yeni Ödeme Ekle
+              </button>
+            }
+          />
+        )}
+
+        {secretaryPaymentRows.length > 0 && filteredPayments.length === 0 && (
+          <EmptyState
+            variant="search"
+            title="Eşleşen ödeme kaydı bulunamadı"
+            description="Hasta adı, işlem, ödeme yöntemi veya durum filtresini değiştirerek tekrar deneyin."
+            action={
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  onFilterChange("Tümü");
+                }}
+                className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+              >
+                Filtreleri temizle
+              </button>
+            }
+          />
+        )}
+
+        {filteredPayments.length > 0 && (
         <table className="w-full min-w-220 text-left">
           <thead>
             <tr className="border-b border-[#EAF0F8] text-xs font-semibold tracking-wide text-[#667085] uppercase">
@@ -180,11 +218,6 @@ export default function SecretaryPaymentsTable({ activeFilter, onFilterChange }:
             ))}
           </tbody>
         </table>
-
-        {filteredPayments.length === 0 && (
-          <p className="py-10 text-center text-sm text-[#667085]">
-            Aramanızla eşleşen ödeme kaydı bulunamadı.
-          </p>
         )}
       </div>
 
