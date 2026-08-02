@@ -81,7 +81,7 @@ function InfoItem({
 
 export default function PatientProfileCard({ patient }: { patient: PatientDetail }) {
   return (
-    <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-7 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-7 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <div className="flex flex-wrap items-center gap-8">
         <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-[#EEF0FF] text-3xl font-bold text-[#5B4DE3]">
           {patient.fullName.charAt(0)}

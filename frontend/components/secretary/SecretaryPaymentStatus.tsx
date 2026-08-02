@@ -20,7 +20,7 @@ export default function SecretaryPaymentStatus() {
   }, []);
 
   return (
-    <div className="flex h-full flex-col rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="flex h-full flex-col rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <h2 className="text-base font-semibold text-[#0B1F55]">Ödeme Durumu Özeti</h2>
 
       <div className="flex flex-1 flex-col justify-center">
@@ -61,7 +61,7 @@ export default function SecretaryPaymentStatus() {
           </div>
         </div>
 
-        <div className="mt-5 border-t border-[#E3E8F0] pt-3">
+        <div className="mt-5 border-t border-[#EAF0F8] pt-3">
           <button
             type="button"
             className="text-xs font-semibold text-[#5B4DE3] hover:text-[#4c3fd1]"

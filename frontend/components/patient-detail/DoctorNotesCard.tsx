@@ -2,7 +2,7 @@ import type { DoctorNote } from "@/data/patient-detail";
 
 export default function DoctorNotesCard({ notes }: { notes: DoctorNote[] }) {
   return (
-    <div className="flex h-full flex-col rounded-[20px] border border-[#E3E8F0] bg-white p-7 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="flex h-full flex-col rounded-[20px] border border-[#EAF0F8] bg-white p-7 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#EEF0FF] text-[#5B4DE3]">
@@ -18,14 +18,14 @@ export default function DoctorNotesCard({ notes }: { notes: DoctorNote[] }) {
           <button
             type="button"
             aria-label="Önceki not"
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E3E8F0] text-[#667085] hover:bg-[#F7F8FF]"
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#EAF0F8] text-[#667085] hover:bg-[#F7F8FF]"
           >
             &lt;
           </button>
           <button
             type="button"
             aria-label="Sonraki not"
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E3E8F0] text-[#667085] hover:bg-[#F7F8FF]"
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#EAF0F8] text-[#667085] hover:bg-[#F7F8FF]"
           >
             &gt;
           </button>
@@ -36,7 +36,7 @@ export default function DoctorNotesCard({ notes }: { notes: DoctorNote[] }) {
         {notes.map((note, index) => (
           <div
             key={`${note.date}-${index}`}
-            className="border-b border-[#E3E8F0]/60 pb-5 last:border-0 last:pb-0"
+            className="border-b border-[#EAF0F8]/60 pb-5 last:border-0 last:pb-0"
           >
             <p className="text-sm font-semibold text-[#0B1F55]">
               {note.date} <span className="text-[#667085]">·</span> {note.doctor}

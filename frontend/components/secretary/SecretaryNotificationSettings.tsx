@@ -17,13 +17,13 @@ export default function SecretaryNotificationSettings() {
   };
 
   return (
-    <div className="flex flex-col rounded-[20px] border border-[#E3E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="flex flex-col rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <h2 className="text-base font-semibold text-[#0B1F55]">Bildirim Tercihleri</h2>
       <p className="mt-1 text-sm text-[#667085]">
         Sekreter panelinde almak istediğiniz bildirimleri yönetin.
       </p>
 
-      <div className="mt-4 divide-y divide-[#E3E8F0]/60">
+      <div className="mt-4 divide-y divide-[#EAF0F8]/60">
         {preferences.map((preference) => (
           <div key={preference.id} className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
             <span className="text-sm text-[#0B1F55]">{preference.label}</span>
@@ -35,7 +35,7 @@ export default function SecretaryNotificationSettings() {
               aria-label={preference.label}
               onClick={() => toggle(preference.id)}
               className={`relative h-5.5 w-10 shrink-0 rounded-full transition-colors ${
-                preference.enabled ? "bg-[#5B4DE3]" : "bg-[#E3E8F0]"
+                preference.enabled ? "bg-[#5B4DE3]" : "bg-[#EAF0F8]"
               }`}
             >
               <span

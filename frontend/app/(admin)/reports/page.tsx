@@ -41,14 +41,14 @@ export default function ReportsPage() {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            className="flex h-11 items-center gap-2 rounded-xl border border-[#E3E8F0] bg-white px-4 text-sm font-semibold text-[#0B1F55] shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)] transition-colors hover:bg-[#F7F8FF]"
+            className="flex h-11 items-center gap-2 rounded-xl border border-[#EAF0F8] bg-white px-4 text-sm font-semibold text-[#0B1F55] shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-colors hover:bg-[#F7F8FF]"
           >
             <PdfIcon />
             PDF
           </button>
           <button
             type="button"
-            className="flex h-11 items-center gap-2 rounded-xl border border-[#E3E8F0] bg-white px-4 text-sm font-semibold text-[#0B1F55] shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)] transition-colors hover:bg-[#F7F8FF]"
+            className="flex h-11 items-center gap-2 rounded-xl border border-[#EAF0F8] bg-white px-4 text-sm font-semibold text-[#0B1F55] shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-colors hover:bg-[#F7F8FF]"
           >
             <ExcelIcon />
             Excel

@@ -8,7 +8,7 @@ export default function MonthlyRevenueChart() {
   const maxAmount = Math.max(...monthlyRevenue.map((point) => point.amount));
 
   return (
-    <div className="flex h-full flex-col rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="flex h-full flex-col rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-bold text-[#0B1F55]">Aylık Gelir Raporu</h3>
         <span className="inline-flex items-center rounded-full bg-[#EEF0FF] px-3 py-1 text-xs font-semibold text-[#5B4DE3]">

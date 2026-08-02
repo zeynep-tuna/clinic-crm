@@ -11,7 +11,7 @@ export default function SecuritySettingsSection({
   updateField,
 }: SecuritySettingsSectionProps) {
   return (
-    <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <h3 className="text-base font-bold text-[#0B1F55]">Güvenlik Ayarları</h3>
       <p className="mt-1 text-sm text-[#667085]">
         Admin hesabınızın oturum ve şifre güvenliğini yönetin.
@@ -35,7 +35,7 @@ export default function SecuritySettingsSection({
             <select
               value={form.sessionTimeout}
               onChange={(event) => updateField("sessionTimeout", event.target.value)}
-              className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+              className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
             >
               {sessionTimeoutOptions.map((option) => (
                 <option key={option} value={option}>
@@ -53,7 +53,7 @@ export default function SecuritySettingsSection({
               type="password"
               value={form.currentPassword}
               onChange={(event) => updateField("currentPassword", event.target.value)}
-              className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+              className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
             />
           </div>
 
@@ -63,7 +63,7 @@ export default function SecuritySettingsSection({
               type="password"
               value={form.newPassword}
               onChange={(event) => updateField("newPassword", event.target.value)}
-              className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+              className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
             />
           </div>
 
@@ -75,7 +75,7 @@ export default function SecuritySettingsSection({
               type="password"
               value={form.confirmPassword}
               onChange={(event) => updateField("confirmPassword", event.target.value)}
-              className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+              className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
             />
           </div>
         </div>

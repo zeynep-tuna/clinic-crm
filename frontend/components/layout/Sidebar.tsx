@@ -167,12 +167,12 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`flex h-screen shrink-0 flex-col border-r border-[#E3E8F0]/70 bg-white transition-all duration-200 ease-in-out ${
+      className={`flex h-screen shrink-0 flex-col border-r border-[#EAF0F8]/70 bg-white transition-all duration-200 ease-in-out ${
         collapsed ? "w-20" : "w-60"
       }`}
     >
       <div
-        className={`flex h-16 items-center gap-2 border-b border-[#E3E8F0]/70 transition-all duration-200 ease-in-out ${
+        className={`flex h-16 items-center gap-2 border-b border-[#EAF0F8]/70 transition-all duration-200 ease-in-out ${
           collapsed ? "justify-center px-2" : "px-5"
         }`}
       >
@@ -249,7 +249,7 @@ export default function Sidebar() {
             type="button"
             onClick={() => setCollapsed((previous) => !previous)}
             aria-label={collapsed ? "Sidebar'ı genişlet" : "Sidebar'ı daralt"}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#E3E8F0] text-[#667085] transition-colors hover:bg-[#F7F8FF]"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#EAF0F8] text-[#667085] transition-colors hover:bg-[#F7F8FF]"
           >
             {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </button>

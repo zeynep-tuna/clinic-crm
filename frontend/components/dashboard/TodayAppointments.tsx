@@ -16,12 +16,12 @@ function EyeIcon() {
 
 export default function TodayAppointments() {
   return (
-    <div className="flex h-full flex-col rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="flex h-full flex-col rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold text-[#0B1F55]">Bugünkü Randevular</h3>
         <button
           type="button"
-          className="rounded-xl border border-[#E3E8F0] px-4 py-2 text-sm font-medium text-[#0B1F55] hover:bg-[#F7F8FF]"
+          className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-medium text-[#0B1F55] hover:bg-[#F7F8FF]"
         >
           Tümünü Gör
         </button>
@@ -30,7 +30,7 @@ export default function TodayAppointments() {
       <div className="mt-5 overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-[#E3E8F0]/70 text-sm text-[#667085]">
+            <tr className="border-b border-[#EAF0F8]/70 text-sm text-[#667085]">
               <th className="pb-3 font-medium">Saat</th>
               <th className="pb-3 font-medium">Hasta</th>
               <th className="pb-3 font-medium">Doktor</th>
@@ -41,7 +41,7 @@ export default function TodayAppointments() {
           </thead>
           <tbody>
             {todayAppointments.map((appointment) => (
-              <tr key={appointment.id} className="border-b border-[#E3E8F0]/60 last:border-0">
+              <tr key={appointment.id} className="border-b border-[#EAF0F8]/60 last:border-0">
                 <td className="py-4 text-sm text-[#0B1F55]">{appointment.time}</td>
                 <td className="py-4 text-sm font-medium text-[#0B1F55]">
                   {appointment.patientName}

@@ -18,7 +18,7 @@ export default function SecretaryWorkPreferences() {
   };
 
   return (
-    <div className="flex flex-col rounded-[20px] border border-[#E3E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="flex flex-col rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <h2 className="text-base font-semibold text-[#0B1F55]">Çalışma Ayarları</h2>
       <p className="mt-1 text-sm text-[#667085]">
         Randevu ve liste görünümü tercihlerinizi düzenleyin.
@@ -32,7 +32,7 @@ export default function SecretaryWorkPreferences() {
           <select
             value={duration}
             onChange={(event) => setDuration(event.target.value)}
-            className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+            className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
           >
             {durationOptions.map((option) => (
               <option key={option} value={option}>
@@ -47,7 +47,7 @@ export default function SecretaryWorkPreferences() {
           <select
             value={dailyView}
             onChange={(event) => setDailyView(event.target.value)}
-            className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+            className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
           >
             {dailyViewOptions.map((option) => (
               <option key={option} value={option}>
@@ -64,7 +64,7 @@ export default function SecretaryWorkPreferences() {
           <select
             value={patientListView}
             onChange={(event) => setPatientListView(event.target.value)}
-            className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+            className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
           >
             {patientListViewOptions.map((option) => (
               <option key={option} value={option}>
@@ -76,7 +76,7 @@ export default function SecretaryWorkPreferences() {
 
         <div>
           <span className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Otomatik Hatırlatma</span>
-          <div className="flex h-9.5 items-center justify-between rounded-xl border border-[#E3E8F0] px-4">
+          <div className="flex h-9.5 items-center justify-between rounded-xl border border-[#EAF0F8] px-4">
             <span className="text-sm text-[#667085]">{autoReminder ? "Açık" : "Kapalı"}</span>
 
             <button
@@ -86,7 +86,7 @@ export default function SecretaryWorkPreferences() {
               aria-label="Otomatik Hatırlatma"
               onClick={() => setAutoReminder((previous) => !previous)}
               className={`relative h-5.5 w-10 shrink-0 rounded-full transition-colors ${
-                autoReminder ? "bg-[#5B4DE3]" : "bg-[#E3E8F0]"
+                autoReminder ? "bg-[#5B4DE3]" : "bg-[#EAF0F8]"
               }`}
             >
               <span

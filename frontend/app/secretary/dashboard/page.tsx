@@ -26,7 +26,7 @@ function SparkleIcon() {
 export default function SecretaryDashboardPage() {
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-[20px] border border-[#DCD8FF] bg-linear-to-r from-white to-[#F7F8FF] px-6 py-4 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-[20px] border border-[#DCD8FF] bg-linear-to-r from-white to-[#F7F8FF] px-6 py-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
         <div className="flex items-center gap-3">
           <span className="text-2xl" aria-hidden="true">
             👋

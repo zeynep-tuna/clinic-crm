@@ -28,13 +28,13 @@ function getInitials(fullName: string) {
 
 export default function DoctorPerformanceTable() {
   return (
-    <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <h3 className="text-base font-bold text-[#0B1F55]">Hekim Performansı</h3>
 
       <div className="mt-5 overflow-x-auto">
         <table className="w-full min-w-236 table-fixed text-left">
           <thead>
-            <tr className="border-b border-[#E3E8F0]/70 text-xs font-semibold tracking-wide text-[#667085] uppercase">
+            <tr className="border-b border-[#EAF0F8]/70 text-xs font-semibold tracking-wide text-[#667085] uppercase">
               <th className="w-56 pb-2.5 pr-4 font-medium">Hekim</th>
               <th className="w-40 pb-2.5 pr-4 font-medium">Uzmanlık</th>
               <th className="w-32 pb-2.5 pr-4 text-center font-medium">Toplam Randevu</th>
@@ -58,7 +58,7 @@ export default function DoctorPerformanceTable() {
             {doctorPerformance.map((doctor) => (
               <tr
                 key={doctor.id}
-                className="group border-b border-[#E3E8F0]/60 transition-colors last:border-0 hover:bg-[#F8F9FF]"
+                className="group border-b border-[#EAF0F8]/60 transition-colors last:border-0 hover:bg-[#F8F9FF]"
               >
                 <td className="py-4 pr-4">
                   <div className="flex items-center gap-3">

@@ -14,7 +14,7 @@ export default function AppointmentStatusDistribution() {
   const total = appointmentStatusDistribution.reduce((sum, item) => sum + item.count, 0);
 
   return (
-    <div className="flex h-full flex-col rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="flex h-full flex-col rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-bold text-[#0B1F55]">Randevu Durum Dağılımı</h3>
         <span className="text-xs font-medium text-[#667085]">Toplam {total} randevu</span>

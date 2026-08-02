@@ -78,7 +78,7 @@ export default function ConsentFormSummaryCards() {
       {cards.map((card) => (
         <div
           key={card.id}
-          className="flex items-center gap-4 rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]"
+          className="flex items-center gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]"
         >
           <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${card.bgClass} ${card.colorClass}`}>
             {card.icon}

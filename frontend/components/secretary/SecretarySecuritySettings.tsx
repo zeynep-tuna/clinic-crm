@@ -32,7 +32,7 @@ export default function SecretarySecuritySettings() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col rounded-[20px] border border-[#E3E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]"
+      className="flex flex-col rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)]"
     >
       <div className="flex items-center gap-2.5">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#EEF0FF] text-[#5B4DE3]">
@@ -54,7 +54,7 @@ export default function SecretarySecuritySettings() {
             type="password"
             value={form.currentPassword}
             onChange={(event) => updateField("currentPassword", event.target.value)}
-            className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+            className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
           />
         </div>
 
@@ -64,7 +64,7 @@ export default function SecretarySecuritySettings() {
             type="password"
             value={form.newPassword}
             onChange={(event) => updateField("newPassword", event.target.value)}
-            className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+            className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
           />
         </div>
 
@@ -76,7 +76,7 @@ export default function SecretarySecuritySettings() {
             type="password"
             value={form.confirmPassword}
             onChange={(event) => updateField("confirmPassword", event.target.value)}
-            className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+            className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
           />
         </div>
       </div>
@@ -84,7 +84,7 @@ export default function SecretarySecuritySettings() {
       <div className="mt-4 flex justify-end">
         <button
           type="submit"
-          className="flex h-11 items-center justify-center rounded-xl border border-[#E3E8F0] px-5 text-sm font-semibold text-[#0B1F55] transition-colors hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
+          className="flex h-11 items-center justify-center rounded-xl border border-[#EAF0F8] px-5 text-sm font-semibold text-[#0B1F55] transition-colors hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
         >
           Şifreyi Güncelle
         </button>

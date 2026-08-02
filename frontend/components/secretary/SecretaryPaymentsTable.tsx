@@ -67,7 +67,7 @@ export default function SecretaryPaymentsTable({ activeFilter, onFilterChange }:
   }, [search, activeFilter]);
 
   return (
-    <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="relative w-full max-w-xs">
           <svg
@@ -85,7 +85,7 @@ export default function SecretaryPaymentsTable({ activeFilter, onFilterChange }:
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Bu listede hasta, tedavi veya ödeme yöntemi ara..."
-            className="w-full rounded-xl border border-[#E3E8F0] bg-white py-2 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+            className="w-full rounded-xl border border-[#EAF0F8] bg-white py-2 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
           />
         </div>
 
@@ -101,7 +101,7 @@ export default function SecretaryPaymentsTable({ activeFilter, onFilterChange }:
                 className={`rounded-xl border px-3.5 py-1.5 text-sm font-medium transition-colors ${
                   isActive
                     ? "border-[#5B4DE3] bg-[#5B4DE3] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06),0_2px_6px_rgba(91,77,227,0.25)]"
-                    : "border-[#E3E8F0] text-[#0B1F55] hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
+                    : "border-[#EAF0F8] text-[#0B1F55] hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
                 }`}
               >
                 {filter}
@@ -114,7 +114,7 @@ export default function SecretaryPaymentsTable({ activeFilter, onFilterChange }:
       <div className="mt-5 overflow-x-auto">
         <table className="w-full min-w-220 text-left">
           <thead>
-            <tr className="border-b border-[#E3E8F0] text-xs font-semibold tracking-wide text-[#667085] uppercase">
+            <tr className="border-b border-[#EAF0F8] text-xs font-semibold tracking-wide text-[#667085] uppercase">
               <th className="pb-2.5 font-medium">Hasta</th>
               <th className="pb-2.5 font-medium">Tedavi</th>
               <th className="pb-2.5 text-right font-medium">Tutar</th>
@@ -129,7 +129,7 @@ export default function SecretaryPaymentsTable({ activeFilter, onFilterChange }:
               <tr
                 key={payment.id}
                 onClick={() => console.log("Ödeme detayına git:", payment.id)}
-                className="cursor-pointer border-b border-[#E3E8F0]/60 transition-colors last:border-0 hover:bg-[#F8F9FF]"
+                className="cursor-pointer border-b border-[#EAF0F8]/60 transition-colors last:border-0 hover:bg-[#F8F9FF]"
               >
                 <td className="py-4">
                   <div className="flex items-center gap-3">
@@ -188,14 +188,14 @@ export default function SecretaryPaymentsTable({ activeFilter, onFilterChange }:
         )}
       </div>
 
-      <div className="mt-5 flex items-center justify-between border-t border-[#E3E8F0] pt-5">
+      <div className="mt-5 flex items-center justify-between border-t border-[#EAF0F8] pt-5">
         <p className="text-sm text-[#667085]">Toplam {filteredPayments.length} kayıt</p>
 
         <div className="flex items-center gap-2">
           <button
             type="button"
             aria-label="Önceki sayfa"
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#E3E8F0] text-[#667085] hover:bg-[#F7F8FF]"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#EAF0F8] text-[#667085] hover:bg-[#F7F8FF]"
           >
             &lt;
           </button>
@@ -208,7 +208,7 @@ export default function SecretaryPaymentsTable({ activeFilter, onFilterChange }:
           <button
             type="button"
             aria-label="Sonraki sayfa"
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#E3E8F0] text-[#667085] hover:bg-[#F7F8FF]"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#EAF0F8] text-[#667085] hover:bg-[#F7F8FF]"
           >
             &gt;
           </button>

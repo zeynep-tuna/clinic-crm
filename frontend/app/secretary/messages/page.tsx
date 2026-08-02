@@ -9,7 +9,7 @@ export default function SecretaryMessagesPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="rounded-[20px] border border-[#E3E8F0] bg-white px-6 py-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+      <div className="rounded-[20px] border border-[#EAF0F8] bg-white px-6 py-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
         <div className="flex items-center gap-1.5 text-xs text-[#98A2B3]">
           <span>ClinicCRM</span>
           <span className="text-[#D0D5DD]">&gt;</span>

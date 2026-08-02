@@ -11,7 +11,7 @@ export default function UpcomingAppointmentsCard({
   appointments: UpcomingAppointment[];
 }) {
   return (
-    <div className="flex h-full flex-col rounded-[20px] border border-[#E3E8F0] bg-white p-7 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="flex h-full flex-col rounded-[20px] border border-[#EAF0F8] bg-white p-7 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <div className="flex items-center gap-2.5">
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#EEF0FF] text-[#5B4DE3]">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
@@ -26,7 +26,7 @@ export default function UpcomingAppointmentsCard({
         {appointments.map((appointment, index) => (
           <div
             key={`${appointment.day}-${appointment.month}-${index}`}
-            className="flex items-center gap-4 rounded-2xl border border-[#E3E8F0] p-4"
+            className="flex items-center gap-4 rounded-2xl border border-[#EAF0F8] p-4"
           >
             <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-[#EEF0FF] text-[#5B4DE3]">
               <span className="text-sm font-bold leading-none">{appointment.day}</span>

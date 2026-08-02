@@ -38,8 +38,8 @@ export default function SecretaryMessageDetail({ message }: { message: Secretary
   };
 
   return (
-    <div className="flex flex-col rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
-      <div className="flex items-start justify-between gap-4 border-b border-[#E3E8F0] pb-4">
+    <div className="flex flex-col rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+      <div className="flex items-start justify-between gap-4 border-b border-[#EAF0F8] pb-4">
         <div className="flex items-center gap-3">
           <div
             className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${senderTypeBadgeClass[message.senderType]}`}
@@ -81,27 +81,27 @@ export default function SecretaryMessageDetail({ message }: { message: Secretary
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <button
             type="button"
-            className="flex h-9 items-center justify-center rounded-xl border border-[#E3E8F0] px-3.5 text-xs font-semibold text-[#0B1F55] transition-colors hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
+            className="flex h-9 items-center justify-center rounded-xl border border-[#EAF0F8] px-3.5 text-xs font-semibold text-[#0B1F55] transition-colors hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
           >
             Okundu İşaretle
           </button>
           <button
             type="button"
-            className="flex h-9 items-center justify-center rounded-xl border border-[#E3E8F0] px-3.5 text-xs font-semibold text-[#0B1F55] transition-colors hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
+            className="flex h-9 items-center justify-center rounded-xl border border-[#EAF0F8] px-3.5 text-xs font-semibold text-[#0B1F55] transition-colors hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
           >
             Hasta Kartı
           </button>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="mt-4 border-t border-[#E3E8F0] pt-4">
+      <form onSubmit={handleSubmit} className="mt-4 border-t border-[#EAF0F8] pt-4">
         <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Cevap Yaz</label>
         <textarea
           value={reply}
           onChange={(event) => setReply(event.target.value)}
           rows={3}
           placeholder="Cevabınızı yazın..."
-          className="w-full resize-none rounded-xl border border-[#E3E8F0] bg-[#F7F8FF]/40 px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+          className="w-full resize-none rounded-xl border border-[#EAF0F8] bg-[#F7F8FF]/40 px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
         />
 
         <div className="mt-3 flex justify-end">

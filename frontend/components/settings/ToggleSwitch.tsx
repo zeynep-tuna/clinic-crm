@@ -22,7 +22,7 @@ export default function ToggleSwitch({ label, description, checked, onChange }: 
         />
         <span
           className={`absolute inset-0 rounded-full transition-colors ${
-            checked ? "bg-[#5B4DE3]" : "bg-[#E3E8F0]"
+            checked ? "bg-[#5B4DE3]" : "bg-[#EAF0F8]"
           }`}
         />
         <span

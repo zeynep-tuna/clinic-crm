@@ -30,7 +30,7 @@ export default function DoctorProfileTabs() {
               className={`flex h-10 items-center rounded-xl border px-4 text-sm font-medium transition-colors ${
                 isActive
                   ? "border-[#5B4DE3] bg-[#5B4DE3] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06),0_2px_6px_rgba(91,77,227,0.25)]"
-                  : "border-[#E3E8F0] text-[#0B1F55] hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
+                  : "border-[#EAF0F8] text-[#0B1F55] hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
               }`}
             >
               {tab.label}

@@ -92,7 +92,7 @@ export default function AddAppointmentModal() {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="flex h-11 items-center justify-center rounded-xl bg-[#5B4DE3] px-5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)] transition-colors hover:bg-[#4c3fd1]"
+        className="flex h-11 items-center justify-center rounded-xl bg-[#5B4DE3] px-5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-colors hover:bg-[#4c3fd1]"
       >
         + Yeni Randevu Ekle
       </button>
@@ -107,7 +107,7 @@ export default function AddAppointmentModal() {
             aria-modal="true"
             aria-labelledby="add-appointment-modal-title"
             onClick={(event) => event.stopPropagation()}
-            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[20px] border border-[#E3E8F0] bg-white p-8 shadow-[0_8px_16px_rgba(16,24,40,0.08),0_2px_4px_rgba(16,24,40,0.06)]"
+            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[20px] border border-[#EAF0F8] bg-white p-8 shadow-[0_8px_16px_rgba(16,24,40,0.08),0_2px_4px_rgba(16,24,40,0.06)]"
           >
             <div className="flex items-start justify-between">
               <div>
@@ -135,7 +135,7 @@ export default function AddAppointmentModal() {
                 <select
                   value={form.patient}
                   onChange={(event) => updateField("patient", event.target.value)}
-                  className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                 >
                   <option value="">Hasta seçin</option>
                   {patientOptions.map((option) => (
@@ -151,7 +151,7 @@ export default function AddAppointmentModal() {
                 <select
                   value={form.doctor}
                   onChange={(event) => updateField("doctor", event.target.value)}
-                  className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                 >
                   <option value="">Doktor seçin</option>
                   {doctorOptions.map((option) => (
@@ -167,7 +167,7 @@ export default function AddAppointmentModal() {
                 <select
                   value={form.department}
                   onChange={(event) => updateField("department", event.target.value)}
-                  className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                 >
                   <option value="">Bölüm seçin</option>
                   {departmentOptions.map((option) => (
@@ -196,7 +196,7 @@ export default function AddAppointmentModal() {
                     value={form.date}
                     onChange={(event) => updateField("date", event.target.value)}
                     autoComplete="off"
-                    className="w-full rounded-xl border border-[#E3E8F0] py-2.5 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                    className="w-full rounded-xl border border-[#EAF0F8] py-2.5 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                   />
                 </div>
               </div>
@@ -220,7 +220,7 @@ export default function AddAppointmentModal() {
                     value={form.time}
                     onChange={(event) => updateField("time", event.target.value)}
                     autoComplete="off"
-                    className="w-full rounded-xl border border-[#E3E8F0] py-2.5 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                    className="w-full rounded-xl border border-[#EAF0F8] py-2.5 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                   />
                 </div>
               </div>
@@ -230,7 +230,7 @@ export default function AddAppointmentModal() {
                 <select
                   value={form.appointmentType}
                   onChange={(event) => updateField("appointmentType", event.target.value)}
-                  className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                 >
                   <option value="">Tür seçin</option>
                   {appointmentTypeOptions.map((option) => (
@@ -246,7 +246,7 @@ export default function AddAppointmentModal() {
                 <select
                   value={form.status}
                   onChange={(event) => updateField("status", event.target.value)}
-                  className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 sm:max-w-[calc(50%-0.75rem)]"
+                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 sm:max-w-[calc(50%-0.75rem)]"
                 >
                   <option value="">Durum seçin</option>
                   {statusOptions.map((option) => (
@@ -264,7 +264,7 @@ export default function AddAppointmentModal() {
                   onChange={(event) => updateField("notes", event.target.value)}
                   placeholder="Not eklemek için yazın..."
                   rows={4}
-                  className="w-full resize-y rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                  className="w-full resize-y rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                 />
               </div>
 
@@ -272,7 +272,7 @@ export default function AddAppointmentModal() {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="rounded-xl border border-[#E3E8F0] bg-white px-5 py-2.5 text-sm font-semibold text-[#0B1F55] hover:bg-[#F7F8FF]"
+                  className="rounded-xl border border-[#EAF0F8] bg-white px-5 py-2.5 text-sm font-semibold text-[#0B1F55] hover:bg-[#F7F8FF]"
                 >
                   İptal
                 </button>

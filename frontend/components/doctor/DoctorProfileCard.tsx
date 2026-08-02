@@ -2,7 +2,7 @@ import { doctorProfileInfo } from "@/data/doctorProfile";
 
 export default function DoctorProfileCard() {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-5 rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="flex flex-wrap items-center justify-between gap-5 rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <div className="flex items-center gap-4">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#EEF0FF] text-xl font-bold text-[#5B4DE3]">
           EK
@@ -22,15 +22,15 @@ export default function DoctorProfileCard() {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <div className="rounded-xl border border-[#E3E8F0] bg-[#F7F8FF] px-4 py-2 text-center">
+        <div className="rounded-xl border border-[#EAF0F8] bg-[#F7F8FF] px-4 py-2 text-center">
           <p className="text-xs text-[#667085]">Deneyim</p>
           <p className="text-sm font-semibold text-[#0B1F55]">{doctorProfileInfo.experience}</p>
         </div>
-        <div className="rounded-xl border border-[#E3E8F0] bg-[#F7F8FF] px-4 py-2 text-center">
+        <div className="rounded-xl border border-[#EAF0F8] bg-[#F7F8FF] px-4 py-2 text-center">
           <p className="text-xs text-[#667085]">Hasta Sayısı</p>
           <p className="text-sm font-semibold text-[#0B1F55]">{doctorProfileInfo.patientCount}</p>
         </div>
-        <div className="rounded-xl border border-[#E3E8F0] bg-[#F7F8FF] px-4 py-2 text-center">
+        <div className="rounded-xl border border-[#EAF0F8] bg-[#F7F8FF] px-4 py-2 text-center">
           <p className="text-xs text-[#667085]">Bugünkü Randevu</p>
           <p className="text-sm font-semibold text-[#0B1F55]">{doctorProfileInfo.todayAppointments}</p>
         </div>

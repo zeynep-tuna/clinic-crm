@@ -18,12 +18,12 @@ export default function PaymentSummary() {
   ];
 
   return (
-    <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold text-[#0B1F55]">Ödeme Özeti</h3>
         <button
           type="button"
-          className="flex items-center gap-1.5 rounded-xl border border-[#E3E8F0] px-3 py-1.5 text-sm font-medium text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+          className="flex items-center gap-1.5 rounded-xl border border-[#EAF0F8] px-3 py-1.5 text-sm font-medium text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
         >
           Bu Ay
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-3.5 w-3.5">

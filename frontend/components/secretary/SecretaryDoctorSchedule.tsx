@@ -23,7 +23,7 @@ export default function SecretaryDoctorSchedule() {
   const totalAppointments = secretaryDoctorSchedule.reduce((sum, item) => sum + item.appointmentCount, 0);
 
   return (
-    <div className="flex h-full flex-col rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="flex h-full flex-col rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#DBEAFE] text-[#2563EB]">
@@ -39,7 +39,7 @@ export default function SecretaryDoctorSchedule() {
 
       <p className="mt-2 text-sm text-[#667085]">Bugün {totalAppointments} randevu planlandı</p>
 
-      <div className="mt-3 flex-1 divide-y divide-[#E3E8F0]">
+      <div className="mt-3 flex-1 divide-y divide-[#EAF0F8]">
         {secretaryDoctorSchedule.map((doctor) => (
           <div key={doctor.id} className="flex items-center justify-between gap-3 py-2.5">
             <div className="flex items-center gap-2.5">
@@ -59,7 +59,7 @@ export default function SecretaryDoctorSchedule() {
         ))}
       </div>
 
-      <div className="mt-4 border-t border-[#E3E8F0] pt-3">
+      <div className="mt-4 border-t border-[#EAF0F8] pt-3">
         <button
           type="button"
           className="text-xs font-semibold text-[#5B4DE3] transition-opacity hover:underline hover:opacity-80"

@@ -71,7 +71,7 @@ export default function SecretaryMessagesPanel({ activeFilter, onFilterChange }:
 
   return (
     <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1.1fr_1fr]">
-      <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+      <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
         <div className="relative">
           <svg
             viewBox="0 0 24 24"
@@ -88,7 +88,7 @@ export default function SecretaryMessagesPanel({ activeFilter, onFilterChange }:
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Bu listede mesaj veya kişi ara..."
-            className="w-full rounded-xl border border-[#E3E8F0] bg-white py-2 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+            className="w-full rounded-xl border border-[#EAF0F8] bg-white py-2 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
           />
         </div>
 
@@ -104,7 +104,7 @@ export default function SecretaryMessagesPanel({ activeFilter, onFilterChange }:
                 className={`rounded-xl border px-3.5 py-1.5 text-sm font-medium transition-colors ${
                   isActive
                     ? "border-[#5B4DE3] bg-[#5B4DE3] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06),0_2px_6px_rgba(91,77,227,0.25)]"
-                    : "border-[#E3E8F0] text-[#0B1F55] hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
+                    : "border-[#EAF0F8] text-[#0B1F55] hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
                 }`}
               >
                 {filter}

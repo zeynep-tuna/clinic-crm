@@ -11,7 +11,7 @@ export default function NotificationSettingsSection({
   updateField,
 }: NotificationSettingsSectionProps) {
   return (
-    <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <h3 className="text-base font-bold text-[#0B1F55]">Bildirim Ayarları</h3>
       <p className="mt-1 text-sm text-[#667085]">
         Diş kliniğinizdeki randevu, ödeme ve sistem bildirimlerini yönetin.

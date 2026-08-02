@@ -39,7 +39,7 @@ export default function DoctorMessageDetail({ message }: { message: DoctorMessag
   };
 
   return (
-    <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)] lg:sticky lg:top-24">
+    <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)] lg:sticky lg:top-24">
       <div className="flex items-start justify-between gap-4 border-b border-[#EEF2F8] pb-4">
         <div className="flex items-center gap-3">
           <div
@@ -84,7 +84,7 @@ export default function DoctorMessageDetail({ message }: { message: DoctorMessag
           onChange={(event) => setReply(event.target.value)}
           rows={3}
           placeholder="Cevabınızı yazın..."
-          className="min-h-24 w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+          className="min-h-24 w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
         />
 
         <div className="mt-3 flex justify-end">

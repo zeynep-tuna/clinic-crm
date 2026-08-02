@@ -2,7 +2,7 @@ import { doctorProfile } from "@/data/doctorDashboard";
 
 export default function DoctorTopbar() {
   return (
-    <header className="flex min-h-18 shrink-0 flex-wrap items-center justify-end gap-4 border-b border-[#E3E8F0]/60 bg-white px-6 py-3">
+    <header className="flex min-h-18 shrink-0 flex-wrap items-center justify-end gap-4 border-b border-[#EAF0F8]/60 bg-white px-6 py-3">
       <div className="flex items-center gap-4">
         <div className="relative hidden md:block">
           <svg
@@ -18,14 +18,14 @@ export default function DoctorTopbar() {
           <input
             type="text"
             placeholder="Hasta ara..."
-            className="w-56 rounded-xl border border-[#E3E8F0] bg-[#F7F8FF] py-1.5 pl-9 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+            className="w-56 rounded-xl border border-[#EAF0F8] bg-[#F7F8FF] py-1.5 pl-9 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
           />
         </div>
 
         <button
           type="button"
           aria-label="Bildirimler"
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-[#E3E8F0] text-[#667085] transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-[#EAF0F8] text-[#667085] transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -45,7 +45,7 @@ export default function DoctorTopbar() {
 
         <button
           type="button"
-          className="flex items-center gap-2.5 rounded-lg border-l border-[#E3E8F0]/60 py-1 pl-4 pr-1.5 transition-colors hover:bg-[#F7F8FF]"
+          className="flex items-center gap-2.5 rounded-lg border-l border-[#EAF0F8]/60 py-1 pl-4 pr-1.5 transition-colors hover:bg-[#F7F8FF]"
         >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EEF0FF] text-sm font-semibold text-[#5B4DE3]">
             EK

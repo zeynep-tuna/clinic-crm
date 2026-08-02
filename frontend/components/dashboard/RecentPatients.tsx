@@ -2,7 +2,7 @@ import { recentPatients } from "@/data/dashboard";
 
 export default function RecentPatients() {
   return (
-    <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold text-[#0B1F55]">Son Eklenen Hastalar</h3>
         <a href="#" className="text-sm font-medium text-[#5B4DE3] hover:underline">

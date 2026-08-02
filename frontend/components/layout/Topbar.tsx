@@ -1,6 +1,6 @@
 export default function Topbar() {
   return (
-    <header className="flex h-16 shrink-0 items-center justify-end border-b border-[#E3E8F0]/70 bg-white px-6">
+    <header className="flex h-16 shrink-0 items-center justify-end border-b border-[#EAF0F8]/70 bg-white px-6">
       <div className="flex items-center gap-4">
         <div className="relative">
           <svg
@@ -16,14 +16,14 @@ export default function Topbar() {
           <input
             type="text"
             placeholder="Ara..."
-            className="h-9 w-56 rounded-xl border border-[#E3E8F0] bg-[#F7F8FF] pl-9 pr-3.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+            className="h-9 w-56 rounded-xl border border-[#EAF0F8] bg-[#F7F8FF] pl-9 pr-3.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
           />
         </div>
 
         <button
           type="button"
           aria-label="Bildirimler"
-          className="relative flex h-9 w-9 items-center justify-center rounded-full border border-[#E3E8F0] text-[#667085] transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
+          className="relative flex h-9 w-9 items-center justify-center rounded-full border border-[#EAF0F8] text-[#667085] transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -42,7 +42,7 @@ export default function Topbar() {
           <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#EF4444] ring-2 ring-white" />
         </button>
 
-        <div className="flex items-center gap-2.5 border-l border-[#E3E8F0]/70 pl-4">
+        <div className="flex items-center gap-2.5 border-l border-[#EAF0F8]/70 pl-4">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EEF0FF] text-sm font-semibold text-[#5B4DE3]">
             BT
           </div>

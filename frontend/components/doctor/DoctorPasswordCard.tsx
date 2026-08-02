@@ -31,7 +31,7 @@ export default function DoctorPasswordCard() {
   };
 
   return (
-    <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <h2 className="text-base font-semibold text-[#0B1F55]">Güvenlik</h2>
       <p className="mt-1 text-sm text-[#667085]">
         Hesap şifrenizi güncelleyerek doktor paneli erişiminizi güvenli tutun.
@@ -45,7 +45,7 @@ export default function DoctorPasswordCard() {
               type="password"
               value={form.currentPassword}
               onChange={(event) => updateField("currentPassword", event.target.value)}
-              className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+              className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
             />
           </div>
 
@@ -56,7 +56,7 @@ export default function DoctorPasswordCard() {
                 type="password"
                 value={form.newPassword}
                 onChange={(event) => updateField("newPassword", event.target.value)}
-                className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
               />
             </div>
 
@@ -68,7 +68,7 @@ export default function DoctorPasswordCard() {
                 type="password"
                 value={form.confirmPassword}
                 onChange={(event) => updateField("confirmPassword", event.target.value)}
-                className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
               />
             </div>
           </div>
@@ -76,7 +76,7 @@ export default function DoctorPasswordCard() {
           <div className="mt-1 flex justify-end">
             <button
               type="submit"
-              className="flex h-11 items-center rounded-xl border border-[#E3E8F0] px-6 text-sm font-semibold text-[#0B1F55] hover:bg-[#F7F8FF]"
+              className="flex h-11 items-center rounded-xl border border-[#EAF0F8] px-6 text-sm font-semibold text-[#0B1F55] hover:bg-[#F7F8FF]"
             >
               Şifreyi Güncelle
             </button>

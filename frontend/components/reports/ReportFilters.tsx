@@ -19,13 +19,13 @@ const doctorOptions = [
 
 export default function ReportFilters() {
   return (
-    <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <div className="flex flex-wrap items-end gap-3">
         <div>
           <label className="mb-1.5 block text-xs font-medium text-[#667085]">Tarih Aralığı</label>
           <select
             defaultValue={dateRangeOptions[2]}
-            className="h-10 rounded-xl border border-[#E3E8F0] px-3.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+            className="h-10 rounded-xl border border-[#EAF0F8] px-3.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
           >
             {dateRangeOptions.map((option) => (
               <option key={option} value={option}>
@@ -39,7 +39,7 @@ export default function ReportFilters() {
           <label className="mb-1.5 block text-xs font-medium text-[#667085]">Rapor Türü</label>
           <select
             defaultValue={reportTypeOptions[0]}
-            className="h-10 rounded-xl border border-[#E3E8F0] px-3.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+            className="h-10 rounded-xl border border-[#EAF0F8] px-3.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
           >
             {reportTypeOptions.map((option) => (
               <option key={option} value={option}>
@@ -53,7 +53,7 @@ export default function ReportFilters() {
           <label className="mb-1.5 block text-xs font-medium text-[#667085]">Hekim</label>
           <select
             defaultValue={doctorOptions[0]}
-            className="h-10 rounded-xl border border-[#E3E8F0] px-3.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+            className="h-10 rounded-xl border border-[#EAF0F8] px-3.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
           >
             {doctorOptions.map((option) => (
               <option key={option} value={option}>

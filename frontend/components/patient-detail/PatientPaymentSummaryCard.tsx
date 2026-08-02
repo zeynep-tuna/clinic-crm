@@ -13,7 +13,7 @@ export default function PatientPaymentSummaryCard({
   summary: PatientPaymentSummary;
 }) {
   return (
-    <div className="flex h-full flex-col rounded-[20px] border border-[#E3E8F0] bg-white p-7 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]">
+    <div className="flex h-full flex-col rounded-[20px] border border-[#EAF0F8] bg-white p-7 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <div className="flex items-center gap-2.5">
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#EEF0FF] text-[#5B4DE3]">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
@@ -25,19 +25,19 @@ export default function PatientPaymentSummaryCard({
       </div>
 
       <div className="mt-5 grid flex-1 grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-[#E3E8F0] p-4">
+        <div className="rounded-2xl border border-[#EAF0F8] p-4">
           <p className="text-xs text-[#667085]">Toplam Ödeme</p>
           <p className="mt-2 text-lg font-bold text-[#0B1F55]">{formatTRY(summary.total)}</p>
           <p className="mt-1 text-xs text-[#667085]">Tüm zamanlar</p>
         </div>
 
-        <div className="rounded-2xl border border-[#E3E8F0] p-4">
+        <div className="rounded-2xl border border-[#EAF0F8] p-4">
           <p className="text-xs text-[#667085]">Ödenen Tutar</p>
           <p className="mt-2 text-lg font-bold text-[#16A34A]">{formatTRY(summary.paid)}</p>
           <p className="mt-1 text-xs text-[#667085]">Tamamlanan ödemeler</p>
         </div>
 
-        <div className="rounded-2xl border border-[#E3E8F0] p-4">
+        <div className="rounded-2xl border border-[#EAF0F8] p-4">
           <p className="text-xs text-[#667085]">Bekleyen Ödeme</p>
           <p className="mt-2 text-lg font-bold text-[#F59E0B]">{formatTRY(summary.pending)}</p>
           <p className="mt-1 text-xs text-[#667085]">
