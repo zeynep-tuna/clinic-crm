@@ -31,13 +31,13 @@ export default function LandingHero() {
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <Link
               href="/demo-request"
-              className="rounded-xl bg-[#5B4DE3] px-6 py-3 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)] hover:bg-[#4c3fd1]"
+              className="rounded-xl bg-[#5B4DE3] px-6 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(15,23,42,0.04)] hover:bg-[#4c3fd1]"
             >
               Demo Talep Et
             </Link>
             <Link
               href="/login"
-              className="rounded-xl border border-[#E3E8F0] bg-white px-6 py-3 text-sm font-semibold text-[#0B1F55] hover:bg-[#F7F8FF]"
+              className="rounded-xl border border-[#EAF0F8] bg-white px-6 py-3 text-sm font-semibold text-[#0B1F55] hover:bg-[#F7F8FF]"
             >
               Paneli İncele
             </Link>

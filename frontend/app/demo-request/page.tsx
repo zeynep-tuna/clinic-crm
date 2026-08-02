@@ -98,7 +98,7 @@ export default function DemoRequestPage() {
           </div>
 
           <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-start">
-            <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_4px_12px_rgba(16,24,40,0.06)] sm:p-8">
+            <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_4px_12px_rgba(16,24,40,0.06)] sm:p-8">
               {submitted ? (
                 <div className="flex flex-col items-center gap-3 rounded-xl bg-[#DCFCE7] p-6 text-center sm:p-8">
                   <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#16A34A]">
@@ -122,7 +122,7 @@ export default function DemoRequestPage() {
                         value={form.fullName}
                         onChange={(event) => updateField("fullName", event.target.value)}
                         placeholder="Ad Soyad"
-                        className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                        className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                       />
                     </div>
 
@@ -134,7 +134,7 @@ export default function DemoRequestPage() {
                         value={form.clinicName}
                         onChange={(event) => updateField("clinicName", event.target.value)}
                         placeholder="Klinik Adı"
-                        className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                        className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                       />
                     </div>
 
@@ -146,7 +146,7 @@ export default function DemoRequestPage() {
                         value={form.email}
                         onChange={(event) => updateField("email", event.target.value)}
                         placeholder="ornek@klinik.com"
-                        className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                        className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                       />
                     </div>
 
@@ -158,7 +158,7 @@ export default function DemoRequestPage() {
                         value={form.phone}
                         onChange={(event) => updateField("phone", event.target.value)}
                         placeholder="+90 5xx xxx xx xx"
-                        className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                        className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                       />
                     </div>
 
@@ -167,7 +167,7 @@ export default function DemoRequestPage() {
                       <select
                         value={form.clinicType}
                         onChange={(event) => updateField("clinicType", event.target.value)}
-                        className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                        className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                       >
                         {clinicTypeOptions.map((option) => (
                           <option key={option} value={option}>
@@ -184,7 +184,7 @@ export default function DemoRequestPage() {
                       <select
                         value={form.preferredTime}
                         onChange={(event) => updateField("preferredTime", event.target.value)}
-                        className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                        className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                       >
                         {preferredTimeOptions.map((option) => (
                           <option key={option} value={option}>
@@ -202,7 +202,7 @@ export default function DemoRequestPage() {
                       onChange={(event) => updateField("note", event.target.value)}
                       rows={3}
                       placeholder="Diş kliniğiniz hakkında kısaca bilgi verin..."
-                      className="w-full resize-none rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                      className="w-full resize-none rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                     />
                   </div>
 
@@ -211,7 +211,7 @@ export default function DemoRequestPage() {
                       type="checkbox"
                       checked={consentChecked}
                       onChange={(event) => setConsentChecked(event.target.checked)}
-                      className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#E3E8F0] accent-[#5B4DE3] focus:ring-2 focus:ring-[#5B4DE3]/20"
+                      className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#EAF0F8] accent-[#5B4DE3] focus:ring-2 focus:ring-[#5B4DE3]/20"
                     />
                     <span>
                       <Link href="#" className="font-medium text-[#5B4DE3] hover:underline">
@@ -224,7 +224,7 @@ export default function DemoRequestPage() {
                   <button
                     type="submit"
                     disabled={!consentChecked}
-                    className={`flex h-12 w-full items-center justify-center rounded-xl px-6 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)] transition-colors sm:w-auto ${
+                    className={`flex h-12 w-full items-center justify-center rounded-xl px-6 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-colors sm:w-auto ${
                       consentChecked
                         ? "bg-[#5B4DE3] hover:bg-[#4c3fd1]"
                         : "cursor-not-allowed bg-[#5B4DE3]/40"
@@ -236,7 +236,7 @@ export default function DemoRequestPage() {
               )}
             </div>
 
-            <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_4px_12px_rgba(16,24,40,0.06)]">
+            <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_4px_12px_rgba(16,24,40,0.06)]">
               <h2 className="text-lg font-bold text-[#0B1F55]">Demo görüşmesinde neler olacak?</h2>
 
               <ul className="mt-5 space-y-3.5">

@@ -30,7 +30,7 @@ const legalLinks = [
 
 export default function LandingFooter() {
   return (
-    <footer className="border-t border-[#E3E8F0] bg-white px-6 py-10 lg:px-10">
+    <footer className="border-t border-[#EAF0F8] bg-white px-6 py-10 lg:px-10">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-6 text-center sm:flex-row sm:items-start sm:justify-between sm:text-left">
         <div className="max-w-xs">
           <div className="flex items-center justify-center gap-2 sm:justify-start">
@@ -56,7 +56,7 @@ export default function LandingFooter() {
         </nav>
       </div>
 
-      <div className="mx-auto mt-8 flex max-w-7xl flex-col items-center gap-4 border-t border-[#E3E8F0] pt-6 sm:flex-row sm:justify-between">
+      <div className="mx-auto mt-8 flex max-w-7xl flex-col items-center gap-4 border-t border-[#EAF0F8] pt-6 sm:flex-row sm:justify-between">
         <p className="text-xs text-[#98A2B3]">© 2026 ClinicCRM. Tüm hakları saklıdır.</p>
 
         <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5">

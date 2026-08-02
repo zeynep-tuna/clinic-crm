@@ -278,7 +278,7 @@ export default function BlogPage() {
                   className={`rounded-xl border px-3.5 py-1.5 text-sm font-medium transition-colors ${
                     isActive
                       ? "border-[#5B4DE3] bg-[#5B4DE3] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06),0_2px_6px_rgba(91,77,227,0.25)]"
-                      : "border-[#E3E8F0] bg-white text-[#0B1F55] hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
+                      : "border-[#EAF0F8] bg-white text-[#0B1F55] hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
                   }`}
                 >
                   {filter}
@@ -290,7 +290,7 @@ export default function BlogPage() {
 
         <section className="relative z-10 px-6 pb-10 lg:px-10">
           <div className="mx-auto max-w-7xl">
-            <div className="flex flex-col overflow-hidden rounded-[24px] border border-[#E3E8F0] bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_4px_16px_rgba(16,24,40,0.06)] lg:flex-row">
+            <div className="flex flex-col overflow-hidden rounded-[24px] border border-[#EAF0F8] bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_4px_16px_rgba(16,24,40,0.06)] lg:flex-row">
               <div className="flex flex-1 flex-col justify-center p-8 sm:p-10">
                 <span
                   className={`inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-semibold ${categoryBadgeClass[featuredPost.category]}`}
@@ -357,7 +357,7 @@ export default function BlogPage() {
                 return (
                   <div
                     key={post.id}
-                    className="flex flex-col rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)] transition-shadow hover:shadow-[0_4px_16px_rgba(16,24,40,0.08)]"
+                    className="flex flex-col rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-shadow hover:shadow-[0_12px_32px_rgba(15,23,42,0.07)]"
                   >
                     <span
                       className={`flex h-11 w-11 items-center justify-center rounded-2xl ${categoryBadgeClass[post.category]}`}
@@ -395,7 +395,7 @@ export default function BlogPage() {
               )}
             </div>
 
-            <div className="mt-8 flex flex-col items-center gap-1 border-t border-[#E3E8F0] pt-6 text-center">
+            <div className="mt-8 flex flex-col items-center gap-1 border-t border-[#EAF0F8] pt-6 text-center">
               <p className="text-sm font-medium text-[#0B1F55]">Toplam {blogPosts.length} yazı</p>
               <p className="text-xs text-[#98A2B3]">Yeni içerikler yakında eklenecek.</p>
             </div>
@@ -403,7 +403,7 @@ export default function BlogPage() {
         </section>
 
         <section className="relative z-10 px-6 pb-16 lg:px-10">
-          <div className="mx-auto max-w-5xl rounded-[24px] border border-[#E3E8F0] bg-white p-8 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_4px_16px_rgba(16,24,40,0.06)] sm:p-10">
+          <div className="mx-auto max-w-5xl rounded-[24px] border border-[#EAF0F8] bg-white p-8 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_4px_16px_rgba(16,24,40,0.06)] sm:p-10">
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="text-2xl font-bold text-[#0B1F55] sm:text-3xl">
                 Diş kliniği yönetimiyle ilgili içerikleri kaçırmayın
@@ -425,7 +425,7 @@ export default function BlogPage() {
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
                     placeholder="ornek@klinik.com"
-                    className="w-full max-w-sm rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                    className="w-full max-w-sm rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                   />
 
                   <label className="flex max-w-sm items-start gap-2.5 text-left text-xs text-[#667085]">
@@ -433,7 +433,7 @@ export default function BlogPage() {
                       type="checkbox"
                       checked={consentChecked}
                       onChange={(event) => setConsentChecked(event.target.checked)}
-                      className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#E3E8F0] accent-[#5B4DE3] focus:ring-2 focus:ring-[#5B4DE3]/20"
+                      className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#EAF0F8] accent-[#5B4DE3] focus:ring-2 focus:ring-[#5B4DE3]/20"
                     />
                     <span>
                       <Link href="#" className="font-medium text-[#5B4DE3] hover:underline">
@@ -446,7 +446,7 @@ export default function BlogPage() {
                   <button
                     type="submit"
                     disabled={!consentChecked}
-                    className={`flex h-11 w-full max-w-sm items-center justify-center rounded-xl px-6 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)] transition-colors ${
+                    className={`flex h-11 w-full max-w-sm items-center justify-center rounded-xl px-6 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-colors ${
                       consentChecked ? "bg-[#5B4DE3] hover:bg-[#4c3fd1]" : "cursor-not-allowed bg-[#5B4DE3]/40"
                     }`}
                   >

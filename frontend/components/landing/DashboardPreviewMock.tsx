@@ -95,7 +95,7 @@ function StatMini({
   value: string;
 }) {
   return (
-    <div className="rounded-xl border border-[#E3E8F0] p-2.5">
+    <div className="rounded-xl border border-[#EAF0F8] p-2.5">
       <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#EEF0FF] text-[#5B4DE3]">
         {icon}
       </div>
@@ -151,8 +151,8 @@ const patientStatusClass: Record<"Aktif" | "Bekliyor", string> = {
 
 function PatientsMiniMockup() {
   return (
-    <div className="absolute -bottom-8 -left-8 z-20 hidden w-96 rounded-2xl border border-[#E3E8F0] bg-white p-4 shadow-[0_18px_32px_rgba(16,24,40,0.16),0_4px_10px_rgba(16,24,40,0.08)] lg:block">
-      <div className="flex items-center justify-between border-b border-[#E3E8F0] pb-2.5">
+    <div className="absolute -bottom-8 -left-8 z-20 hidden w-96 rounded-2xl border border-[#EAF0F8] bg-white p-4 shadow-[0_18px_32px_rgba(16,24,40,0.16),0_4px_10px_rgba(16,24,40,0.08)] lg:block">
+      <div className="flex items-center justify-between border-b border-[#EAF0F8] pb-2.5">
         <WindowDots />
         <span className="text-sm font-bold text-[#0B1F55]">Hastalar</span>
       </div>
@@ -185,8 +185,8 @@ export default function DashboardPreviewMock() {
       <div className="pointer-events-none absolute -inset-6 -z-10 rounded-[40px] bg-[#5B4DE3]/12 blur-3xl" />
 
       {/* main dashboard mockup: wide, landscape aspect ratio so it reads as a browser/tablet screen, not a tall poster */}
-      <div className="relative z-10 flex w-full overflow-hidden rounded-[28px] border border-[#E3E8F0] bg-white shadow-[0_20px_40px_rgba(16,24,40,0.12),0_4px_10px_rgba(16,24,40,0.06)] sm:aspect-16/10 sm:max-h-115">
-          <div className="hidden w-16 shrink-0 flex-col items-center gap-4 border-r border-[#E3E8F0] bg-[#F7F8FF] py-4 sm:flex">
+      <div className="relative z-10 flex w-full overflow-hidden rounded-[28px] border border-[#EAF0F8] bg-white shadow-[0_20px_40px_rgba(16,24,40,0.12),0_4px_10px_rgba(16,24,40,0.06)] sm:aspect-16/10 sm:max-h-115">
+          <div className="hidden w-16 shrink-0 flex-col items-center gap-4 border-r border-[#EAF0F8] bg-[#F7F8FF] py-4 sm:flex">
             <MiniHeartIcon />
             <div className="flex flex-col gap-2">
               {sidebarNavIcons.map((icon, index) => (
@@ -203,18 +203,18 @@ export default function DashboardPreviewMock() {
           </div>
 
           <div className="flex min-w-0 flex-1 flex-col p-5 sm:p-6">
-            <div className="flex items-center justify-between border-b border-[#E3E8F0] pb-3">
+            <div className="flex items-center justify-between border-b border-[#EAF0F8] pb-3">
               <div className="flex items-center gap-3">
                 <WindowDots />
                 <span className="text-sm font-bold text-[#0B1F55]">Dashboard</span>
               </div>
 
               <div className="flex items-center gap-2">
-                <div className="hidden items-center gap-1.5 rounded-lg border border-[#E3E8F0] px-2.5 py-1.5 text-xs text-[#98A2B3] md:flex">
+                <div className="hidden items-center gap-1.5 rounded-lg border border-[#EAF0F8] px-2.5 py-1.5 text-xs text-[#98A2B3] md:flex">
                   <SearchIcon />
                   Ara...
                 </div>
-                <div className="flex h-6 w-6 items-center justify-center rounded-full border border-[#E3E8F0] text-[#667085]">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full border border-[#EAF0F8] text-[#667085]">
                   <BellIcon />
                 </div>
                 <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EEF0FF] text-[11px] font-semibold text-[#5B4DE3]">
@@ -235,7 +235,7 @@ export default function DashboardPreviewMock() {
                 {appointmentRows.map((row) => (
                   <div
                     key={row.time}
-                    className="flex items-center justify-between rounded-lg border border-[#E3E8F0] px-2.5 py-2"
+                    className="flex items-center justify-between rounded-lg border border-[#EAF0F8] px-2.5 py-2"
                   >
                     <div className="flex items-center gap-2">
                       <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#EEF0FF] text-[9px] font-semibold text-[#5B4DE3]">
@@ -256,7 +256,7 @@ export default function DashboardPreviewMock() {
               </div>
             </div>
 
-            <div className="mt-3 rounded-xl border border-[#E3E8F0] p-3">
+            <div className="mt-3 rounded-xl border border-[#EAF0F8] p-3">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-semibold text-[#0B1F55]">Gelir Özeti</p>
                 <p className="text-xs font-bold text-[#5B4DE3]">₺186.450</p>

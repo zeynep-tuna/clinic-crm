@@ -222,7 +222,7 @@ export default function ContactPage() {
         <section className="relative z-10 px-6 pb-16 lg:px-10">
           <div className="mx-auto max-w-7xl">
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-start">
-              <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_4px_12px_rgba(16,24,40,0.06)] sm:p-8">
+              <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_4px_12px_rgba(16,24,40,0.06)] sm:p-8">
                 {submitted ? (
                   <div className="flex flex-col items-center gap-3 rounded-xl bg-[#DCFCE7] p-6 text-center sm:p-8">
                     <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#16A34A]">
@@ -246,7 +246,7 @@ export default function ContactPage() {
                           value={form.fullName}
                           onChange={(event) => updateField("fullName", event.target.value)}
                           placeholder="Ad Soyad"
-                          className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                          className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                         />
                       </div>
 
@@ -258,7 +258,7 @@ export default function ContactPage() {
                           value={form.clinicName}
                           onChange={(event) => updateField("clinicName", event.target.value)}
                           placeholder="Klinik Adı"
-                          className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                          className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                         />
                       </div>
 
@@ -270,7 +270,7 @@ export default function ContactPage() {
                           value={form.email}
                           onChange={(event) => updateField("email", event.target.value)}
                           placeholder="ornek@klinik.com"
-                          className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                          className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                         />
                       </div>
 
@@ -282,7 +282,7 @@ export default function ContactPage() {
                           value={form.phone}
                           onChange={(event) => updateField("phone", event.target.value)}
                           placeholder="+90 5xx xxx xx xx"
-                          className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                          className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                         />
                       </div>
                     </div>
@@ -292,7 +292,7 @@ export default function ContactPage() {
                       <select
                         value={form.subject}
                         onChange={(event) => updateField("subject", event.target.value)}
-                        className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                        className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                       >
                         {subjectOptions.map((option) => (
                           <option key={option} value={option}>
@@ -310,7 +310,7 @@ export default function ContactPage() {
                         onChange={(event) => updateField("message", event.target.value)}
                         rows={4}
                         placeholder="Mesajınızı yazın..."
-                        className="w-full resize-none rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                        className="w-full resize-none rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                       />
                     </div>
 
@@ -319,7 +319,7 @@ export default function ContactPage() {
                         type="checkbox"
                         checked={consentChecked}
                         onChange={(event) => setConsentChecked(event.target.checked)}
-                        className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#E3E8F0] accent-[#5B4DE3] focus:ring-2 focus:ring-[#5B4DE3]/20"
+                        className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#EAF0F8] accent-[#5B4DE3] focus:ring-2 focus:ring-[#5B4DE3]/20"
                       />
                       <span>
                         <Link href="#" className="font-medium text-[#5B4DE3] hover:underline">
@@ -346,7 +346,7 @@ export default function ContactPage() {
               </div>
 
               <div className="flex flex-col gap-6">
-                <div className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_4px_12px_rgba(16,24,40,0.06)]">
+                <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_4px_12px_rgba(16,24,40,0.06)]">
                   <h2 className="text-lg font-bold text-[#0B1F55]">ClinicCRM ekibine ulaşın</h2>
                   <p className="mt-2 text-sm text-[#667085]">
                     Diş kliniğiniz için doğru çözümü planlamak veya sorularınızı iletmek için aşağıdaki
@@ -379,7 +379,7 @@ export default function ContactPage() {
                     })}
                   </div>
 
-                  <div className="mt-6 border-t border-[#E3E8F0] pt-5">
+                  <div className="mt-6 border-t border-[#EAF0F8] pt-5">
                     <p className="text-sm font-semibold text-[#0B1F55]">Bizi takip edin</p>
                     <div className="mt-3 flex items-center gap-3">
                       {socialLinks.map((social) => (
@@ -399,7 +399,7 @@ export default function ContactPage() {
                 <div>
                   <p className="mb-3 text-sm font-semibold text-[#0B1F55]">Konum Bilgisi</p>
 
-                  <div className="relative flex min-h-64 flex-col items-center justify-center overflow-hidden rounded-[20px] border border-[#E3E8F0] bg-linear-to-br from-[#EEF0FF] via-[#F5F3FF] to-[#DBEAFE] p-6">
+                  <div className="relative flex min-h-64 flex-col items-center justify-center overflow-hidden rounded-[20px] border border-[#EAF0F8] bg-linear-to-br from-[#EEF0FF] via-[#F5F3FF] to-[#DBEAFE] p-6">
                     <div
                       className="pointer-events-none absolute inset-0 opacity-60"
                       style={{
@@ -417,8 +417,8 @@ export default function ContactPage() {
                       }}
                     />
 
-                    <div className="absolute right-4 top-4 z-10 flex flex-col overflow-hidden rounded-lg border border-[#E3E8F0] bg-white shadow-[0_1px_2px_rgba(16,24,40,0.06),0_2px_8px_rgba(16,24,40,0.08)]">
-                      <span className="flex h-8 w-8 items-center justify-center border-b border-[#E3E8F0] text-sm font-semibold text-[#0B1F55]">
+                    <div className="absolute right-4 top-4 z-10 flex flex-col overflow-hidden rounded-lg border border-[#EAF0F8] bg-white shadow-[0_1px_2px_rgba(16,24,40,0.06),0_2px_8px_rgba(16,24,40,0.08)]">
+                      <span className="flex h-8 w-8 items-center justify-center border-b border-[#EAF0F8] text-sm font-semibold text-[#0B1F55]">
                         +
                       </span>
                       <span className="flex h-8 w-8 items-center justify-center text-sm font-semibold text-[#0B1F55]">
@@ -431,7 +431,7 @@ export default function ContactPage() {
                         <MapPinIcon />
                       </span>
 
-                      <div className="mt-3 rounded-xl border border-[#E3E8F0] bg-white px-4 py-3 text-center shadow-[0_1px_2px_rgba(16,24,40,0.06),0_4px_12px_rgba(16,24,40,0.1)]">
+                      <div className="mt-3 rounded-xl border border-[#EAF0F8] bg-white px-4 py-3 text-center shadow-[0_1px_2px_rgba(16,24,40,0.06),0_4px_12px_rgba(16,24,40,0.1)]">
                         <p className="text-sm font-bold text-[#0B1F55]">ClinicCRM iletişim merkezi</p>
                         <p className="mt-0.5 text-xs text-[#667085]">İstanbul, Türkiye</p>
                       </div>
@@ -456,7 +456,7 @@ export default function ContactPage() {
               {faqItems.map((item) => (
                 <div
                   key={item.question}
-                  className="rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]"
+                  className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]"
                 >
                   <h3 className="text-base font-bold text-[#0B1F55]">{item.question}</h3>
                   <p className="mt-2 text-sm text-[#667085]">{item.answer}</p>

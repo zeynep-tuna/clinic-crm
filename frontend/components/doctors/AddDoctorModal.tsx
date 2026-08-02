@@ -85,7 +85,7 @@ export default function AddDoctorModal() {
             aria-modal="true"
             aria-labelledby="add-doctor-modal-title"
             onClick={(event) => event.stopPropagation()}
-            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[20px] border border-[#EAF0F8] bg-white p-8 shadow-[0_8px_16px_rgba(16,24,40,0.08),0_2px_4px_rgba(16,24,40,0.06)]"
+            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[20px] border border-[#EAF0F8] bg-white p-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)]"
           >
             <div className="flex items-start justify-between">
               <div>

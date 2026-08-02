@@ -175,13 +175,13 @@ export default function ServicesPage() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
               <Link
                 href="/demo-request"
-                className="rounded-xl bg-[#5B4DE3] px-6 py-3 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)] transition-colors hover:bg-[#4c3fd1]"
+                className="rounded-xl bg-[#5B4DE3] px-6 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-colors hover:bg-[#4c3fd1]"
               >
                 Demo Talep Et
               </Link>
               <Link
                 href="/pricing"
-                className="rounded-xl border border-[#E3E8F0] bg-white px-6 py-3 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+                className="rounded-xl border border-[#EAF0F8] bg-white px-6 py-3 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
               >
                 Fiyatlandırmayı İncele
               </Link>
@@ -203,7 +203,7 @@ export default function ServicesPage() {
               {services.map((service) => (
                 <div
                   key={service.title}
-                  className="flex items-start gap-4 rounded-[20px] border border-[#E3E8F0] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)] transition-shadow hover:shadow-[0_4px_16px_rgba(16,24,40,0.08)]"
+                  className="flex items-start gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-shadow hover:shadow-[0_12px_32px_rgba(15,23,42,0.07)]"
                 >
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#EEF0FF] text-[#5B4DE3]">
                     <service.Icon />
@@ -227,7 +227,7 @@ export default function ServicesPage() {
 
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {processSteps.map((step, index) => (
-              <div key={step.title} className="rounded-[20px] border border-[#E3E8F0] bg-[#F7F8FF] p-6">
+              <div key={step.title} className="rounded-[20px] border border-[#EAF0F8] bg-[#F7F8FF] p-6">
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#5B4DE3] text-sm font-bold text-white">
                   {index + 1}
                 </span>
@@ -247,7 +247,7 @@ export default function ServicesPage() {
             {trustPoints.map((point) => (
               <div
                 key={point.title}
-                className="flex flex-col items-center rounded-[20px] border border-[#E3E8F0] bg-white p-6 text-center shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)]"
+                className="flex flex-col items-center rounded-[20px] border border-[#EAF0F8] bg-white p-6 text-center shadow-[0_8px_24px_rgba(15,23,42,0.04)]"
               >
                 <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#EEF0FF] text-[#5B4DE3]">
                   <CheckIcon />
@@ -261,7 +261,7 @@ export default function ServicesPage() {
       </section>
 
       <section className="bg-white px-6 pb-16 lg:px-10">
-        <div className="mx-auto max-w-5xl rounded-[20px] border border-[#E3E8F0] bg-[#F7F8FF] p-8 text-center sm:p-10">
+        <div className="mx-auto max-w-5xl rounded-[20px] border border-[#EAF0F8] bg-[#F7F8FF] p-8 text-center sm:p-10">
           <h2 className="text-2xl font-extrabold text-[#0B1F55] sm:text-3xl">
             Diş kliniğiniz için doğru kurulumu birlikte planlayalım.
           </h2>
@@ -272,7 +272,7 @@ export default function ServicesPage() {
           <div className="mt-6 flex justify-center">
             <Link
               href="/demo-request"
-              className="rounded-xl bg-[#5B4DE3] px-6 py-3 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.04)] transition-colors hover:bg-[#4c3fd1]"
+              className="rounded-xl bg-[#5B4DE3] px-6 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-colors hover:bg-[#4c3fd1]"
             >
               Demo Talep Et
             </Link>

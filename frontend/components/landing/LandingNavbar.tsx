@@ -29,7 +29,7 @@ type LandingNavbarProps = {
 
 export default function LandingNavbar({ activeHref }: LandingNavbarProps) {
   return (
-    <header className="border-b border-[#E3E8F0] bg-white/80 backdrop-blur">
+    <header className="border-b border-[#EAF0F8] bg-white/80 backdrop-blur">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-4 lg:px-10">
         <Link href="/" className="flex items-center gap-2">
           <HeartIcon />
@@ -58,7 +58,7 @@ export default function LandingNavbar({ activeHref }: LandingNavbarProps) {
         <div className="flex items-center gap-3">
           <Link
             href="/login"
-            className="rounded-xl border border-[#E3E8F0] px-4 py-2 text-sm font-semibold text-[#0B1F55] hover:bg-[#F7F8FF]"
+            className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] hover:bg-[#F7F8FF]"
           >
             Giriş Yap
           </Link>

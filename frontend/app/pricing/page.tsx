@@ -97,7 +97,7 @@ export default function PricingPage() {
                 className={`flex flex-col rounded-[20px] border bg-white p-6 sm:p-7 ${
                   plan.highlighted
                     ? "border-[#5B4DE3] shadow-[0_4px_16px_rgba(91,77,227,0.18),0_1px_2px_rgba(16,24,40,0.04)] lg:-translate-y-2"
-                    : "border-[#E3E8F0] shadow-[0_1px_2px_rgba(16,24,40,0.04),0_4px_12px_rgba(16,24,40,0.06)]"
+                    : "border-[#EAF0F8] shadow-[0_1px_2px_rgba(16,24,40,0.04),0_4px_12px_rgba(16,24,40,0.06)]"
                 }`}
               >
                 {plan.badge && (
@@ -111,7 +111,7 @@ export default function PricingPage() {
 
                 <ul className="mt-5 space-y-2.5">
                   {plan.includesPrevious && (
-                    <li className="flex items-start gap-2.5 border-b border-dashed border-[#E3E8F0] pb-2.5 text-sm font-semibold text-[#0B1F55]">
+                    <li className="flex items-start gap-2.5 border-b border-dashed border-[#EAF0F8] pb-2.5 text-sm font-semibold text-[#0B1F55]">
                       <CheckIcon />
                       <span>{plan.includesPrevious}</span>
                     </li>
@@ -124,7 +124,7 @@ export default function PricingPage() {
                   ))}
                 </ul>
 
-                <div className="mt-6 border-t border-[#E3E8F0] pt-5">
+                <div className="mt-6 border-t border-[#EAF0F8] pt-5">
                   <div className="flex items-baseline gap-1.5">
                     <span
                       className={`text-2xl font-extrabold ${
@@ -143,7 +143,7 @@ export default function PricingPage() {
                     className={`mt-4 flex h-11 w-full items-center justify-center rounded-xl px-5 text-sm font-semibold transition-colors ${
                       plan.highlighted
                         ? "bg-[#5B4DE3] text-white hover:bg-[#4c3fd1]"
-                        : "border border-[#E3E8F0] text-[#0B1F55] hover:bg-[#F7F8FF]"
+                        : "border border-[#EAF0F8] text-[#0B1F55] hover:bg-[#F7F8FF]"
                     }`}
                   >
                     Demo Talep Et

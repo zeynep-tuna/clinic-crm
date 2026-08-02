@@ -56,7 +56,7 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="relative z-10 w-full max-w-md rounded-[20px] border border-[#E3E8F0] bg-white p-8 shadow-[0_8px_16px_rgba(16,24,40,0.08),0_2px_4px_rgba(16,24,40,0.06)]">
+    <div className="relative z-10 w-full max-w-md rounded-[20px] border border-[#EAF0F8] bg-white p-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
       <div className="flex flex-col items-center text-center">
         <div className="flex items-center gap-2">
           <HeartIcon />
@@ -77,7 +77,7 @@ export default function LoginForm() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="ornek@klinik.com"
-            className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+            className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
           />
         </div>
 
@@ -89,7 +89,7 @@ export default function LoginForm() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Şifrenizi girin"
-              className="w-full rounded-xl border border-[#E3E8F0] px-4 py-2.5 pr-11 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+              className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 pr-11 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
             />
             <button
               type="button"
@@ -108,7 +108,7 @@ export default function LoginForm() {
               type="checkbox"
               checked={rememberMe}
               onChange={(event) => setRememberMe(event.target.checked)}
-              className="h-4 w-4 rounded border-[#E3E8F0] accent-[#5B4DE3] focus:ring-2 focus:ring-[#5B4DE3]/20"
+              className="h-4 w-4 rounded border-[#EAF0F8] accent-[#5B4DE3] focus:ring-2 focus:ring-[#5B4DE3]/20"
             />
             Beni Hatırla
           </label>
