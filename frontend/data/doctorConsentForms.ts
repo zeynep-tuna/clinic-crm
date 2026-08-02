@@ -65,7 +65,7 @@ export const doctorConsentFormRows: DoctorConsentFormRow[] = [
   {
     id: "5",
     patientName: "Fatma Öz",
-    formName: "Muayene Onam Formu",
+    formName: "Muayene ve Tedavi Onam Formu",
     formType: "Muayene",
     date: "11.05.2024",
     fileType: "PDF",

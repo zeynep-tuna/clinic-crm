@@ -29,11 +29,9 @@ function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
     case "total":
       return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4.5 w-4.5">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M16 14a4 4 0 1 0-8 0M12 12a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM4 20c.5-3 3.5-5 8-5s7.5 2 8 5"
-          />
+          <circle cx="9" cy="8" r="3" />
+          <path strokeLinecap="round" d="M3.5 19c.6-3 2.7-5 5.5-5s4.9 2 5.5 5" />
+          <path strokeLinecap="round" d="M15.5 5.5a3 3 0 0 1 0 5.8M18 19c-.4-2.3-1.5-4-3.2-4.8" />
         </svg>
       );
     case "active":
