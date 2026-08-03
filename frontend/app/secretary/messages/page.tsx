@@ -3,6 +3,7 @@
 import { useState } from "react";
 import SecretaryMessageSummaryCards from "@/components/secretary/SecretaryMessageSummaryCards";
 import SecretaryMessagesPanel, { type FilterValue } from "@/components/secretary/SecretaryMessagesPanel";
+import AddSecretaryMessageModal from "@/components/secretary/AddSecretaryMessageModal";
 
 export default function SecretaryMessagesPage() {
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
@@ -27,12 +28,7 @@ export default function SecretaryMessagesPage() {
             </p>
           </div>
 
-          <button
-            type="button"
-            className="flex h-11 items-center justify-center rounded-xl bg-[#5B4DE3] px-5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.06)] transition-colors hover:bg-[#4c3fd1]"
-          >
-            + Yeni Mesaj
-          </button>
+          <AddSecretaryMessageModal />
         </div>
       </div>
 
