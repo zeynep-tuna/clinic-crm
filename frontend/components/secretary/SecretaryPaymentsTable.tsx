@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { secretaryPaymentRows, type SecretaryPaymentStatus } from "@/data/secretaryPayments";
 import EmptyState from "@/components/common/EmptyState";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
+import AddSecretaryPaymentModal from "@/components/secretary/AddSecretaryPaymentModal";
 
 export type FilterValue = "Tümü" | SecretaryPaymentStatus;
 
@@ -129,14 +130,7 @@ export default function SecretaryPaymentsTable({ activeFilter, onFilterChange }:
             variant="empty"
             title="Henüz ödeme kaydı yok"
             description="Hasta tedavi ödemeleri oluşturulduğunda tahsilat durumlarını buradan takip edebilirsiniz."
-            action={
-              <button
-                type="button"
-                className="flex h-10 items-center justify-center rounded-xl bg-[#5B4DE3] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#4c3fd1]"
-              >
-                + Yeni Ödeme Ekle
-              </button>
-            }
+            action={<AddSecretaryPaymentModal />}
           />
         )}
 

@@ -36,10 +36,32 @@ interface SecretaryMessageDetailProps {
 
 export default function SecretaryMessageDetail({ message, onDeleteClick }: SecretaryMessageDetailProps) {
   const [reply, setReply] = useState("");
+  const [replyError, setReplyError] = useState<string | null>(null);
+
+  function handleReplyChange(value: string) {
+    setReply(value);
+    if (replyError) {
+      setReplyError(null);
+    }
+  }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const trimmedReply = reply.trim();
+
+    if (!trimmedReply) {
+      setReplyError("Mesaj alanı boş bırakılamaz.");
+      return;
+    }
+
+    if (trimmedReply.length < 3) {
+      setReplyError("Mesaj en az 3 karakter olmalıdır.");
+      return;
+    }
+
     console.log({ messageId: message.id, reply });
+    setReply("");
+    setReplyError(null);
   };
 
   return (
@@ -110,11 +132,14 @@ export default function SecretaryMessageDetail({ message, onDeleteClick }: Secre
         <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Cevap Yaz</label>
         <textarea
           value={reply}
-          onChange={(event) => setReply(event.target.value)}
+          onChange={(event) => handleReplyChange(event.target.value)}
           rows={3}
           placeholder="Cevabınızı yazın..."
-          className="w-full resize-none rounded-xl border border-[#EAF0F8] bg-[#F7F8FF]/40 px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+          className={`w-full resize-none rounded-xl border bg-[#F7F8FF]/40 px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+            replyError ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+          }`}
         />
+        {replyError && <p className="mt-1 text-sm text-[#EF4444]">{replyError}</p>}
 
         <div className="mt-3 flex justify-end">
           <button

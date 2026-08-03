@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import SecretaryPatientsTable, { type FilterValue } from "@/components/secretary/SecretaryPatientsTable";
+import AddSecretaryPatientModal from "@/components/secretary/AddSecretaryPatientModal";
 import { secretaryPatientRows } from "@/data/secretaryPatients";
 
 function UsersIcon() {
@@ -91,12 +92,7 @@ export default function SecretaryPatientsPage() {
             </p>
           </div>
 
-          <button
-            type="button"
-            className="flex h-10 items-center justify-center rounded-xl bg-[#5B4DE3] px-5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.06)] transition-colors hover:bg-[#4c3fd1]"
-          >
-            + Yeni Hasta Ekle
-          </button>
+          <AddSecretaryPatientModal />
         </div>
       </div>
 

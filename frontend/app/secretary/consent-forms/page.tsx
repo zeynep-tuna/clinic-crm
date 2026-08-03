@@ -3,6 +3,7 @@
 import { useState } from "react";
 import SecretaryConsentFormSummaryCards from "@/components/secretary/SecretaryConsentFormSummaryCards";
 import SecretaryConsentFormsTable, { type FilterValue } from "@/components/secretary/SecretaryConsentFormsTable";
+import AddSecretaryConsentFormModal from "@/components/secretary/AddSecretaryConsentFormModal";
 
 export default function SecretaryConsentFormsPage() {
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
@@ -17,12 +18,7 @@ export default function SecretaryConsentFormsPage() {
           </p>
         </div>
 
-        <button
-          type="button"
-          className="rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#4c3fd1]"
-        >
-          + Yeni Onam Formu Ekle
-        </button>
+        <AddSecretaryConsentFormModal />
       </div>
 
       <SecretaryConsentFormSummaryCards activeFilter={activeFilter} onFilterChange={setActiveFilter} />

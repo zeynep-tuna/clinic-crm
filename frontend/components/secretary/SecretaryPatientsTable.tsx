@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { secretaryPatientRows, type SecretaryPatientStatus } from "@/data/secretaryPatients";
 import EmptyState from "@/components/common/EmptyState";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
+import AddSecretaryPatientModal from "@/components/secretary/AddSecretaryPatientModal";
 
 export type FilterValue = "Tümü" | SecretaryPatientStatus;
 
@@ -127,14 +128,7 @@ export default function SecretaryPatientsTable({ activeFilter, onFilterChange }:
             variant="empty"
             title="Henüz hasta kaydı yok"
             description="Diş kliniğine gelen hastaları takip etmek için yeni hasta kaydı oluşturabilirsiniz."
-            action={
-              <button
-                type="button"
-                className="flex h-10 items-center justify-center rounded-xl bg-[#5B4DE3] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#4c3fd1]"
-              >
-                + Yeni Hasta Ekle
-              </button>
-            }
+            action={<AddSecretaryPatientModal />}
           />
         )}
 

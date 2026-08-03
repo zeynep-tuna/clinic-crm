@@ -8,6 +8,7 @@ import {
 } from "@/data/secretaryConsentForms";
 import EmptyState from "@/components/common/EmptyState";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
+import AddSecretaryConsentFormModal from "@/components/secretary/AddSecretaryConsentFormModal";
 
 export type FilterValue = "Tümü" | SecretaryConsentFormStatus;
 
@@ -154,14 +155,7 @@ export default function SecretaryConsentFormsTable({
             variant="empty"
             title="Henüz onam formu bulunmuyor"
             description="Diş tedavileri için dijital onam formları oluşturulduğunda burada takip edebilirsiniz."
-            action={
-              <button
-                type="button"
-                className="flex h-10 items-center justify-center rounded-xl bg-[#5B4DE3] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#4c3fd1]"
-              >
-                + Yeni Onam Formu Ekle
-              </button>
-            }
+            action={<AddSecretaryConsentFormModal />}
           />
         )}
 

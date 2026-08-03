@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { secretaryAppointmentRows, type SecretaryAppointmentStatus } from "@/data/secretaryAppointments";
 import EmptyState from "@/components/common/EmptyState";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
+import AddSecretaryAppointmentModal from "@/components/secretary/AddSecretaryAppointmentModal";
 
 export type FilterValue = "Tümü" | SecretaryAppointmentStatus;
 
@@ -133,14 +134,7 @@ export default function SecretaryAppointmentsTable({
             variant="empty"
             title="Henüz randevu bulunmuyor"
             description="Hastaların muayene ve tedavi randevularını planlamak için yeni randevu oluşturabilirsiniz."
-            action={
-              <button
-                type="button"
-                className="flex h-10 items-center justify-center rounded-xl bg-[#5B4DE3] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#4c3fd1]"
-              >
-                + Yeni Randevu Ekle
-              </button>
-            }
+            action={<AddSecretaryAppointmentModal />}
           />
         )}
 

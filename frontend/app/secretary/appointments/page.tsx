@@ -3,6 +3,7 @@
 import { useState } from "react";
 import SecretaryAppointmentSummaryCards from "@/components/secretary/SecretaryAppointmentSummaryCards";
 import SecretaryAppointmentsTable, { type FilterValue } from "@/components/secretary/SecretaryAppointmentsTable";
+import AddSecretaryAppointmentModal from "@/components/secretary/AddSecretaryAppointmentModal";
 
 export default function SecretaryAppointmentsPage() {
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
@@ -17,12 +18,7 @@ export default function SecretaryAppointmentsPage() {
           </p>
         </div>
 
-        <button
-          type="button"
-          className="rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-colors hover:bg-[#4c3fd1]"
-        >
-          + Yeni Randevu Ekle
-        </button>
+        <AddSecretaryAppointmentModal />
       </div>
 
       <SecretaryAppointmentSummaryCards activeFilter={activeFilter} onFilterChange={setActiveFilter} />
