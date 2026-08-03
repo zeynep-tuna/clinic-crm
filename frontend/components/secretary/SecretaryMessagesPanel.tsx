@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { secretaryMessageRows } from "@/data/secretaryMessages";
 import SecretaryMessageDetail from "@/components/secretary/SecretaryMessageDetail";
 import EmptyState from "@/components/common/EmptyState";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 export type FilterValue = "Tümü" | "Okunmamış" | "Hasta" | "Doktor" | "Acil";
 
@@ -43,11 +44,13 @@ interface SecretaryMessagesPanelProps {
 export default function SecretaryMessagesPanel({ activeFilter, onFilterChange }: SecretaryMessagesPanelProps) {
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState(secretaryMessageRows[0]?.id ?? "");
+  const [messageList, setMessageList] = useState(secretaryMessageRows);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const filteredMessages = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    return secretaryMessageRows.filter((message) => {
+    return messageList.filter((message) => {
       const matchesFilter =
         activeFilter === "Tümü" ||
         (activeFilter === "Okunmamış" && message.status === "Okunmamış") ||
@@ -63,12 +66,12 @@ export default function SecretaryMessagesPanel({ activeFilter, onFilterChange }:
 
       return matchesFilter && matchesSearch;
     });
-  }, [search, activeFilter]);
+  }, [search, activeFilter, messageList]);
 
   const selectedMessage =
     filteredMessages.find((message) => message.id === selectedId) ??
     filteredMessages[0] ??
-    secretaryMessageRows[0];
+    messageList[0];
 
   return (
     <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1.1fr_1fr]">
@@ -114,7 +117,7 @@ export default function SecretaryMessagesPanel({ activeFilter, onFilterChange }:
           })}
         </div>
 
-        {secretaryMessageRows.length === 0 && (
+        {messageList.length === 0 && (
           <div className="mt-4">
             <EmptyState
               variant="empty"
@@ -124,7 +127,7 @@ export default function SecretaryMessagesPanel({ activeFilter, onFilterChange }:
           </div>
         )}
 
-        {secretaryMessageRows.length > 0 && filteredMessages.length === 0 && (
+        {messageList.length > 0 && filteredMessages.length === 0 && (
           <div className="mt-4">
             <EmptyState
               variant="search"
@@ -209,7 +212,25 @@ export default function SecretaryMessagesPanel({ activeFilter, onFilterChange }:
         </div>
       </div>
 
-      {selectedMessage && <SecretaryMessageDetail message={selectedMessage} />}
+      {selectedMessage && (
+        <SecretaryMessageDetail
+          message={selectedMessage}
+          onDeleteClick={() => setPendingDeleteId(selectedMessage.id)}
+        />
+      )}
+
+      <ConfirmDialog
+        open={pendingDeleteId !== null}
+        title="Mesajı silmek istiyor musunuz?"
+        description="Seçili mesaj görüşme listesinden kaldırılacak. Bu işlem demo ortamında yalnızca arayüz üzerinde uygulanır."
+        confirmLabel="Mesajı Sil"
+        variant="danger"
+        onConfirm={() => {
+          setMessageList((prev) => prev.filter((message) => message.id !== pendingDeleteId));
+          setPendingDeleteId(null);
+        }}
+        onCancel={() => setPendingDeleteId(null)}
+      />
     </div>
   );
 }

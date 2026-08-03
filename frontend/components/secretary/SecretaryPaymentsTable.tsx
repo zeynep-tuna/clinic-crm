@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { secretaryPaymentRows, type SecretaryPaymentStatus } from "@/data/secretaryPayments";
 import EmptyState from "@/components/common/EmptyState";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 export type FilterValue = "Tümü" | SecretaryPaymentStatus;
 
@@ -46,6 +47,14 @@ function MoreIcon() {
   );
 }
 
+function TrashIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 7h15M9.5 7V5a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 5v2M18 7l-.7 12a1.5 1.5 0 0 1-1.5 1.4H8.2a1.5 1.5 0 0 1-1.5-1.4L6 7" />
+    </svg>
+  );
+}
+
 interface SecretaryPaymentsTableProps {
   activeFilter: FilterValue;
   onFilterChange: (filter: FilterValue) => void;
@@ -53,11 +62,13 @@ interface SecretaryPaymentsTableProps {
 
 export default function SecretaryPaymentsTable({ activeFilter, onFilterChange }: SecretaryPaymentsTableProps) {
   const [search, setSearch] = useState("");
+  const [paymentList, setPaymentList] = useState(secretaryPaymentRows);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const filteredPayments = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    return secretaryPaymentRows.filter((payment) => {
+    return paymentList.filter((payment) => {
       const matchesFilter = activeFilter === "Tümü" || payment.status === activeFilter;
       const matchesSearch =
         term === "" ||
@@ -65,7 +76,7 @@ export default function SecretaryPaymentsTable({ activeFilter, onFilterChange }:
         payment.treatment.toLowerCase().includes(term);
       return matchesFilter && matchesSearch;
     });
-  }, [search, activeFilter]);
+  }, [search, activeFilter, paymentList]);
 
   return (
     <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
@@ -113,7 +124,7 @@ export default function SecretaryPaymentsTable({ activeFilter, onFilterChange }:
       </div>
 
       <div className="mt-5 overflow-x-auto">
-        {secretaryPaymentRows.length === 0 && (
+        {paymentList.length === 0 && (
           <EmptyState
             variant="empty"
             title="Henüz ödeme kaydı yok"
@@ -129,7 +140,7 @@ export default function SecretaryPaymentsTable({ activeFilter, onFilterChange }:
           />
         )}
 
-        {secretaryPaymentRows.length > 0 && filteredPayments.length === 0 && (
+        {paymentList.length > 0 && filteredPayments.length === 0 && (
           <EmptyState
             variant="search"
             title="Eşleşen ödeme kaydı bulunamadı"
@@ -212,6 +223,17 @@ export default function SecretaryPaymentsTable({ activeFilter, onFilterChange }:
                     >
                       <MoreIcon />
                     </button>
+                    <button
+                      type="button"
+                      aria-label="Ödeme kaydını sil"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setPendingDeleteId(payment.id);
+                      }}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444]"
+                    >
+                      <TrashIcon />
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -247,6 +269,19 @@ export default function SecretaryPaymentsTable({ activeFilter, onFilterChange }:
           </button>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={pendingDeleteId !== null}
+        title="Ödeme kaydını silmek istiyor musunuz?"
+        description="Seçili ödeme kaydı listeden kaldırılacak. Bu işlem demo ortamında yalnızca arayüz üzerinde uygulanır."
+        confirmLabel="Ödeme Kaydını Sil"
+        variant="danger"
+        onConfirm={() => {
+          setPaymentList((prev) => prev.filter((payment) => payment.id !== pendingDeleteId));
+          setPendingDeleteId(null);
+        }}
+        onCancel={() => setPendingDeleteId(null)}
+      />
     </div>
   );
 }

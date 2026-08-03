@@ -7,6 +7,7 @@ import {
   type SecretaryDoctorWorkload,
 } from "@/data/secretaryDoctorSchedule";
 import EmptyState from "@/components/common/EmptyState";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 export type FilterValue = "Tümü" | "Aktif" | "Yoğun" | "Müsait" | "İzinli";
 
@@ -66,6 +67,15 @@ function MoreIcon() {
   );
 }
 
+function CancelIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
+      <circle cx="12" cy="12" r="8.5" />
+      <path strokeLinecap="round" d="M9.5 9.5l5 5M14.5 9.5l-5 5" />
+    </svg>
+  );
+}
+
 interface SecretaryDoctorScheduleTableProps {
   activeFilter: FilterValue;
   onFilterChange: (filter: FilterValue) => void;
@@ -76,11 +86,13 @@ export default function SecretaryDoctorScheduleTable({
   onFilterChange,
 }: SecretaryDoctorScheduleTableProps) {
   const [search, setSearch] = useState("");
+  const [scheduleList, setScheduleList] = useState(secretaryDoctorScheduleRows);
+  const [pendingCancelId, setPendingCancelId] = useState<string | null>(null);
 
   const filteredDoctors = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    return secretaryDoctorScheduleRows.filter((doctor) => {
+    return scheduleList.filter((doctor) => {
       const matchesFilter =
         activeFilter === "Tümü" ||
         (activeFilter === "Aktif" && doctor.status === "Aktif") ||
@@ -95,7 +107,7 @@ export default function SecretaryDoctorScheduleTable({
 
       return matchesFilter && matchesSearch;
     });
-  }, [search, activeFilter]);
+  }, [search, activeFilter, scheduleList]);
 
   return (
     <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
@@ -143,7 +155,7 @@ export default function SecretaryDoctorScheduleTable({
       </div>
 
       <div className="mt-5 overflow-x-auto">
-        {secretaryDoctorScheduleRows.length === 0 && (
+        {scheduleList.length === 0 && (
           <EmptyState
             variant="empty"
             title="Hekim takviminde kayıt bulunmuyor"
@@ -151,7 +163,7 @@ export default function SecretaryDoctorScheduleTable({
           />
         )}
 
-        {secretaryDoctorScheduleRows.length > 0 && filteredDoctors.length === 0 && (
+        {scheduleList.length > 0 && filteredDoctors.length === 0 && (
           <EmptyState
             variant="search"
             title="Eşleşen takvim kaydı bulunamadı"
@@ -236,6 +248,17 @@ export default function SecretaryDoctorScheduleTable({
                     >
                       <MoreIcon />
                     </button>
+                    <button
+                      type="button"
+                      aria-label="Takvim kaydını iptal et"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setPendingCancelId(doctor.id);
+                      }}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444]"
+                    >
+                      <CancelIcon />
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -271,6 +294,19 @@ export default function SecretaryDoctorScheduleTable({
           </button>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={pendingCancelId !== null}
+        title="Takvim kaydını iptal etmek istiyor musunuz?"
+        description="Seçili hekim takvimi kaydı listeden kaldırılacak veya iptal durumuna alınacak. Bu işlem demo ortamında yalnızca arayüz üzerinde uygulanır."
+        confirmLabel="Takvim Kaydını İptal Et"
+        variant="warning"
+        onConfirm={() => {
+          setScheduleList((prev) => prev.filter((doctor) => doctor.id !== pendingCancelId));
+          setPendingCancelId(null);
+        }}
+        onCancel={() => setPendingCancelId(null)}
+      />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { secretaryPatientRows, type SecretaryPatientStatus } from "@/data/secretaryPatients";
 import EmptyState from "@/components/common/EmptyState";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 export type FilterValue = "Tümü" | SecretaryPatientStatus;
 
@@ -46,6 +47,14 @@ function MoreIcon() {
   );
 }
 
+function TrashIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 7h15M9.5 7V5a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 5v2M18 7l-.7 12a1.5 1.5 0 0 1-1.5 1.4H8.2a1.5 1.5 0 0 1-1.5-1.4L6 7" />
+    </svg>
+  );
+}
+
 interface SecretaryPatientsTableProps {
   activeFilter: FilterValue;
   onFilterChange: (filter: FilterValue) => void;
@@ -54,16 +63,18 @@ interface SecretaryPatientsTableProps {
 export default function SecretaryPatientsTable({ activeFilter, onFilterChange }: SecretaryPatientsTableProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
+  const [patientList, setPatientList] = useState(secretaryPatientRows);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const filteredPatients = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    return secretaryPatientRows.filter((patient) => {
+    return patientList.filter((patient) => {
       const matchesFilter = activeFilter === "Tümü" || patient.status === activeFilter;
       const matchesSearch = term === "" || patient.fullName.toLowerCase().includes(term);
       return matchesFilter && matchesSearch;
     });
-  }, [search, activeFilter]);
+  }, [search, activeFilter, patientList]);
 
   return (
     <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
@@ -111,7 +122,7 @@ export default function SecretaryPatientsTable({ activeFilter, onFilterChange }:
       </div>
 
       <div className="mt-5 overflow-x-auto">
-        {secretaryPatientRows.length === 0 && (
+        {patientList.length === 0 && (
           <EmptyState
             variant="empty"
             title="Henüz hasta kaydı yok"
@@ -127,7 +138,7 @@ export default function SecretaryPatientsTable({ activeFilter, onFilterChange }:
           />
         )}
 
-        {secretaryPatientRows.length > 0 && filteredPatients.length === 0 && (
+        {patientList.length > 0 && filteredPatients.length === 0 && (
           <EmptyState
             variant="search"
             title="Eşleşen hasta bulunamadı"
@@ -206,6 +217,17 @@ export default function SecretaryPatientsTable({ activeFilter, onFilterChange }:
                     >
                       <MoreIcon />
                     </button>
+                    <button
+                      type="button"
+                      aria-label="Hastayı sil"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setPendingDeleteId(patient.id);
+                      }}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444]"
+                    >
+                      <TrashIcon />
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -241,6 +263,19 @@ export default function SecretaryPatientsTable({ activeFilter, onFilterChange }:
           </button>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={pendingDeleteId !== null}
+        title="Hasta kaydını silmek istiyor musunuz?"
+        description="Seçili hasta kaydı listeden kaldırılacak. Bu işlem demo ortamında yalnızca arayüz üzerinde uygulanır."
+        confirmLabel="Hastayı Sil"
+        variant="danger"
+        onConfirm={() => {
+          setPatientList((prev) => prev.filter((patient) => patient.id !== pendingDeleteId));
+          setPendingDeleteId(null);
+        }}
+        onCancel={() => setPendingDeleteId(null)}
+      />
     </div>
   );
 }

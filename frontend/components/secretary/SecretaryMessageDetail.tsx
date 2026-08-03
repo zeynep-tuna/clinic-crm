@@ -29,7 +29,12 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-export default function SecretaryMessageDetail({ message }: { message: SecretaryMessageRow }) {
+interface SecretaryMessageDetailProps {
+  message: SecretaryMessageRow;
+  onDeleteClick: () => void;
+}
+
+export default function SecretaryMessageDetail({ message, onDeleteClick }: SecretaryMessageDetailProps) {
   const [reply, setReply] = useState("");
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -90,6 +95,13 @@ export default function SecretaryMessageDetail({ message }: { message: Secretary
             className="flex h-9 items-center justify-center rounded-xl border border-[#EAF0F8] px-3.5 text-xs font-semibold text-[#0B1F55] transition-colors hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
           >
             Hasta Kartı
+          </button>
+          <button
+            type="button"
+            onClick={onDeleteClick}
+            className="flex h-9 items-center justify-center rounded-xl border border-[#EAF0F8] px-3.5 text-xs font-semibold text-[#EF4444] transition-colors hover:border-[#FCA5A5] hover:bg-[#FEE2E2]"
+          >
+            Mesajı Sil
           </button>
         </div>
       </div>
