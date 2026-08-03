@@ -15,19 +15,57 @@ const initialState: DoctorPasswordFormState = {
   confirmPassword: "",
 };
 
+type DoctorPasswordFormErrors = Partial<Record<keyof DoctorPasswordFormState, string>>;
+
+function validateDoctorPasswordForm(values: DoctorPasswordFormState): DoctorPasswordFormErrors {
+  const nextErrors: DoctorPasswordFormErrors = {};
+
+  if (!values.currentPassword) {
+    nextErrors.currentPassword = "Mevcut şifre zorunludur.";
+  }
+
+  if (!values.newPassword) {
+    nextErrors.newPassword = "Yeni şifre zorunludur.";
+  } else if (values.newPassword.length < 6) {
+    nextErrors.newPassword = "Yeni şifre en az 6 karakter olmalıdır.";
+  }
+
+  if (!values.confirmPassword) {
+    nextErrors.confirmPassword = "Yeni şifre tekrarı zorunludur.";
+  } else if (values.newPassword && values.confirmPassword !== values.newPassword) {
+    nextErrors.confirmPassword = "Yeni şifreler eşleşmelidir.";
+  }
+
+  return nextErrors;
+}
+
 export default function DoctorPasswordCard() {
   const [form, setForm] = useState<DoctorPasswordFormState>(initialState);
+  const [errors, setErrors] = useState<DoctorPasswordFormErrors>({});
 
   const updateField = <K extends keyof DoctorPasswordFormState>(
     key: K,
     value: DoctorPasswordFormState[K]
   ) => {
     setForm((previous) => ({ ...previous, [key]: value }));
+    setErrors((previous) => {
+      if (!previous[key]) return previous;
+      const next = { ...previous };
+      delete next[key];
+      return next;
+    });
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const validationErrors = validateDoctorPasswordForm(form);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
     console.log(form);
+    setForm(initialState);
+    setErrors({});
   };
 
   return (
@@ -45,8 +83,13 @@ export default function DoctorPasswordCard() {
               type="password"
               value={form.currentPassword}
               onChange={(event) => updateField("currentPassword", event.target.value)}
-              className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+              className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                errors.currentPassword ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+              }`}
             />
+            {errors.currentPassword && (
+              <p className="mt-1 text-sm text-[#EF4444]">{errors.currentPassword}</p>
+            )}
           </div>
 
           <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
@@ -56,8 +99,13 @@ export default function DoctorPasswordCard() {
                 type="password"
                 value={form.newPassword}
                 onChange={(event) => updateField("newPassword", event.target.value)}
-                className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                  errors.newPassword ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                }`}
               />
+              {errors.newPassword && (
+                <p className="mt-1 text-sm text-[#EF4444]">{errors.newPassword}</p>
+              )}
             </div>
 
             <div>
@@ -68,8 +116,13 @@ export default function DoctorPasswordCard() {
                 type="password"
                 value={form.confirmPassword}
                 onChange={(event) => updateField("confirmPassword", event.target.value)}
-                className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                  errors.confirmPassword ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                }`}
               />
+              {errors.confirmPassword && (
+                <p className="mt-1 text-sm text-[#EF4444]">{errors.confirmPassword}</p>
+              )}
             </div>
           </div>
 
