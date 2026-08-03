@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { doctors, type DoctorStatus } from "@/data/doctors";
 import EmptyState from "@/components/common/EmptyState";
 import AddDoctorModal from "@/components/doctors/AddDoctorModal";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 type FilterValue = "Tümü" | DoctorStatus;
 
@@ -94,11 +95,13 @@ function MoreIcon() {
 export default function DoctorsTable() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
+  const [doctorList, setDoctorList] = useState(doctors);
+  const [pendingDeactivateId, setPendingDeactivateId] = useState<string | null>(null);
 
-  const totalCount = doctors.length;
-  const activeCount = doctors.filter((doctor) => doctor.status === "Aktif").length;
-  const onLeaveCount = doctors.filter((doctor) => doctor.status === "İzinli").length;
-  const inactiveCount = doctors.filter((doctor) => doctor.status === "Pasif").length;
+  const totalCount = doctorList.length;
+  const activeCount = doctorList.filter((doctor) => doctor.status === "Aktif").length;
+  const onLeaveCount = doctorList.filter((doctor) => doctor.status === "İzinli").length;
+  const inactiveCount = doctorList.filter((doctor) => doctor.status === "Pasif").length;
 
   const summaryItems: {
     label: string;
@@ -134,7 +137,7 @@ export default function DoctorsTable() {
   const filteredDoctors = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    return doctors.filter((doctor) => {
+    return doctorList.filter((doctor) => {
       const matchesFilter = activeFilter === "Tümü" || doctor.status === activeFilter;
       const matchesSearch =
         term === "" ||
@@ -142,7 +145,7 @@ export default function DoctorsTable() {
         doctor.specialty.toLowerCase().includes(term);
       return matchesFilter && matchesSearch;
     });
-  }, [search, activeFilter]);
+  }, [search, activeFilter, doctorList]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -216,7 +219,7 @@ export default function DoctorsTable() {
         </div>
 
         <div className="mt-5 overflow-x-auto">
-          {doctors.length === 0 && (
+          {doctorList.length === 0 && (
             <EmptyState
               variant="empty"
               title="Henüz hekim kaydı yok"
@@ -225,7 +228,7 @@ export default function DoctorsTable() {
             />
           )}
 
-          {doctors.length > 0 && filteredDoctors.length === 0 && (
+          {doctorList.length > 0 && filteredDoctors.length === 0 && (
             <EmptyState
               variant="search"
               title="Eşleşen hekim bulunamadı"
@@ -309,6 +312,17 @@ export default function DoctorsTable() {
                       >
                         <MoreIcon />
                       </button>
+                      <button
+                        type="button"
+                        aria-label="Hekimi pasifleştir"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setPendingDeactivateId(doctor.id);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEF3C7] hover:text-[#F59E0B]"
+                      >
+                        <PauseCircleIcon />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -345,6 +359,23 @@ export default function DoctorsTable() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={pendingDeactivateId !== null}
+        title="Hekimi pasifleştirmek istiyor musunuz?"
+        description="Seçili diş hekimi aktif listeden pasif duruma alınacak. Randevu planlamasında görünürlüğü etkilenebilir."
+        confirmLabel="Hekimi Pasifleştir"
+        variant="warning"
+        onConfirm={() => {
+          setDoctorList((prev) =>
+            prev.map((doctor) =>
+              doctor.id === pendingDeactivateId ? { ...doctor, status: "Pasif" } : doctor
+            )
+          );
+          setPendingDeactivateId(null);
+        }}
+        onCancel={() => setPendingDeactivateId(null)}
+      />
     </div>
   );
 }

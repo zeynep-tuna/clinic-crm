@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { patients, type PatientStatus } from "@/data/patients";
 import EmptyState from "@/components/common/EmptyState";
 import AddPatientModal from "@/components/patients/AddPatientModal";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 type FilterValue = "Tümü" | PatientStatus;
 
@@ -84,15 +85,25 @@ function MoreIcon() {
   );
 }
 
+function TrashIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 7h15M9.5 7V5a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 5v2M18 7l-.7 12a1.5 1.5 0 0 1-1.5 1.4H8.2a1.5 1.5 0 0 1-1.5-1.4L6 7" />
+    </svg>
+  );
+}
+
 export default function PatientsTable() {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
+  const [patientList, setPatientList] = useState(patients);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
-  const total = patients.length;
-  const activeCount = patients.filter((patient) => patient.status === "Aktif").length;
-  const pendingCount = patients.filter((patient) => patient.status === "Kontrol Bekliyor").length;
-  const inactiveCount = patients.filter((patient) => patient.status === "Pasif").length;
+  const total = patientList.length;
+  const activeCount = patientList.filter((patient) => patient.status === "Aktif").length;
+  const pendingCount = patientList.filter((patient) => patient.status === "Kontrol Bekliyor").length;
+  const inactiveCount = patientList.filter((patient) => patient.status === "Pasif").length;
 
   const summaryItems: {
     label: string;
@@ -128,12 +139,12 @@ export default function PatientsTable() {
   const filteredPatients = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    return patients.filter((patient) => {
+    return patientList.filter((patient) => {
       const matchesFilter = activeFilter === "Tümü" || patient.status === activeFilter;
       const matchesSearch = term === "" || patient.fullName.toLowerCase().includes(term);
       return matchesFilter && matchesSearch;
     });
-  }, [search, activeFilter]);
+  }, [search, activeFilter, patientList]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -207,7 +218,7 @@ export default function PatientsTable() {
         </div>
 
         <div className="mt-5 overflow-x-auto">
-          {patients.length === 0 && (
+          {patientList.length === 0 && (
             <EmptyState
               variant="empty"
               title="Henüz hasta kaydı yok"
@@ -216,7 +227,7 @@ export default function PatientsTable() {
             />
           )}
 
-          {patients.length > 0 && filteredPatients.length === 0 && (
+          {patientList.length > 0 && filteredPatients.length === 0 && (
             <EmptyState
               variant="search"
               title="Eşleşen hasta bulunamadı"
@@ -297,6 +308,17 @@ export default function PatientsTable() {
                       >
                         <MoreIcon />
                       </button>
+                      <button
+                        type="button"
+                        aria-label="Hastayı sil"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setPendingDeleteId(patient.id);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444]"
+                      >
+                        <TrashIcon />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -333,6 +355,19 @@ export default function PatientsTable() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={pendingDeleteId !== null}
+        title="Hasta kaydını silmek istiyor musunuz?"
+        description="Seçili hasta kaydı listeden kaldırılacak. Bu işlem demo ortamında yalnızca arayüz üzerinde uygulanır."
+        confirmLabel="Hastayı Sil"
+        variant="danger"
+        onConfirm={() => {
+          setPatientList((prev) => prev.filter((patient) => patient.id !== pendingDeleteId));
+          setPendingDeleteId(null);
+        }}
+        onCancel={() => setPendingDeleteId(null)}
+      />
     </div>
   );
 }

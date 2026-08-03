@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { appointments, type AppointmentStatus } from "@/data/appointments";
 import EmptyState from "@/components/common/EmptyState";
 import AddAppointmentModal from "@/components/appointments/AddAppointmentModal";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 type FilterValue = "Tümü" | AppointmentStatus;
 
@@ -102,14 +103,25 @@ function MoreIcon() {
   );
 }
 
+function CancelIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
+      <circle cx="12" cy="12" r="8.5" />
+      <path strokeLinecap="round" d="M9.5 9.5l5 5M14.5 9.5l-5 5" />
+    </svg>
+  );
+}
+
 export default function AppointmentsTable() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
+  const [appointmentList, setAppointmentList] = useState(appointments);
+  const [pendingCancelId, setPendingCancelId] = useState<string | null>(null);
 
-  const totalCount = appointments.length;
-  const confirmedCount = appointments.filter((appointment) => appointment.status === "Onaylandı").length;
-  const pendingCount = appointments.filter((appointment) => appointment.status === "Bekliyor").length;
-  const otherCount = appointments.filter(
+  const totalCount = appointmentList.length;
+  const confirmedCount = appointmentList.filter((appointment) => appointment.status === "Onaylandı").length;
+  const pendingCount = appointmentList.filter((appointment) => appointment.status === "Bekliyor").length;
+  const otherCount = appointmentList.filter(
     (appointment) => appointment.status === "Tamamlandı" || appointment.status === "İptal"
   ).length;
 
@@ -158,7 +170,7 @@ export default function AppointmentsTable() {
   const filteredAppointments = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    return appointments.filter((appointment) => {
+    return appointmentList.filter((appointment) => {
       const matchesFilter = activeFilter === "Tümü" || appointment.status === activeFilter;
       const matchesSearch =
         term === "" ||
@@ -167,7 +179,7 @@ export default function AppointmentsTable() {
         appointment.department.toLowerCase().includes(term);
       return matchesFilter && matchesSearch;
     });
-  }, [search, activeFilter]);
+  }, [search, activeFilter, appointmentList]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -241,7 +253,7 @@ export default function AppointmentsTable() {
         </div>
 
         <div className="mt-5 overflow-x-auto">
-          {appointments.length === 0 && (
+          {appointmentList.length === 0 && (
             <EmptyState
               variant="empty"
               title="Henüz randevu bulunmuyor"
@@ -250,7 +262,7 @@ export default function AppointmentsTable() {
             />
           )}
 
-          {appointments.length > 0 && filteredAppointments.length === 0 && (
+          {appointmentList.length > 0 && filteredAppointments.length === 0 && (
             <EmptyState
               variant="search"
               title="Eşleşen randevu bulunamadı"
@@ -350,6 +362,17 @@ export default function AppointmentsTable() {
                       >
                         <MoreIcon />
                       </button>
+                      <button
+                        type="button"
+                        aria-label="Randevuyu iptal et"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setPendingCancelId(appointment.id);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444]"
+                      >
+                        <CancelIcon />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -386,6 +409,23 @@ export default function AppointmentsTable() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={pendingCancelId !== null}
+        title="Randevuyu iptal etmek istiyor musunuz?"
+        description="Seçili hasta randevusu iptal edilecek. Bu işlem demo ortamında yalnızca arayüz üzerinde uygulanır."
+        confirmLabel="Randevuyu İptal Et"
+        variant="warning"
+        onConfirm={() => {
+          setAppointmentList((prev) =>
+            prev.map((appointment) =>
+              appointment.id === pendingCancelId ? { ...appointment, status: "İptal" } : appointment
+            )
+          );
+          setPendingCancelId(null);
+        }}
+        onCancel={() => setPendingCancelId(null)}
+      />
     </div>
   );
 }
