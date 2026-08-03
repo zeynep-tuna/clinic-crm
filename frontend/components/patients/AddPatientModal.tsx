@@ -37,9 +37,44 @@ const initialFormState: PatientFormState = {
   notes: "",
 };
 
+type PatientFormErrors = Partial<Record<keyof PatientFormState, string>>;
+
+function validatePatientForm(values: PatientFormState): PatientFormErrors {
+  const nextErrors: PatientFormErrors = {};
+
+  if (!values.fullName.trim()) {
+    nextErrors.fullName = "Ad soyad zorunludur.";
+  }
+
+  if (!values.phone.trim()) {
+    nextErrors.phone = "Telefon numarası zorunludur.";
+  } else {
+    const digitCount = values.phone.replace(/\D/g, "").length;
+    const hasLetters = /[a-zA-Z]/.test(values.phone);
+    if (digitCount < 10 || hasLetters) {
+      nextErrors.phone = "Geçerli bir telefon numarası girin.";
+    }
+  }
+
+  if (values.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
+    nextErrors.email = "Geçerli bir e-posta adresi girin.";
+  }
+
+  if (values.birthDate.trim() && !/^\d{2}\.\d{2}\.\d{4}$/.test(values.birthDate.trim())) {
+    nextErrors.birthDate = "Geçerli bir tarih girin.";
+  }
+
+  if (!values.gender) {
+    nextErrors.gender = "Lütfen bir seçim yapın.";
+  }
+
+  return nextErrors;
+}
+
 export default function AddPatientModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [form, setForm] = useState<PatientFormState>(initialFormState);
+  const [errors, setErrors] = useState<PatientFormErrors>({});
 
   useEffect(() => {
     if (!isOpen) return;
@@ -56,15 +91,28 @@ export default function AddPatientModal() {
 
   function updateField<K extends keyof PatientFormState>(key: K, value: PatientFormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
   }
 
   function closeModal() {
     setIsOpen(false);
+    setErrors({});
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const validationErrors = validatePatientForm(form);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
     setForm(initialFormState);
+    setErrors({});
     setIsOpen(false);
   }
 
@@ -118,8 +166,11 @@ export default function AddPatientModal() {
                   value={form.fullName}
                   onChange={(event) => updateField("fullName", event.target.value)}
                   placeholder="Örn. Ayşe Demir"
-                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                    errors.fullName ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                  }`}
                 />
+                {errors.fullName && <p className="mt-1 text-sm text-[#EF4444]">{errors.fullName}</p>}
               </div>
 
               <div>
@@ -129,8 +180,11 @@ export default function AddPatientModal() {
                   value={form.phone}
                   onChange={(event) => updateField("phone", event.target.value)}
                   placeholder="Örn. +90 555 123 45 67"
-                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                    errors.phone ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                  }`}
                 />
+                {errors.phone && <p className="mt-1 text-sm text-[#EF4444]">{errors.phone}</p>}
               </div>
 
               <div>
@@ -140,8 +194,11 @@ export default function AddPatientModal() {
                   value={form.email}
                   onChange={(event) => updateField("email", event.target.value)}
                   placeholder="Örn. ayse.demir@example.com"
-                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                    errors.email ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                  }`}
                 />
+                {errors.email && <p className="mt-1 text-sm text-[#EF4444]">{errors.email}</p>}
               </div>
 
               <div>
@@ -162,9 +219,12 @@ export default function AddPatientModal() {
                     value={form.birthDate}
                     onChange={(event) => updateField("birthDate", event.target.value)}
                     placeholder="GG.AA.YYYY"
-                    className="w-full rounded-xl border border-[#EAF0F8] py-2.5 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                    className={`w-full rounded-xl border py-2.5 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                      errors.birthDate ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                    }`}
                   />
                 </div>
+                {errors.birthDate && <p className="mt-1 text-sm text-[#EF4444]">{errors.birthDate}</p>}
               </div>
 
               <div>
@@ -172,7 +232,9 @@ export default function AddPatientModal() {
                 <select
                   value={form.gender}
                   onChange={(event) => updateField("gender", event.target.value)}
-                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                    errors.gender ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                  }`}
                 >
                   <option value="">Seçiniz</option>
                   {genderOptions.map((option) => (
@@ -181,6 +243,7 @@ export default function AddPatientModal() {
                     </option>
                   ))}
                 </select>
+                {errors.gender && <p className="mt-1 text-sm text-[#EF4444]">{errors.gender}</p>}
               </div>
 
               <div>

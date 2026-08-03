@@ -33,9 +33,34 @@ const initialFormState: ConsentFormFormState = {
   notes: "",
 };
 
+type ConsentFormFormErrors = Partial<Record<keyof ConsentFormFormState, string>>;
+
+function validateConsentFormForm(values: ConsentFormFormState): ConsentFormFormErrors {
+  const nextErrors: ConsentFormFormErrors = {};
+
+  if (!values.patient) {
+    nextErrors.patient = "Hasta seçimi zorunludur.";
+  }
+
+  if (!values.formTitle.trim()) {
+    nextErrors.formTitle = "Form adı zorunludur.";
+  }
+
+  if (!values.formType) {
+    nextErrors.formType = "Form türü zorunludur.";
+  }
+
+  if (!values.status) {
+    nextErrors.status = "Form durumu zorunludur.";
+  }
+
+  return nextErrors;
+}
+
 export default function AddConsentFormModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [form, setForm] = useState<ConsentFormFormState>(initialFormState);
+  const [errors, setErrors] = useState<ConsentFormFormErrors>({});
 
   useEffect(() => {
     if (!isOpen) return;
@@ -55,15 +80,28 @@ export default function AddConsentFormModal() {
     value: ConsentFormFormState[K]
   ) {
     setForm((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
   }
 
   function closeModal() {
     setIsOpen(false);
+    setErrors({});
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const validationErrors = validateConsentFormForm(form);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
     setForm(initialFormState);
+    setErrors({});
     setIsOpen(false);
   }
 
@@ -115,7 +153,9 @@ export default function AddConsentFormModal() {
                 <select
                   value={form.patient}
                   onChange={(event) => updateField("patient", event.target.value)}
-                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                    errors.patient ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                  }`}
                 >
                   <option value="">Hasta seçin</option>
                   {patientOptions.map((option) => (
@@ -124,6 +164,7 @@ export default function AddConsentFormModal() {
                     </option>
                   ))}
                 </select>
+                {errors.patient && <p className="mt-1 text-sm text-[#EF4444]">{errors.patient}</p>}
               </div>
 
               <div>
@@ -132,8 +173,11 @@ export default function AddConsentFormModal() {
                   type="text"
                   value={form.formTitle}
                   onChange={(event) => updateField("formTitle", event.target.value)}
-                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                    errors.formTitle ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                  }`}
                 />
+                {errors.formTitle && <p className="mt-1 text-sm text-[#EF4444]">{errors.formTitle}</p>}
               </div>
 
               <div>
@@ -141,7 +185,9 @@ export default function AddConsentFormModal() {
                 <select
                   value={form.formType}
                   onChange={(event) => updateField("formType", event.target.value)}
-                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                    errors.formType ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                  }`}
                 >
                   <option value="">Form türü seçin</option>
                   {formTypeOptions.map((option) => (
@@ -150,6 +196,7 @@ export default function AddConsentFormModal() {
                     </option>
                   ))}
                 </select>
+                {errors.formType && <p className="mt-1 text-sm text-[#EF4444]">{errors.formType}</p>}
               </div>
 
               <div>
@@ -168,7 +215,9 @@ export default function AddConsentFormModal() {
                 <select
                   value={form.status}
                   onChange={(event) => updateField("status", event.target.value)}
-                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                    errors.status ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                  }`}
                 >
                   <option value="">Durum seçin</option>
                   {statusOptions.map((option) => (
@@ -177,6 +226,7 @@ export default function AddConsentFormModal() {
                     </option>
                   ))}
                 </select>
+                {errors.status && <p className="mt-1 text-sm text-[#EF4444]">{errors.status}</p>}
               </div>
 
               <div>

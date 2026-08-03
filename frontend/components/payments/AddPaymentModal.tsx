@@ -35,9 +35,40 @@ const initialFormState: PaymentFormState = {
   notes: "",
 };
 
+type PaymentFormErrors = Partial<Record<keyof PaymentFormState, string>>;
+
+function validatePaymentForm(values: PaymentFormState): PaymentFormErrors {
+  const nextErrors: PaymentFormErrors = {};
+
+  if (!values.patient) {
+    nextErrors.patient = "Hasta seçimi zorunludur.";
+  }
+
+  if (!values.treatment.trim()) {
+    nextErrors.treatment = "Tedavi/işlem bilgisi zorunludur.";
+  }
+
+  if (!values.amount.trim()) {
+    nextErrors.amount = "Ödeme tutarı zorunludur.";
+  } else if (Number.isNaN(Number(values.amount)) || Number(values.amount) <= 0) {
+    nextErrors.amount = "Ödeme tutarı 0'dan büyük olmalıdır.";
+  }
+
+  if (!values.method) {
+    nextErrors.method = "Ödeme yöntemi zorunludur.";
+  }
+
+  if (!values.status) {
+    nextErrors.status = "Ödeme durumu zorunludur.";
+  }
+
+  return nextErrors;
+}
+
 export default function AddPaymentModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [form, setForm] = useState<PaymentFormState>(initialFormState);
+  const [errors, setErrors] = useState<PaymentFormErrors>({});
 
   useEffect(() => {
     if (!isOpen) return;
@@ -54,15 +85,28 @@ export default function AddPaymentModal() {
 
   function updateField<K extends keyof PaymentFormState>(key: K, value: PaymentFormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
   }
 
   function closeModal() {
     setIsOpen(false);
+    setErrors({});
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const validationErrors = validatePaymentForm(form);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
     setForm(initialFormState);
+    setErrors({});
     setIsOpen(false);
   }
 
@@ -114,7 +158,9 @@ export default function AddPaymentModal() {
                 <select
                   value={form.patient}
                   onChange={(event) => updateField("patient", event.target.value)}
-                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                    errors.patient ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                  }`}
                 >
                   <option value="">Hasta seçin</option>
                   {patientOptions.map((option) => (
@@ -123,6 +169,7 @@ export default function AddPaymentModal() {
                     </option>
                   ))}
                 </select>
+                {errors.patient && <p className="mt-1 text-sm text-[#EF4444]">{errors.patient}</p>}
               </div>
 
               <div>
@@ -131,8 +178,11 @@ export default function AddPaymentModal() {
                   type="text"
                   value={form.treatment}
                   onChange={(event) => updateField("treatment", event.target.value)}
-                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                    errors.treatment ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                  }`}
                 />
+                {errors.treatment && <p className="mt-1 text-sm text-[#EF4444]">{errors.treatment}</p>}
               </div>
 
               <div>
@@ -142,8 +192,11 @@ export default function AddPaymentModal() {
                   min={0}
                   value={form.amount}
                   onChange={(event) => updateField("amount", event.target.value)}
-                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                    errors.amount ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                  }`}
                 />
+                {errors.amount && <p className="mt-1 text-sm text-[#EF4444]">{errors.amount}</p>}
               </div>
 
               <div>
@@ -151,7 +204,9 @@ export default function AddPaymentModal() {
                 <select
                   value={form.status}
                   onChange={(event) => updateField("status", event.target.value)}
-                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                    errors.status ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                  }`}
                 >
                   <option value="">Durum seçin</option>
                   {statusOptions.map((option) => (
@@ -160,6 +215,7 @@ export default function AddPaymentModal() {
                     </option>
                   ))}
                 </select>
+                {errors.status && <p className="mt-1 text-sm text-[#EF4444]">{errors.status}</p>}
               </div>
 
               <div>
@@ -167,7 +223,9 @@ export default function AddPaymentModal() {
                 <select
                   value={form.method}
                   onChange={(event) => updateField("method", event.target.value)}
-                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                    errors.method ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                  }`}
                 >
                   <option value="">Yöntem seçin</option>
                   {methodOptions.map((option) => (
@@ -176,6 +234,7 @@ export default function AddPaymentModal() {
                     </option>
                   ))}
                 </select>
+                {errors.method && <p className="mt-1 text-sm text-[#EF4444]">{errors.method}</p>}
               </div>
 
               <div>
