@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 function HeartIcon() {
   return (
@@ -44,15 +45,77 @@ function EyeOffIcon() {
   );
 }
 
+interface LoginFormErrors {
+  email?: string;
+  password?: string;
+}
+
+function validateLoginForm(email: string, password: string): LoginFormErrors {
+  const errors: LoginFormErrors = {};
+
+  if (!email.trim()) {
+    errors.email = "E-posta adresi zorunludur.";
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    errors.email = "Geçerli bir e-posta adresi girin.";
+  }
+
+  if (!password) {
+    errors.password = "Şifre zorunludur.";
+  } else if (password.length < 6) {
+    errors.password = "Şifre en az 6 karakter olmalıdır.";
+  }
+
+  return errors;
+}
+
 export default function LoginForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<LoginFormErrors>({});
+
+  function handleEmailChange(value: string) {
+    setEmail(value);
+    if (errors.email) {
+      setErrors((previous) => ({ ...previous, email: undefined }));
+    }
+  }
+
+  function handlePasswordChange(value: string) {
+    setPassword(value);
+    if (errors.password) {
+      setErrors((previous) => ({ ...previous, password: undefined }));
+    }
+  }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    console.log({ email, password, rememberMe });
+    const validationErrors = validateLoginForm(email, password);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (
+      normalizedEmail.includes("secretary") ||
+      normalizedEmail.includes("sekreter") ||
+      normalizedEmail.includes("zeynep")
+    ) {
+      router.push("/secretary/dashboard");
+    } else if (
+      normalizedEmail.includes("doctor") ||
+      normalizedEmail.includes("doktor") ||
+      normalizedEmail.includes("hekim") ||
+      normalizedEmail.includes("elif")
+    ) {
+      router.push("/doctor/dashboard");
+    } else {
+      router.push("/dashboard");
+    }
   }
 
   return (
@@ -69,16 +132,19 @@ export default function LoginForm() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+      <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-5">
         <div>
           <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">E-posta</label>
           <input
             type="email"
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={(event) => handleEmailChange(event.target.value)}
             placeholder="ornek@klinik.com"
-            className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+            className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+              errors.email ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+            }`}
           />
+          {errors.email && <p className="mt-1 text-sm text-[#EF4444]">{errors.email}</p>}
         </div>
 
         <div>
@@ -87,9 +153,11 @@ export default function LoginForm() {
             <input
               type={showPassword ? "text" : "password"}
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) => handlePasswordChange(event.target.value)}
               placeholder="Şifrenizi girin"
-              className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 pr-11 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+              className={`w-full rounded-xl border px-4 py-2.5 pr-11 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                errors.password ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+              }`}
             />
             <button
               type="button"
@@ -100,6 +168,7 @@ export default function LoginForm() {
               {showPassword ? <EyeOffIcon /> : <EyeIcon />}
             </button>
           </div>
+          {errors.password && <p className="mt-1 text-sm text-[#EF4444]">{errors.password}</p>}
         </div>
 
         <div className="flex items-center justify-between">
@@ -113,9 +182,9 @@ export default function LoginForm() {
             Beni Hatırla
           </label>
 
-          <a href="#" className="text-sm font-medium text-[#5B4DE3] hover:underline">
+          <Link href="/forgot-password" className="text-sm font-medium text-[#5B4DE3] hover:underline">
             Şifremi Unuttum?
-          </a>
+          </Link>
         </div>
 
         <button
