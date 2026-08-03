@@ -1,4 +1,32 @@
 import { doctorProfile } from "@/data/doctorDashboard";
+import NotificationDropdown, { type NotificationItem } from "@/components/common/NotificationDropdown";
+
+const doctorNotifications: NotificationItem[] = [
+  {
+    id: "1",
+    title: "Yeni hasta mesajı",
+    description: "Ayşe Demir kontrol randevusu hakkında mesaj gönderdi.",
+    type: "message",
+    time: "6 dk önce",
+    unread: true,
+  },
+  {
+    id: "2",
+    title: "Bugünkü randevu hatırlatması",
+    description: "11:15 randevunuz için hasta dosyası hazırlandı.",
+    type: "appointment",
+    time: "30 dk önce",
+    unread: true,
+  },
+  {
+    id: "3",
+    title: "Onam formu tamamlandı",
+    description: "Mehmet Kaya dolgu tedavisi onam formunu imzaladı.",
+    type: "consent",
+    time: "2 saat önce",
+    unread: false,
+  },
+];
 
 export default function DoctorTopbar() {
   return (
@@ -22,26 +50,7 @@ export default function DoctorTopbar() {
           />
         </div>
 
-        <button
-          type="button"
-          aria-label="Bildirimler"
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-[#EAF0F8] text-[#667085] transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.75}
-            className="h-4 w-4"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9"
-            />
-          </svg>
-        </button>
+        <NotificationDropdown notifications={doctorNotifications} />
 
         <button
           type="button"

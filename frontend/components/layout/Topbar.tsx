@@ -1,3 +1,32 @@
+import NotificationDropdown, { type NotificationItem } from "@/components/common/NotificationDropdown";
+
+const adminNotifications: NotificationItem[] = [
+  {
+    id: "1",
+    title: "Yeni randevu talebi oluşturuldu",
+    description: "Ayşe Demir için bugün 14:30 randevusu eklendi.",
+    type: "appointment",
+    time: "5 dk önce",
+    unread: true,
+  },
+  {
+    id: "2",
+    title: "Bekleyen ödeme hatırlatması",
+    description: "Mehmet Kaya için ₺2.400 ödeme bekliyor.",
+    type: "payment",
+    time: "18 dk önce",
+    unread: true,
+  },
+  {
+    id: "3",
+    title: "Yeni onam formu imzalandı",
+    description: "Zeynep Aydın implant tedavisi onam formunu imzaladı.",
+    type: "consent",
+    time: "1 saat önce",
+    unread: false,
+  },
+];
+
 export default function Topbar() {
   return (
     <header className="flex h-16 shrink-0 items-center justify-end border-b border-[#EAF0F8]/70 bg-white px-6">
@@ -20,27 +49,7 @@ export default function Topbar() {
           />
         </div>
 
-        <button
-          type="button"
-          aria-label="Bildirimler"
-          className="relative flex h-9 w-9 items-center justify-center rounded-full border border-[#EAF0F8] text-[#667085] transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.75}
-            className="h-4.5 w-4.5"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9"
-            />
-          </svg>
-          <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#EF4444] ring-2 ring-white" />
-        </button>
+        <NotificationDropdown notifications={adminNotifications} />
 
         <div className="flex items-center gap-2.5 border-l border-[#EAF0F8]/70 pl-4">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EEF0FF] text-sm font-semibold text-[#5B4DE3]">

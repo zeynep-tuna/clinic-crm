@@ -1,4 +1,32 @@
 import { secretaryProfile } from "@/data/secretaryDashboard";
+import NotificationDropdown, { type NotificationItem } from "@/components/common/NotificationDropdown";
+
+const secretaryNotifications: NotificationItem[] = [
+  {
+    id: "1",
+    title: "Randevu değişikliği talebi",
+    description: "Dr. Elif Kaya 14:00 randevusunun 14:30'a alınmasını istedi.",
+    type: "appointment",
+    time: "3 dk önce",
+    unread: true,
+  },
+  {
+    id: "2",
+    title: "Yeni hasta kaydı oluşturuldu",
+    description: "Burak Demir hasta listesine eklendi.",
+    type: "patient",
+    time: "22 dk önce",
+    unread: true,
+  },
+  {
+    id: "3",
+    title: "Onam formu bekliyor",
+    description: "Fatma Öz için muayene ve tedavi onam formu bekliyor.",
+    type: "consent",
+    time: "Bugün",
+    unread: false,
+  },
+];
 
 export default function SecretaryTopbar() {
   return (
@@ -22,26 +50,7 @@ export default function SecretaryTopbar() {
           />
         </div>
 
-        <button
-          type="button"
-          aria-label="Bildirimler"
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-[#EAF0F8] text-[#667085] transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.75}
-            className="h-4 w-4"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9"
-            />
-          </svg>
-        </button>
+        <NotificationDropdown notifications={secretaryNotifications} />
 
         <button
           type="button"
