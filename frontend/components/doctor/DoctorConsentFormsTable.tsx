@@ -8,6 +8,7 @@ import {
 } from "@/data/doctorConsentForms";
 import DoctorConsentFormSummaryCards from "@/components/doctor/DoctorConsentFormSummaryCards";
 import EmptyState from "@/components/common/EmptyState";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 export type FilterValue = "Tümü" | DoctorConsentFormStatus;
 
@@ -60,14 +61,24 @@ function MoreIcon() {
   );
 }
 
+function TrashIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 7h15M9.5 7V5a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 5v2M18 7l-.7 12a1.5 1.5 0 0 1-1.5 1.4H8.2a1.5 1.5 0 0 1-1.5-1.4L6 7" />
+    </svg>
+  );
+}
+
 export default function DoctorConsentFormsTable() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
+  const [formList, setFormList] = useState(doctorConsentFormRows);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const filteredForms = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    return doctorConsentFormRows.filter((form) => {
+    return formList.filter((form) => {
       const matchesFilter = activeFilter === "Tümü" || form.status === activeFilter;
       const matchesSearch =
         term === "" ||
@@ -76,7 +87,7 @@ export default function DoctorConsentFormsTable() {
         form.formType.toLowerCase().includes(term);
       return matchesFilter && matchesSearch;
     });
-  }, [search, activeFilter]);
+  }, [search, activeFilter, formList]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -127,7 +138,7 @@ export default function DoctorConsentFormsTable() {
         </div>
 
         <div className="mt-5 overflow-x-auto">
-          {doctorConsentFormRows.length === 0 && (
+          {formList.length === 0 && (
             <EmptyState
               variant="empty"
               title="Henüz onam formu bulunmuyor"
@@ -135,7 +146,7 @@ export default function DoctorConsentFormsTable() {
             />
           )}
 
-          {doctorConsentFormRows.length > 0 && filteredForms.length === 0 && (
+          {formList.length > 0 && filteredForms.length === 0 && (
             <EmptyState
               variant="search"
               title="Eşleşen onam formu bulunamadı"
@@ -223,6 +234,17 @@ export default function DoctorConsentFormsTable() {
                       >
                         <MoreIcon />
                       </button>
+                      <button
+                        type="button"
+                        aria-label="Onam formunu sil"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setPendingDeleteId(form.id);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444]"
+                      >
+                        <TrashIcon />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -259,6 +281,19 @@ export default function DoctorConsentFormsTable() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={pendingDeleteId !== null}
+        title="Onam formunu silmek istiyor musunuz?"
+        description="Seçili dijital onam formu listeden kaldırılacak. İmzalı formlar için gerçek sistemlerde ayrıca yetki kontrolü gerekir."
+        confirmLabel="Onam Formunu Sil"
+        variant="danger"
+        onConfirm={() => {
+          setFormList((prev) => prev.filter((form) => form.id !== pendingDeleteId));
+          setPendingDeleteId(null);
+        }}
+        onCancel={() => setPendingDeleteId(null)}
+      />
     </div>
   );
 }

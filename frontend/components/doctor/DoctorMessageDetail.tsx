@@ -30,7 +30,12 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-export default function DoctorMessageDetail({ message }: { message: DoctorMessageRow }) {
+interface DoctorMessageDetailProps {
+  message: DoctorMessageRow;
+  onDeleteClick: () => void;
+}
+
+export default function DoctorMessageDetail({ message, onDeleteClick }: DoctorMessageDetailProps) {
   const [reply, setReply] = useState("");
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -75,6 +80,16 @@ export default function DoctorMessageDetail({ message }: { message: DoctorMessag
         <p className="text-base font-semibold text-[#0B1F55]">{message.subject}</p>
         <p className="mt-1 text-xs text-[#667085]">{message.timeLabel}</p>
         <p className="mt-3 text-sm text-[#0B1F55]">{message.body}</p>
+
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={onDeleteClick}
+            className="flex h-9 items-center justify-center rounded-xl border border-[#EAF0F8] px-3.5 text-xs font-semibold text-[#EF4444] transition-colors hover:border-[#FCA5A5] hover:bg-[#FEE2E2]"
+          >
+            Mesajı Sil
+          </button>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="mt-5 border-t border-[#EEF2F8] pt-5">

@@ -5,6 +5,7 @@ import { doctorMessageRows, type DoctorMessageRow } from "@/data/doctorMessages"
 import DoctorMessageDetail from "@/components/doctor/DoctorMessageDetail";
 import DoctorMessageSummaryCards from "@/components/doctor/DoctorMessageSummaryCards";
 import EmptyState from "@/components/common/EmptyState";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 export type FilterValue = "Tümü" | "Okunmamış" | "Hasta" | "Sekreter" | "Acil";
 
@@ -51,11 +52,13 @@ export default function DoctorMessagesPanel() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
   const [selectedId, setSelectedId] = useState(doctorMessageRows[0]?.id ?? "");
+  const [messageList, setMessageList] = useState(doctorMessageRows);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const filteredMessages = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    return doctorMessageRows.filter((message) => {
+    return messageList.filter((message) => {
       const matchesFilter =
         activeFilter === "Tümü" ||
         (activeFilter === "Okunmamış" && message.status === "Okunmamış") ||
@@ -71,12 +74,12 @@ export default function DoctorMessagesPanel() {
 
       return matchesFilter && matchesSearch;
     });
-  }, [search, activeFilter]);
+  }, [search, activeFilter, messageList]);
 
   const selectedMessage =
     filteredMessages.find((message) => message.id === selectedId) ??
     filteredMessages[0] ??
-    doctorMessageRows[0];
+    messageList[0];
 
   return (
     <div className="flex flex-col gap-5">
@@ -125,7 +128,7 @@ export default function DoctorMessagesPanel() {
             })}
           </div>
 
-          {doctorMessageRows.length === 0 && (
+          {messageList.length === 0 && (
             <div className="mt-4">
               <EmptyState
                 variant="empty"
@@ -135,7 +138,7 @@ export default function DoctorMessagesPanel() {
             </div>
           )}
 
-          {doctorMessageRows.length > 0 && filteredMessages.length === 0 && (
+          {messageList.length > 0 && filteredMessages.length === 0 && (
             <div className="mt-4">
               <EmptyState
                 variant="search"
@@ -214,8 +217,26 @@ export default function DoctorMessagesPanel() {
           </div>
         </div>
 
-        {selectedMessage && <DoctorMessageDetail message={selectedMessage} />}
+        {selectedMessage && (
+          <DoctorMessageDetail
+            message={selectedMessage}
+            onDeleteClick={() => setPendingDeleteId(selectedMessage.id)}
+          />
+        )}
       </div>
+
+      <ConfirmDialog
+        open={pendingDeleteId !== null}
+        title="Mesajı silmek istiyor musunuz?"
+        description="Seçili mesaj görüşme listesinden kaldırılacak. Bu işlem demo ortamında yalnızca arayüz üzerinde uygulanır."
+        confirmLabel="Mesajı Sil"
+        variant="danger"
+        onConfirm={() => {
+          setMessageList((prev) => prev.filter((message) => message.id !== pendingDeleteId));
+          setPendingDeleteId(null);
+        }}
+        onCancel={() => setPendingDeleteId(null)}
+      />
     </div>
   );
 }

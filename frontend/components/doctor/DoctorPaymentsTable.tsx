@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { doctorPaymentRows, type DoctorPaymentStatus } from "@/data/doctorPayments";
 import DoctorPaymentSummaryCards from "@/components/doctor/DoctorPaymentSummaryCards";
 import EmptyState from "@/components/common/EmptyState";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 export type FilterValue = "Tümü" | DoctorPaymentStatus;
 
@@ -39,14 +40,24 @@ function MoreIcon() {
   );
 }
 
+function TrashIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 7h15M9.5 7V5a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 5v2M18 7l-.7 12a1.5 1.5 0 0 1-1.5 1.4H8.2a1.5 1.5 0 0 1-1.5-1.4L6 7" />
+    </svg>
+  );
+}
+
 export default function DoctorPaymentsTable() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
+  const [paymentList, setPaymentList] = useState(doctorPaymentRows);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const filteredPayments = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    return doctorPaymentRows.filter((payment) => {
+    return paymentList.filter((payment) => {
       const matchesFilter = activeFilter === "Tümü" || payment.status === activeFilter;
       const matchesSearch =
         term === "" ||
@@ -55,7 +66,7 @@ export default function DoctorPaymentsTable() {
         payment.paymentMethod.toLowerCase().includes(term);
       return matchesFilter && matchesSearch;
     });
-  }, [search, activeFilter]);
+  }, [search, activeFilter, paymentList]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -106,7 +117,7 @@ export default function DoctorPaymentsTable() {
         </div>
 
         <div className="mt-5 overflow-x-auto">
-          {doctorPaymentRows.length === 0 && (
+          {paymentList.length === 0 && (
             <EmptyState
               variant="empty"
               title="Henüz ödeme kaydı yok"
@@ -114,7 +125,7 @@ export default function DoctorPaymentsTable() {
             />
           )}
 
-          {doctorPaymentRows.length > 0 && filteredPayments.length === 0 && (
+          {paymentList.length > 0 && filteredPayments.length === 0 && (
             <EmptyState
               variant="search"
               title="Eşleşen ödeme kaydı bulunamadı"
@@ -188,6 +199,17 @@ export default function DoctorPaymentsTable() {
                       >
                         <MoreIcon />
                       </button>
+                      <button
+                        type="button"
+                        aria-label="Ödeme kaydını sil"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setPendingDeleteId(payment.id);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444]"
+                      >
+                        <TrashIcon />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -224,6 +246,19 @@ export default function DoctorPaymentsTable() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={pendingDeleteId !== null}
+        title="Ödeme kaydını silmek istiyor musunuz?"
+        description="Seçili ödeme kaydı listeden kaldırılacak. Bu işlem demo ortamında yalnızca arayüz üzerinde uygulanır."
+        confirmLabel="Ödeme Kaydını Sil"
+        variant="danger"
+        onConfirm={() => {
+          setPaymentList((prev) => prev.filter((payment) => payment.id !== pendingDeleteId));
+          setPendingDeleteId(null);
+        }}
+        onCancel={() => setPendingDeleteId(null)}
+      />
     </div>
   );
 }

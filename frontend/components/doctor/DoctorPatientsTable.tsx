@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { doctorPatients, type DoctorPatientStatus } from "@/data/doctorPatients";
 import DoctorPatientSummaryCards from "@/components/doctor/DoctorPatientSummaryCards";
 import EmptyState from "@/components/common/EmptyState";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 export type FilterValue = "Tümü" | DoctorPatientStatus;
 
@@ -46,14 +47,25 @@ function MoreIcon() {
   );
 }
 
+function RemoveIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
+      <circle cx="12" cy="12" r="8.5" />
+      <path strokeLinecap="round" d="M8.5 12h7" />
+    </svg>
+  );
+}
+
 export default function DoctorPatientsTable() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
+  const [patientList, setPatientList] = useState(doctorPatients);
+  const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null);
 
   const filteredPatients = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    return doctorPatients.filter((patient) => {
+    return patientList.filter((patient) => {
       const matchesFilter = activeFilter === "Tümü" || patient.status === activeFilter;
       const matchesSearch =
         term === "" ||
@@ -61,7 +73,7 @@ export default function DoctorPatientsTable() {
         patient.treatmentStatus.toLowerCase().includes(term);
       return matchesFilter && matchesSearch;
     });
-  }, [search, activeFilter]);
+  }, [search, activeFilter, patientList]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -112,7 +124,7 @@ export default function DoctorPatientsTable() {
         </div>
 
         <div className="mt-5 overflow-x-auto">
-          {doctorPatients.length === 0 && (
+          {patientList.length === 0 && (
             <EmptyState
               variant="empty"
               title="Henüz size atanmış hasta yok"
@@ -120,7 +132,7 @@ export default function DoctorPatientsTable() {
             />
           )}
 
-          {doctorPatients.length > 0 && filteredPatients.length === 0 && (
+          {patientList.length > 0 && filteredPatients.length === 0 && (
             <EmptyState
               variant="search"
               title="Eşleşen hasta bulunamadı"
@@ -202,6 +214,17 @@ export default function DoctorPatientsTable() {
                       >
                         <MoreIcon />
                       </button>
+                      <button
+                        type="button"
+                        aria-label="Hastayı kaldır"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setPendingRemoveId(patient.id);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEF3C7] hover:text-[#F59E0B]"
+                      >
+                        <RemoveIcon />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -238,6 +261,19 @@ export default function DoctorPatientsTable() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={pendingRemoveId !== null}
+        title="Hasta kaydını kaldırmak istiyor musunuz?"
+        description="Seçili hasta kaydı diş hekimi takip listesinden kaldırılacak. Bu işlem demo ortamında yalnızca arayüz üzerinde uygulanır."
+        confirmLabel="Hastayı Kaldır"
+        variant="warning"
+        onConfirm={() => {
+          setPatientList((prev) => prev.filter((patient) => patient.id !== pendingRemoveId));
+          setPendingRemoveId(null);
+        }}
+        onCancel={() => setPendingRemoveId(null)}
+      />
     </div>
   );
 }

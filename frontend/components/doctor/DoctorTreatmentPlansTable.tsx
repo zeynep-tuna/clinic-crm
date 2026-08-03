@@ -8,6 +8,7 @@ import {
 } from "@/data/doctorTreatmentPlans";
 import DoctorTreatmentPlanSummaryCards from "@/components/doctor/DoctorTreatmentPlanSummaryCards";
 import EmptyState from "@/components/common/EmptyState";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 export type FilterValue = "Tümü" | DoctorTreatmentPlanStatus;
 
@@ -57,14 +58,25 @@ function MoreIcon() {
   );
 }
 
+function CancelIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
+      <circle cx="12" cy="12" r="8.5" />
+      <path strokeLinecap="round" d="M9.5 9.5l5 5M14.5 9.5l-5 5" />
+    </svg>
+  );
+}
+
 export default function DoctorTreatmentPlansTable() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
+  const [planList, setPlanList] = useState(doctorTreatmentPlanRows);
+  const [pendingCancelId, setPendingCancelId] = useState<string | null>(null);
 
   const filteredPlans = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    return doctorTreatmentPlanRows.filter((plan) => {
+    return planList.filter((plan) => {
       const matchesFilter = activeFilter === "Tümü" || plan.status === activeFilter;
       const matchesSearch =
         term === "" ||
@@ -73,7 +85,7 @@ export default function DoctorTreatmentPlansTable() {
         plan.status.toLowerCase().includes(term);
       return matchesFilter && matchesSearch;
     });
-  }, [search, activeFilter]);
+  }, [search, activeFilter, planList]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -124,7 +136,7 @@ export default function DoctorTreatmentPlansTable() {
         </div>
 
         <div className="mt-5 overflow-x-auto">
-          {doctorTreatmentPlanRows.length === 0 && (
+          {planList.length === 0 && (
             <EmptyState
               variant="empty"
               title="Henüz tedavi planı bulunmuyor"
@@ -132,7 +144,7 @@ export default function DoctorTreatmentPlansTable() {
             />
           )}
 
-          {doctorTreatmentPlanRows.length > 0 && filteredPlans.length === 0 && (
+          {planList.length > 0 && filteredPlans.length === 0 && (
             <EmptyState
               variant="search"
               title="Eşleşen tedavi planı bulunamadı"
@@ -216,6 +228,17 @@ export default function DoctorTreatmentPlansTable() {
                       >
                         <MoreIcon />
                       </button>
+                      <button
+                        type="button"
+                        aria-label="Tedavi planını iptal et"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setPendingCancelId(plan.id);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444]"
+                      >
+                        <CancelIcon />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -252,6 +275,19 @@ export default function DoctorTreatmentPlansTable() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={pendingCancelId !== null}
+        title="Tedavi planını iptal etmek istiyor musunuz?"
+        description="Seçili diş tedavi planı iptal durumuna alınacak veya listeden kaldırılacak. Bu işlem demo ortamında yalnızca arayüz üzerinde uygulanır."
+        confirmLabel="Tedavi Planını İptal Et"
+        variant="warning"
+        onConfirm={() => {
+          setPlanList((prev) => prev.filter((plan) => plan.id !== pendingCancelId));
+          setPendingCancelId(null);
+        }}
+        onCancel={() => setPendingCancelId(null)}
+      />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { doctorAppointmentRows, type DoctorAppointmentStatus } from "@/data/doctorAppointments";
 import DoctorAppointmentSummaryCards from "@/components/doctor/DoctorAppointmentSummaryCards";
 import EmptyState from "@/components/common/EmptyState";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 export type FilterValue = "Tümü" | DoctorAppointmentStatus;
 
@@ -47,14 +48,25 @@ function MoreIcon() {
   );
 }
 
+function CancelIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
+      <circle cx="12" cy="12" r="8.5" />
+      <path strokeLinecap="round" d="M9.5 9.5l5 5M14.5 9.5l-5 5" />
+    </svg>
+  );
+}
+
 export default function DoctorAppointmentsTable() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
+  const [appointmentList, setAppointmentList] = useState(doctorAppointmentRows);
+  const [pendingCancelId, setPendingCancelId] = useState<string | null>(null);
 
   const filteredAppointments = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    return doctorAppointmentRows.filter((appointment) => {
+    return appointmentList.filter((appointment) => {
       const matchesFilter = activeFilter === "Tümü" || appointment.status === activeFilter;
       const matchesSearch =
         term === "" ||
@@ -63,7 +75,7 @@ export default function DoctorAppointmentsTable() {
         appointment.status.toLowerCase().includes(term);
       return matchesFilter && matchesSearch;
     });
-  }, [search, activeFilter]);
+  }, [search, activeFilter, appointmentList]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -114,7 +126,7 @@ export default function DoctorAppointmentsTable() {
         </div>
 
         <div className="mt-5 overflow-x-auto">
-          {doctorAppointmentRows.length === 0 && (
+          {appointmentList.length === 0 && (
             <EmptyState
               variant="empty"
               title="Henüz randevunuz bulunmuyor"
@@ -122,7 +134,7 @@ export default function DoctorAppointmentsTable() {
             />
           )}
 
-          {doctorAppointmentRows.length > 0 && filteredAppointments.length === 0 && (
+          {appointmentList.length > 0 && filteredAppointments.length === 0 && (
             <EmptyState
               variant="search"
               title="Eşleşen randevu bulunamadı"
@@ -198,6 +210,17 @@ export default function DoctorAppointmentsTable() {
                       >
                         <MoreIcon />
                       </button>
+                      <button
+                        type="button"
+                        aria-label="Randevuyu iptal et"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setPendingCancelId(appointment.id);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444]"
+                      >
+                        <CancelIcon />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -234,6 +257,23 @@ export default function DoctorAppointmentsTable() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={pendingCancelId !== null}
+        title="Randevuyu iptal etmek istiyor musunuz?"
+        description="Seçili hasta randevusu iptal edilecek. Bu işlem demo ortamında yalnızca arayüz üzerinde uygulanır."
+        confirmLabel="Randevuyu İptal Et"
+        variant="warning"
+        onConfirm={() => {
+          setAppointmentList((prev) =>
+            prev.map((appointment) =>
+              appointment.id === pendingCancelId ? { ...appointment, status: "İptal" } : appointment
+            )
+          );
+          setPendingCancelId(null);
+        }}
+        onCancel={() => setPendingCancelId(null)}
+      />
     </div>
   );
 }
