@@ -51,4 +51,23 @@ export class AuthService {
       },
     };
   }
+
+  async getMe(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user || !user.isActive) {
+      throw new UnauthorizedException('Unauthorized');
+    }
+
+    return {
+      id: user.id,
+      clinicId: user.clinicId,
+      fullName: user.fullName,
+      email: user.email,
+      role: user.role,
+      isActive: user.isActive,
+    };
+  }
 }
