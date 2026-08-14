@@ -3,6 +3,7 @@ import { JwtModule, type JwtModuleOptions } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { RolesGuard } from './guards/roles.guard';
 
 const jwtExpiresIn = (process.env.JWT_EXPIRES_IN ?? '1d') as NonNullable<
   JwtModuleOptions['signOptions']
@@ -18,7 +19,7 @@ const jwtExpiresIn = (process.env.JWT_EXPIRES_IN ?? '1d') as NonNullable<
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtAuthGuard],
-  exports: [JwtAuthGuard],
+  providers: [AuthService, JwtAuthGuard, RolesGuard],
+  exports: [JwtModule, JwtAuthGuard, RolesGuard],
 })
 export class AuthModule {}
