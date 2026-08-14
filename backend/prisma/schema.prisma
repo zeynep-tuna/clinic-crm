@@ -19,6 +19,14 @@ enum Role {
   DOCTOR
 }
 
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
 model Clinic {
   id        String   @id @default(uuid())
   name      String
@@ -30,9 +38,10 @@ model Clinic {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users     User[]
-  patients  Patient[]
-  doctors   Doctor[]
+  users        User[]
+  patients     Patient[]
+  doctors      Doctor[]
+  appointments Appointment[]
 }
 
 model User {
@@ -71,6 +80,8 @@ model Patient {
   clinicId   String
   clinic     Clinic    @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
+  appointments Appointment[]
+
   @@index([clinicId])
   @@index([clinicId, isActive])
   @@index([clinicId, lastName])
@@ -96,7 +107,38 @@ model Doctor {
   userId        String?  @unique
   user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
+  appointments  Appointment[]
+
   @@index([clinicId])
   @@index([clinicId, isActive])
   @@index([clinicId, fullName])
+}
+
+model Appointment {
+  id        String            @id @default(uuid())
+  title     String?
+  reason    String?
+  startAt   DateTime
+  endAt     DateTime
+  status    AppointmentStatus @default(SCHEDULED)
+  notes     String?
+  isActive  Boolean           @default(true)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  clinicId  String
+  clinic    Clinic  @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Restrict)
+
+  doctorId  String
+  doctor    Doctor  @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+
+  @@index([clinicId])
+  @@index([clinicId, startAt])
+  @@index([clinicId, doctorId, startAt])
+  @@index([clinicId, patientId])
+  @@index([clinicId, status])
+  @@index([clinicId, isActive])
 }
