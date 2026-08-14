@@ -32,6 +32,7 @@ model Clinic {
 
   users     User[]
   patients  Patient[]
+  doctors   Doctor[]
 }
 
 model User {
@@ -46,6 +47,8 @@ model User {
 
   clinicId     String
   clinic       Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  doctorProfile Doctor?
 
   @@index([clinicId])
 }
@@ -71,4 +74,29 @@ model Patient {
   @@index([clinicId])
   @@index([clinicId, isActive])
   @@index([clinicId, lastName])
+}
+
+model Doctor {
+  id            String   @id @default(uuid())
+  fullName      String
+  specialty     String?
+  phone         String?
+  email         String?
+  licenseNumber String?
+  room          String?
+  color         String?
+  bio           String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  clinicId      String
+  clinic        Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  userId        String?  @unique
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([clinicId])
+  @@index([clinicId, isActive])
+  @@index([clinicId, fullName])
 }
