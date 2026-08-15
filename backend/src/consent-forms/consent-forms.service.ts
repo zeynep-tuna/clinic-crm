@@ -5,6 +5,7 @@ import {
   CONSENT_FORM_STATUSES,
   type ConsentFormStatusValue,
 } from './types/consent-form-status.type';
+import { CreateConsentFormDto } from './dto/create-consent-form.dto';
 
 export interface ConsentFormFilters {
   includeInactive?: boolean;
@@ -52,5 +53,104 @@ export class ConsentFormsService {
     }
 
     return consentForm;
+  }
+
+  async create(userClinicId: string, dto: CreateConsentFormDto) {
+    await this.validatePatient(dto.patientId, userClinicId);
+
+    const title = this.validateTitle(dto.title);
+    const formType = this.validateFormType(dto.formType);
+    const content = this.validateContent(dto.content);
+    const status = this.validateStatus(dto.status);
+    const signedAt = this.validateSignedAt(dto.signedAt);
+    const note = this.validateNote(dto.note);
+
+    return this.prisma.consentForm.create({
+      data: {
+        clinicId: userClinicId,
+        patientId: dto.patientId,
+        title,
+        formType,
+        content,
+        ...(status !== undefined ? { status } : {}),
+        ...(signedAt !== undefined ? { signedAt } : {}),
+        ...(note !== undefined ? { note } : {}),
+      },
+      include: { patient: true },
+    });
+  }
+
+  private async validatePatient(patientId: string, userClinicId: string) {
+    const patient = await this.prisma.patient.findFirst({
+      where: { id: patientId, clinicId: userClinicId, isActive: true },
+    });
+
+    if (!patient) {
+      throw new BadRequestException('Invalid patient');
+    }
+  }
+
+  private validateTitle(title: string): string {
+    if (typeof title !== 'string' || !title.trim()) {
+      throw new BadRequestException('Invalid title');
+    }
+
+    return title.trim();
+  }
+
+  private validateFormType(formType: string): string {
+    if (typeof formType !== 'string' || !formType.trim()) {
+      throw new BadRequestException('Invalid form type');
+    }
+
+    return formType.trim();
+  }
+
+  private validateContent(content: string): string {
+    if (typeof content !== 'string' || !content.trim()) {
+      throw new BadRequestException('Invalid content');
+    }
+
+    return content.trim();
+  }
+
+  private validateStatus(
+    status?: string,
+  ): ConsentFormStatusValue | undefined {
+    if (status === undefined) {
+      return undefined;
+    }
+
+    if (!isConsentFormStatus(status)) {
+      throw new BadRequestException('Invalid consent form status');
+    }
+
+    return status;
+  }
+
+  private validateSignedAt(signedAt?: string): Date | undefined {
+    if (signedAt === undefined) {
+      return undefined;
+    }
+
+    const date = new Date(signedAt);
+
+    if (Number.isNaN(date.getTime())) {
+      throw new BadRequestException('Invalid signed date');
+    }
+
+    return date;
+  }
+
+  private validateNote(note?: string): string | undefined {
+    if (note === undefined) {
+      return undefined;
+    }
+
+    if (typeof note !== 'string') {
+      throw new BadRequestException('Invalid note');
+    }
+
+    return note;
   }
 }
