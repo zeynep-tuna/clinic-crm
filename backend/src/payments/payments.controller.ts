@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -66,5 +67,11 @@ export class PaymentsController {
       request.user!.clinicId,
       updatePaymentDto,
     );
+  }
+
+  @Roles('ADMIN', 'SECRETARY')
+  @Delete(':id')
+  remove(@Req() request: RequestWithUser, @Param('id') id: string) {
+    return this.paymentsService.softDelete(id, request.user!.clinicId);
   }
 }
