@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -69,5 +70,11 @@ export class ConsentFormsController {
       request.user!.clinicId,
       updateConsentFormDto,
     );
+  }
+
+  @Roles('ADMIN', 'SECRETARY')
+  @Delete(':id')
+  remove(@Req() request: RequestWithUser, @Param('id') id: string) {
+    return this.consentFormsService.softDelete(id, request.user!.clinicId);
   }
 }

@@ -119,6 +119,16 @@ export class ConsentFormsService {
     });
   }
 
+  async softDelete(id: string, userClinicId: string) {
+    await this.findOne(id, userClinicId);
+
+    return this.prisma.consentForm.update({
+      where: { id },
+      data: { isActive: false },
+      include: { patient: true },
+    });
+  }
+
   private async validatePatient(patientId: string, userClinicId: string) {
     const patient = await this.prisma.patient.findFirst({
       where: { id: patientId, clinicId: userClinicId, isActive: true },
