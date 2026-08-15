@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import type { Prisma } from '../../generated/prisma/client';
 import { CreatePaymentDto } from './dto/create-payment.dto';
+import { UpdatePaymentDto } from './dto/update-payment.dto';
 import {
   PAYMENT_METHODS,
   type PaymentMethodValue,
@@ -58,6 +59,57 @@ export class PaymentsService {
         paymentMethod,
         ...(paymentDate ? { paymentDate } : {}),
         note: dto.note,
+      },
+      include: { patient: true, appointment: true },
+    });
+  }
+
+  async update(id: string, userClinicId: string, dto: UpdatePaymentDto) {
+    const existing = await this.findOne(id, userClinicId);
+
+    const effectivePatientId = dto.patientId ?? existing.patientId;
+
+    if (dto.patientId !== undefined) {
+      await this.validatePatient(dto.patientId, userClinicId);
+    }
+
+    if (dto.appointmentId !== undefined) {
+      await this.validateAppointment(
+        dto.appointmentId,
+        effectivePatientId,
+        userClinicId,
+      );
+    } else if (dto.patientId !== undefined && existing.appointmentId) {
+      await this.validateAppointment(
+        existing.appointmentId,
+        effectivePatientId,
+        userClinicId,
+      );
+    }
+
+    const amount =
+      dto.amount !== undefined ? this.validateAmount(dto.amount) : undefined;
+    const paymentMethod =
+      dto.paymentMethod !== undefined
+        ? this.validatePaymentMethod(dto.paymentMethod)
+        : undefined;
+    const paymentDate =
+      dto.paymentDate !== undefined
+        ? this.validatePaymentDate(dto.paymentDate)
+        : undefined;
+
+    return this.prisma.payment.update({
+      where: { id },
+      data: {
+        ...(dto.patientId !== undefined ? { patientId: dto.patientId } : {}),
+        ...(dto.appointmentId !== undefined
+          ? { appointmentId: dto.appointmentId }
+          : {}),
+        ...(amount !== undefined ? { amount } : {}),
+        ...(paymentMethod !== undefined ? { paymentMethod } : {}),
+        ...(paymentDate !== undefined ? { paymentDate } : {}),
+        ...(dto.note !== undefined ? { note: dto.note } : {}),
+        ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
       },
       include: { patient: true, appointment: true },
     });
