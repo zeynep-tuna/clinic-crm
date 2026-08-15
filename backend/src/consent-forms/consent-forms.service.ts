@@ -6,6 +6,7 @@ import {
   type ConsentFormStatusValue,
 } from './types/consent-form-status.type';
 import { CreateConsentFormDto } from './dto/create-consent-form.dto';
+import { UpdateConsentFormDto } from './dto/update-consent-form.dto';
 
 export interface ConsentFormFilters {
   includeInactive?: boolean;
@@ -75,6 +76,44 @@ export class ConsentFormsService {
         ...(status !== undefined ? { status } : {}),
         ...(signedAt !== undefined ? { signedAt } : {}),
         ...(note !== undefined ? { note } : {}),
+      },
+      include: { patient: true },
+    });
+  }
+
+  async update(id: string, userClinicId: string, dto: UpdateConsentFormDto) {
+    await this.findOne(id, userClinicId);
+
+    if (dto.patientId !== undefined) {
+      await this.validatePatient(dto.patientId, userClinicId);
+    }
+
+    const title =
+      dto.title !== undefined ? this.validateTitle(dto.title) : undefined;
+    const formType =
+      dto.formType !== undefined
+        ? this.validateFormType(dto.formType)
+        : undefined;
+    const content =
+      dto.content !== undefined
+        ? this.validateContent(dto.content)
+        : undefined;
+    const status = this.validateStatus(dto.status);
+    const signedAt = this.validateSignedAt(dto.signedAt);
+    const note = this.validateNote(dto.note);
+    const isActive = this.validateIsActive(dto.isActive);
+
+    return this.prisma.consentForm.update({
+      where: { id },
+      data: {
+        ...(dto.patientId !== undefined ? { patientId: dto.patientId } : {}),
+        ...(title !== undefined ? { title } : {}),
+        ...(formType !== undefined ? { formType } : {}),
+        ...(content !== undefined ? { content } : {}),
+        ...(status !== undefined ? { status } : {}),
+        ...(signedAt !== undefined ? { signedAt } : {}),
+        ...(note !== undefined ? { note } : {}),
+        ...(isActive !== undefined ? { isActive } : {}),
       },
       include: { patient: true },
     });
@@ -152,5 +191,17 @@ export class ConsentFormsService {
     }
 
     return note;
+  }
+
+  private validateIsActive(isActive?: boolean): boolean | undefined {
+    if (isActive === undefined) {
+      return undefined;
+    }
+
+    if (typeof isActive !== 'boolean') {
+      throw new BadRequestException('Invalid isActive');
+    }
+
+    return isActive;
   }
 }
