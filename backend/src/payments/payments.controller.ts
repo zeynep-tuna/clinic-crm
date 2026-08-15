@@ -1,5 +1,15 @@
-import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { PaymentsService } from './payments.service';
+import { CreatePaymentDto } from './dto/create-payment.dto';
 import {
   JwtAuthGuard,
   type RequestWithUser,
@@ -28,5 +38,17 @@ export class PaymentsController {
   @Get(':id')
   findOne(@Req() request: RequestWithUser, @Param('id') id: string) {
     return this.paymentsService.findOne(id, request.user!.clinicId);
+  }
+
+  @Roles('ADMIN', 'SECRETARY')
+  @Post()
+  create(
+    @Req() request: RequestWithUser,
+    @Body() createPaymentDto: CreatePaymentDto,
+  ) {
+    return this.paymentsService.create(
+      request.user!.clinicId,
+      createPaymentDto,
+    );
   }
 }
