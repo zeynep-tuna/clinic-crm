@@ -33,6 +33,12 @@ enum PaymentMethod {
   BANK_TRANSFER
 }
 
+enum ConsentFormStatus {
+  SIGNED
+  PENDING
+  MISSING
+}
+
 model Clinic {
   id        String   @id @default(uuid())
   name      String
@@ -49,6 +55,7 @@ model Clinic {
   doctors      Doctor[]
   appointments Appointment[]
   payments     Payment[]
+  consentForms ConsentForm[]
 }
 
 model User {
@@ -89,6 +96,7 @@ model Patient {
 
   appointments Appointment[]
   payments     Payment[]
+  consentForms ConsentForm[]
 
   @@index([clinicId])
   @@index([clinicId, isActive])
@@ -177,4 +185,29 @@ model Payment {
   @@index([clinicId, appointmentId])
   @@index([clinicId, paymentDate])
   @@index([clinicId, isActive])
+}
+
+model ConsentForm {
+  id        String            @id @default(uuid())
+  title     String
+  formType  String
+  content   String
+  status    ConsentFormStatus @default(PENDING)
+  signedAt  DateTime?
+  note      String?
+  isActive  Boolean           @default(true)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  clinicId  String
+  clinic    Clinic  @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Restrict)
+
+  @@index([clinicId])
+  @@index([clinicId, patientId])
+  @@index([clinicId, status])
+  @@index([clinicId, isActive])
+  @@index([clinicId, createdAt])
 }
