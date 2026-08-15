@@ -1,5 +1,15 @@
-import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ConsentFormsService } from './consent-forms.service';
+import { CreateConsentFormDto } from './dto/create-consent-form.dto';
 import {
   JwtAuthGuard,
   type RequestWithUser,
@@ -31,5 +41,17 @@ export class ConsentFormsController {
   @Get(':id')
   findOne(@Req() request: RequestWithUser, @Param('id') id: string) {
     return this.consentFormsService.findOne(id, request.user!.clinicId);
+  }
+
+  @Roles('ADMIN', 'SECRETARY')
+  @Post()
+  create(
+    @Req() request: RequestWithUser,
+    @Body() createConsentFormDto: CreateConsentFormDto,
+  ) {
+    return this.consentFormsService.create(
+      request.user!.clinicId,
+      createConsentFormDto,
+    );
   }
 }
