@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -10,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
+import { UpdatePaymentDto } from './dto/update-payment.dto';
 import {
   JwtAuthGuard,
   type RequestWithUser,
@@ -49,6 +51,20 @@ export class PaymentsController {
     return this.paymentsService.create(
       request.user!.clinicId,
       createPaymentDto,
+    );
+  }
+
+  @Roles('ADMIN', 'SECRETARY')
+  @Patch(':id')
+  update(
+    @Req() request: RequestWithUser,
+    @Param('id') id: string,
+    @Body() updatePaymentDto: UpdatePaymentDto,
+  ) {
+    return this.paymentsService.update(
+      id,
+      request.user!.clinicId,
+      updatePaymentDto,
     );
   }
 }
