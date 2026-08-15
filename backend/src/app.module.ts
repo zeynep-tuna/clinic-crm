@@ -9,6 +9,7 @@ import { PatientsModule } from './patients/patients.module';
 import { DoctorsModule } from './doctors/doctors.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { PaymentsModule } from './payments/payments.module';
+import { ConsentFormsModule } from './consent-forms/consent-forms.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { PaymentsModule } from './payments/payments.module';
     DoctorsModule,
     AppointmentsModule,
     PaymentsModule,
+    ConsentFormsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
