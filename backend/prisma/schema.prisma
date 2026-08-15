@@ -27,6 +27,12 @@ enum AppointmentStatus {
   NO_SHOW
 }
 
+enum PaymentMethod {
+  CASH
+  CARD
+  BANK_TRANSFER
+}
+
 model Clinic {
   id        String   @id @default(uuid())
   name      String
@@ -42,6 +48,7 @@ model Clinic {
   patients     Patient[]
   doctors      Doctor[]
   appointments Appointment[]
+  payments     Payment[]
 }
 
 model User {
@@ -81,6 +88,7 @@ model Patient {
   clinic     Clinic    @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
   appointments Appointment[]
+  payments     Payment[]
 
   @@index([clinicId])
   @@index([clinicId, isActive])
@@ -135,10 +143,38 @@ model Appointment {
   doctorId  String
   doctor    Doctor  @relation(fields: [doctorId], references: [id], onDelete: Restrict)
 
+  payments  Payment[]
+
   @@index([clinicId])
   @@index([clinicId, startAt])
   @@index([clinicId, doctorId, startAt])
   @@index([clinicId, patientId])
   @@index([clinicId, status])
+  @@index([clinicId, isActive])
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  amount        Decimal       @db.Decimal(12, 2)
+  paymentMethod PaymentMethod
+  paymentDate   DateTime      @default(now())
+  note          String?
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  clinicId      String
+  clinic        Clinic      @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  patientId     String
+  patient       Patient     @relation(fields: [patientId], references: [id], onDelete: Restrict)
+
+  appointmentId String?
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+
+  @@index([clinicId])
+  @@index([clinicId, patientId])
+  @@index([clinicId, appointmentId])
+  @@index([clinicId, paymentDate])
   @@index([clinicId, isActive])
 }
