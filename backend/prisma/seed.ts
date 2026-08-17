@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../generated/prisma/client';
+import { Prisma, PrismaClient } from '../generated/prisma/client';
 import { hashPassword } from '../src/common/utils/password.util';
 
 if (!process.env.DATABASE_URL) {
@@ -36,6 +36,10 @@ const DEMO_PASSWORD = '123456';
 
 const DEMO_PATIENT_1_ID = '11111111-1111-4111-8111-111111111111';
 const DEMO_PATIENT_2_ID = '22222222-2222-4222-8222-222222222222';
+
+const DEMO_APPOINTMENT_1_ID = '33333333-3333-4333-8333-333333333333';
+const DEMO_APPOINTMENT_2_ID = '44444444-4444-4444-8444-444444444444';
+const DEMO_PAYMENT_1_ID = '55555555-5555-4555-8555-555555555555';
 
 async function main() {
   const clinic = await prisma.clinic.upsert({
@@ -78,8 +82,10 @@ async function main() {
     }
   }
 
+  let doctor: Awaited<ReturnType<typeof prisma.doctor.upsert>> | null = null;
+
   if (doctorUser) {
-    await prisma.doctor.upsert({
+    doctor = await prisma.doctor.upsert({
       where: { userId: doctorUser.id },
       update: {
         fullName: doctorUser.fullName,
@@ -148,6 +154,91 @@ async function main() {
       clinicId: clinic.id,
     },
   });
+
+  if (doctor) {
+    await prisma.appointment.upsert({
+      where: { id: DEMO_APPOINTMENT_1_ID },
+      update: {
+        title: 'Kontrol Randevusu',
+        reason: 'Rutin diş kontrolü',
+        startAt: new Date('2026-08-20T06:00:00.000Z'),
+        endAt: new Date('2026-08-20T06:30:00.000Z'),
+        status: 'SCHEDULED',
+        notes: 'Demo appointment',
+        isActive: true,
+        clinicId: clinic.id,
+        patientId: DEMO_PATIENT_1_ID,
+        doctorId: doctor.id,
+      },
+      create: {
+        id: DEMO_APPOINTMENT_1_ID,
+        title: 'Kontrol Randevusu',
+        reason: 'Rutin diş kontrolü',
+        startAt: new Date('2026-08-20T06:00:00.000Z'),
+        endAt: new Date('2026-08-20T06:30:00.000Z'),
+        status: 'SCHEDULED',
+        notes: 'Demo appointment',
+        isActive: true,
+        clinicId: clinic.id,
+        patientId: DEMO_PATIENT_1_ID,
+        doctorId: doctor.id,
+      },
+    });
+
+    await prisma.appointment.upsert({
+      where: { id: DEMO_APPOINTMENT_2_ID },
+      update: {
+        title: 'Diş Muayenesi',
+        reason: 'Genel muayene',
+        startAt: new Date('2026-08-20T07:00:00.000Z'),
+        endAt: new Date('2026-08-20T07:30:00.000Z'),
+        status: 'SCHEDULED',
+        notes: 'Demo appointment',
+        isActive: true,
+        clinicId: clinic.id,
+        patientId: DEMO_PATIENT_2_ID,
+        doctorId: doctor.id,
+      },
+      create: {
+        id: DEMO_APPOINTMENT_2_ID,
+        title: 'Diş Muayenesi',
+        reason: 'Genel muayene',
+        startAt: new Date('2026-08-20T07:00:00.000Z'),
+        endAt: new Date('2026-08-20T07:30:00.000Z'),
+        status: 'SCHEDULED',
+        notes: 'Demo appointment',
+        isActive: true,
+        clinicId: clinic.id,
+        patientId: DEMO_PATIENT_2_ID,
+        doctorId: doctor.id,
+      },
+    });
+
+    await prisma.payment.upsert({
+      where: { id: DEMO_PAYMENT_1_ID },
+      update: {
+        amount: new Prisma.Decimal('1500.00'),
+        paymentMethod: 'CARD',
+        paymentDate: new Date('2026-08-20T06:35:00.000Z'),
+        note: 'Demo payment',
+        isActive: true,
+        clinicId: clinic.id,
+        patientId: DEMO_PATIENT_1_ID,
+        appointmentId: DEMO_APPOINTMENT_1_ID,
+      },
+      create: {
+        id: DEMO_PAYMENT_1_ID,
+        amount: new Prisma.Decimal('1500.00'),
+        paymentMethod: 'CARD',
+        paymentDate: new Date('2026-08-20T06:35:00.000Z'),
+        note: 'Demo payment',
+        isActive: true,
+        clinicId: clinic.id,
+        patientId: DEMO_PATIENT_1_ID,
+        appointmentId: DEMO_APPOINTMENT_1_ID,
+      },
+    });
+  }
 
   console.log(
     `Seed completed: demo clinic "${clinic.name}" and ${DEMO_USERS.length} demo users are ready.`,
