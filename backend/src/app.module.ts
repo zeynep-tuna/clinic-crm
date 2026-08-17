@@ -11,6 +11,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { PaymentsModule } from './payments/payments.module';
 import { ConsentFormsModule } from './consent-forms/consent-forms.module';
 import { TreatmentPlansModule } from './treatment-plans/treatment-plans.module';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { TreatmentPlansModule } from './treatment-plans/treatment-plans.module';
     PaymentsModule,
     ConsentFormsModule,
     TreatmentPlansModule,
+    MessagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
