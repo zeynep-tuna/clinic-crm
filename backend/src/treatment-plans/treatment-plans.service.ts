@@ -16,6 +16,7 @@ import {
   type TreatmentPlanPriorityValue,
 } from './types/treatment-plan-priority.type';
 import { CreateTreatmentPlanDto } from './dto/create-treatment-plan.dto';
+import { UpdateTreatmentPlanDto } from './dto/update-treatment-plan.dto';
 
 export interface RequestingUser {
   userId: string;
@@ -140,6 +141,47 @@ export class TreatmentPlansService {
     });
   }
 
+  async update(
+    id: string,
+    requestingUser: RequestingUser,
+    dto: UpdateTreatmentPlanDto,
+  ) {
+    if (requestingUser.role !== 'DOCTOR') {
+      throw new ForbiddenException('Only doctors can update treatment plans');
+    }
+
+    await this.findOne(id, requestingUser);
+
+    if (dto.patientId !== undefined) {
+      await this.validatePatient(dto.patientId, requestingUser.clinicId);
+    }
+
+    const description =
+      dto.description !== undefined
+        ? this.validateDescription(dto.description)
+        : undefined;
+    const priority = this.validatePriority(dto.priority);
+    const status = this.validateStatus(dto.status);
+    const startDate =
+      dto.startDate !== undefined
+        ? this.validateStartDate(dto.startDate)
+        : undefined;
+    const isActive = this.validateIsActive(dto.isActive);
+
+    return this.prisma.treatmentPlan.update({
+      where: { id },
+      data: {
+        ...(dto.patientId !== undefined ? { patientId: dto.patientId } : {}),
+        ...(description !== undefined ? { description } : {}),
+        ...(priority !== undefined ? { priority } : {}),
+        ...(status !== undefined ? { status } : {}),
+        ...(startDate !== undefined ? { startDate } : {}),
+        ...(isActive !== undefined ? { isActive } : {}),
+      },
+      include: { patient: true, doctor: true },
+    });
+  }
+
   private async validatePatient(patientId: string, userClinicId: string) {
     const patient = await this.prisma.patient.findFirst({
       where: { id: patientId, clinicId: userClinicId, isActive: true },
@@ -198,6 +240,18 @@ export class TreatmentPlansService {
     }
 
     return date;
+  }
+
+  private validateIsActive(isActive?: boolean): boolean | undefined {
+    if (isActive === undefined) {
+      return undefined;
+    }
+
+    if (typeof isActive !== 'boolean') {
+      throw new BadRequestException('Invalid isActive');
+    }
+
+    return isActive;
   }
 
   private async resolveCurrentDoctor(

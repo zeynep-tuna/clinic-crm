@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -10,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { TreatmentPlansService } from './treatment-plans.service';
 import { CreateTreatmentPlanDto } from './dto/create-treatment-plan.dto';
+import { UpdateTreatmentPlanDto } from './dto/update-treatment-plan.dto';
 import {
   JwtAuthGuard,
   type RequestWithUser,
@@ -71,6 +73,24 @@ export class TreatmentPlansController {
         role: request.user!.role,
       },
       createTreatmentPlanDto,
+    );
+  }
+
+  @Roles('DOCTOR')
+  @Patch(':id')
+  update(
+    @Req() request: RequestWithUser,
+    @Param('id') id: string,
+    @Body() updateTreatmentPlanDto: UpdateTreatmentPlanDto,
+  ) {
+    return this.treatmentPlansService.update(
+      id,
+      {
+        userId: request.user!.id,
+        clinicId: request.user!.clinicId,
+        role: request.user!.role,
+      },
+      updateTreatmentPlanDto,
     );
   }
 }
