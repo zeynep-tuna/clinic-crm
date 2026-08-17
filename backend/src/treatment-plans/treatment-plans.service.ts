@@ -15,6 +15,7 @@ import {
   TREATMENT_PLAN_PRIORITIES,
   type TreatmentPlanPriorityValue,
 } from './types/treatment-plan-priority.type';
+import { CreateTreatmentPlanDto } from './dto/create-treatment-plan.dto';
 
 export interface RequestingUser {
   userId: string;
@@ -106,6 +107,97 @@ export class TreatmentPlansService {
     }
 
     return treatmentPlan;
+  }
+
+  async create(requestingUser: RequestingUser, dto: CreateTreatmentPlanDto) {
+    if (requestingUser.role !== 'DOCTOR') {
+      throw new ForbiddenException('Only doctors can create treatment plans');
+    }
+
+    const currentDoctor = await this.resolveCurrentDoctor(
+      requestingUser.userId,
+      requestingUser.clinicId,
+    );
+
+    await this.validatePatient(dto.patientId, requestingUser.clinicId);
+
+    const description = this.validateDescription(dto.description);
+    const priority = this.validatePriority(dto.priority);
+    const status = this.validateStatus(dto.status);
+    const startDate = this.validateStartDate(dto.startDate);
+
+    return this.prisma.treatmentPlan.create({
+      data: {
+        clinicId: requestingUser.clinicId,
+        patientId: dto.patientId,
+        doctorId: currentDoctor.id,
+        description,
+        startDate,
+        ...(priority !== undefined ? { priority } : {}),
+        ...(status !== undefined ? { status } : {}),
+      },
+      include: { patient: true, doctor: true },
+    });
+  }
+
+  private async validatePatient(patientId: string, userClinicId: string) {
+    const patient = await this.prisma.patient.findFirst({
+      where: { id: patientId, clinicId: userClinicId, isActive: true },
+    });
+
+    if (!patient) {
+      throw new BadRequestException('Invalid patient');
+    }
+  }
+
+  private validateDescription(description: string): string {
+    if (typeof description !== 'string' || !description.trim()) {
+      throw new BadRequestException('Invalid description');
+    }
+
+    return description.trim();
+  }
+
+  private validatePriority(
+    priority?: string,
+  ): TreatmentPlanPriorityValue | undefined {
+    if (priority === undefined) {
+      return undefined;
+    }
+
+    if (!isTreatmentPlanPriority(priority)) {
+      throw new BadRequestException('Invalid treatment plan priority');
+    }
+
+    return priority;
+  }
+
+  private validateStatus(
+    status?: string,
+  ): TreatmentPlanStatusValue | undefined {
+    if (status === undefined) {
+      return undefined;
+    }
+
+    if (!isTreatmentPlanStatus(status)) {
+      throw new BadRequestException('Invalid treatment plan status');
+    }
+
+    return status;
+  }
+
+  private validateStartDate(startDate: string): Date {
+    if (typeof startDate !== 'string' || !startDate.trim()) {
+      throw new BadRequestException('Invalid start date');
+    }
+
+    const date = new Date(startDate);
+
+    if (Number.isNaN(date.getTime())) {
+      throw new BadRequestException('Invalid start date');
+    }
+
+    return date;
   }
 
   private async resolveCurrentDoctor(
