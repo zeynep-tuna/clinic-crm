@@ -7,6 +7,7 @@ import {
   type MessagePriorityValue,
 } from './types/message-priority.type';
 import { CreateMessageDto } from './dto/create-message.dto';
+import { UpdateMessageDto } from './dto/update-message.dto';
 
 export interface RequestingUser {
   userId: string;
@@ -108,6 +109,37 @@ export class MessagesService {
         content,
         ...(priority !== undefined ? { priority } : {}),
       },
+      include: {
+        sender: { select: messageUserSelect },
+        receiver: { select: messageUserSelect },
+      },
+    });
+  }
+
+  async update(
+    id: string,
+    requestingUser: RequestingUser,
+    dto: UpdateMessageDto,
+  ) {
+    const message = await this.prisma.message.findFirst({
+      where: {
+        id,
+        clinicId: requestingUser.clinicId,
+        receiverId: requestingUser.userId,
+      },
+    });
+
+    if (!message) {
+      throw new NotFoundException(`Message with id ${id} not found`);
+    }
+
+    if (typeof dto.isRead !== 'boolean') {
+      throw new BadRequestException('Invalid isRead');
+    }
+
+    return this.prisma.message.update({
+      where: { id },
+      data: { isRead: dto.isRead },
       include: {
         sender: { select: messageUserSelect },
         receiver: { select: messageUserSelect },
