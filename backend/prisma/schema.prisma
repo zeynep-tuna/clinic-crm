@@ -39,6 +39,19 @@ enum ConsentFormStatus {
   MISSING
 }
 
+enum TreatmentPlanStatus {
+  ACTIVE
+  COMPLETED
+  REVIEW_PENDING
+  POSTPONED
+}
+
+enum TreatmentPlanPriority {
+  HIGH
+  NORMAL
+  LOW
+}
+
 model Clinic {
   id        String   @id @default(uuid())
   name      String
@@ -53,9 +66,10 @@ model Clinic {
   users        User[]
   patients     Patient[]
   doctors      Doctor[]
-  appointments Appointment[]
-  payments     Payment[]
-  consentForms ConsentForm[]
+  appointments   Appointment[]
+  payments       Payment[]
+  consentForms   ConsentForm[]
+  treatmentPlans TreatmentPlan[]
 }
 
 model User {
@@ -94,9 +108,10 @@ model Patient {
   clinicId   String
   clinic     Clinic    @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
-  appointments Appointment[]
-  payments     Payment[]
-  consentForms ConsentForm[]
+  appointments   Appointment[]
+  payments       Payment[]
+  consentForms   ConsentForm[]
+  treatmentPlans TreatmentPlan[]
 
   @@index([clinicId])
   @@index([clinicId, isActive])
@@ -123,7 +138,8 @@ model Doctor {
   userId        String?  @unique
   user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-  appointments  Appointment[]
+  appointments   Appointment[]
+  treatmentPlans TreatmentPlan[]
 
   @@index([clinicId])
   @@index([clinicId, isActive])
@@ -210,4 +226,32 @@ model ConsentForm {
   @@index([clinicId, status])
   @@index([clinicId, isActive])
   @@index([clinicId, createdAt])
+}
+
+model TreatmentPlan {
+  id          String                @id @default(uuid())
+  description String
+  priority    TreatmentPlanPriority @default(NORMAL)
+  status      TreatmentPlanStatus   @default(ACTIVE)
+  startDate   DateTime
+  isActive    Boolean               @default(true)
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  clinicId  String
+  clinic    Clinic  @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Restrict)
+
+  doctorId  String
+  doctor    Doctor  @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+
+  @@index([clinicId])
+  @@index([clinicId, patientId])
+  @@index([clinicId, doctorId])
+  @@index([clinicId, status])
+  @@index([clinicId, priority])
+  @@index([clinicId, isActive])
+  @@index([clinicId, startDate])
 }
