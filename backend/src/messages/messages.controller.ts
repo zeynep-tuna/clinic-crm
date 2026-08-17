@@ -1,13 +1,16 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Get,
   Param,
+  Post,
   Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { MessagesService } from './messages.service';
+import { CreateMessageDto } from './dto/create-message.dto';
 import {
   JwtAuthGuard,
   type RequestWithUser,
@@ -55,5 +58,21 @@ export class MessagesController {
       clinicId: request.user!.clinicId,
       role: request.user!.role,
     });
+  }
+
+  @Roles('ADMIN', 'SECRETARY', 'DOCTOR')
+  @Post()
+  create(
+    @Req() request: RequestWithUser,
+    @Body() createMessageDto: CreateMessageDto,
+  ) {
+    return this.messagesService.create(
+      {
+        userId: request.user!.id,
+        clinicId: request.user!.clinicId,
+        role: request.user!.role,
+      },
+      createMessageDto,
+    );
   }
 }
