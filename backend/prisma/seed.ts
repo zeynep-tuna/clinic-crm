@@ -47,10 +47,12 @@ async function main() {
     create: DEMO_CLINIC,
   });
 
+  let doctorUser: Awaited<ReturnType<typeof prisma.user.upsert>> | null = null;
+
   for (const demoUser of DEMO_USERS) {
     const passwordHash = await hashPassword(DEMO_PASSWORD);
 
-    await prisma.user.upsert({
+    const upsertedUser = await prisma.user.upsert({
       where: { email: demoUser.email },
       update: {
         fullName: demoUser.fullName,
@@ -64,6 +66,27 @@ async function main() {
         email: demoUser.email,
         passwordHash,
         role: demoUser.role,
+        isActive: true,
+      },
+    });
+
+    if (demoUser.role === 'DOCTOR') {
+      doctorUser = upsertedUser;
+    }
+  }
+
+  if (doctorUser) {
+    await prisma.doctor.upsert({
+      where: { userId: doctorUser.id },
+      update: {
+        fullName: doctorUser.fullName,
+        clinicId: clinic.id,
+        isActive: true,
+      },
+      create: {
+        userId: doctorUser.id,
+        clinicId: clinic.id,
+        fullName: doctorUser.fullName,
         isActive: true,
       },
     });
