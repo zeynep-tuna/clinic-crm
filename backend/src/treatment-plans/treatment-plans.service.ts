@@ -182,6 +182,20 @@ export class TreatmentPlansService {
     });
   }
 
+  async softDelete(id: string, requestingUser: RequestingUser) {
+    if (requestingUser.role !== 'DOCTOR') {
+      throw new ForbiddenException('Only doctors can delete treatment plans');
+    }
+
+    await this.findOne(id, requestingUser);
+
+    return this.prisma.treatmentPlan.update({
+      where: { id },
+      data: { isActive: false },
+      include: { patient: true, doctor: true },
+    });
+  }
+
   private async validatePatient(patientId: string, userClinicId: string) {
     const patient = await this.prisma.patient.findFirst({
       where: { id: patientId, clinicId: userClinicId, isActive: true },

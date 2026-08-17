@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -92,5 +93,15 @@ export class TreatmentPlansController {
       },
       updateTreatmentPlanDto,
     );
+  }
+
+  @Roles('DOCTOR')
+  @Delete(':id')
+  remove(@Req() request: RequestWithUser, @Param('id') id: string) {
+    return this.treatmentPlansService.softDelete(id, {
+      userId: request.user!.id,
+      clinicId: request.user!.clinicId,
+      role: request.user!.role,
+    });
   }
 }
