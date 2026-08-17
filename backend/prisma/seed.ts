@@ -34,6 +34,9 @@ const DEMO_USERS = [
 
 const DEMO_PASSWORD = '123456';
 
+const DEMO_PATIENT_1_ID = '11111111-1111-4111-8111-111111111111';
+const DEMO_PATIENT_2_ID = '22222222-2222-4222-8222-222222222222';
+
 async function main() {
   const clinic = await prisma.clinic.upsert({
     where: { id: DEMO_CLINIC.id },
@@ -91,6 +94,60 @@ async function main() {
       },
     });
   }
+
+  await prisma.patient.upsert({
+    where: { id: DEMO_PATIENT_1_ID },
+    update: {
+      firstName: 'Ayşe',
+      lastName: 'Yılmaz',
+      phone: '0555 111 22 33',
+      email: 'ayse.yilmaz@example.com',
+      birthDate: new Date('1992-04-15T00:00:00.000Z'),
+      address: 'Sakarya',
+      notes: 'Demo patient',
+      isActive: true,
+      clinicId: clinic.id,
+    },
+    create: {
+      id: DEMO_PATIENT_1_ID,
+      firstName: 'Ayşe',
+      lastName: 'Yılmaz',
+      phone: '0555 111 22 33',
+      email: 'ayse.yilmaz@example.com',
+      birthDate: new Date('1992-04-15T00:00:00.000Z'),
+      address: 'Sakarya',
+      notes: 'Demo patient',
+      isActive: true,
+      clinicId: clinic.id,
+    },
+  });
+
+  await prisma.patient.upsert({
+    where: { id: DEMO_PATIENT_2_ID },
+    update: {
+      firstName: 'Mehmet',
+      lastName: 'Kaya',
+      phone: '0555 444 55 66',
+      email: 'mehmet.kaya@example.com',
+      birthDate: new Date('1987-09-20T00:00:00.000Z'),
+      address: 'Sakarya',
+      notes: 'Demo patient',
+      isActive: true,
+      clinicId: clinic.id,
+    },
+    create: {
+      id: DEMO_PATIENT_2_ID,
+      firstName: 'Mehmet',
+      lastName: 'Kaya',
+      phone: '0555 444 55 66',
+      email: 'mehmet.kaya@example.com',
+      birthDate: new Date('1987-09-20T00:00:00.000Z'),
+      address: 'Sakarya',
+      notes: 'Demo patient',
+      isActive: true,
+      clinicId: clinic.id,
+    },
+  });
 
   console.log(
     `Seed completed: demo clinic "${clinic.name}" and ${DEMO_USERS.length} demo users are ready.`,
