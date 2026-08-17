@@ -1,5 +1,15 @@
-import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { TreatmentPlansService } from './treatment-plans.service';
+import { CreateTreatmentPlanDto } from './dto/create-treatment-plan.dto';
 import {
   JwtAuthGuard,
   type RequestWithUser,
@@ -46,5 +56,21 @@ export class TreatmentPlansController {
       clinicId: request.user!.clinicId,
       role: request.user!.role,
     });
+  }
+
+  @Roles('DOCTOR')
+  @Post()
+  create(
+    @Req() request: RequestWithUser,
+    @Body() createTreatmentPlanDto: CreateTreatmentPlanDto,
+  ) {
+    return this.treatmentPlansService.create(
+      {
+        userId: request.user!.id,
+        clinicId: request.user!.clinicId,
+        role: request.user!.role,
+      },
+      createTreatmentPlanDto,
+    );
   }
 }
