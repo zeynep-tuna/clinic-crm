@@ -41,6 +41,10 @@ const DEMO_APPOINTMENT_1_ID = '33333333-3333-4333-8333-333333333333';
 const DEMO_APPOINTMENT_2_ID = '44444444-4444-4444-8444-444444444444';
 const DEMO_PAYMENT_1_ID = '55555555-5555-4555-8555-555555555555';
 
+const DEMO_CONSENT_FORM_1_ID = '66666666-6666-4666-8666-666666666666';
+const DEMO_CONSENT_FORM_2_ID = '77777777-7777-4777-8777-777777777777';
+const DEMO_TREATMENT_PLAN_1_ID = '88888888-8888-4888-8888-888888888888';
+
 async function main() {
   const clinic = await prisma.clinic.upsert({
     where: { id: DEMO_CLINIC.id },
@@ -155,6 +159,64 @@ async function main() {
     },
   });
 
+  await prisma.consentForm.upsert({
+    where: { id: DEMO_CONSENT_FORM_1_ID },
+    update: {
+      title: 'Tedavi Onam Formu',
+      formType: 'TREATMENT_CONSENT',
+      content:
+        'Hasta uygulanacak tedavi hakkında bilgilendirildi ve onay verdi.',
+      status: 'SIGNED',
+      signedAt: new Date('2026-08-18T08:00:00.000Z'),
+      note: 'Demo signed consent form',
+      isActive: true,
+      clinicId: clinic.id,
+      patientId: DEMO_PATIENT_1_ID,
+    },
+    create: {
+      id: DEMO_CONSENT_FORM_1_ID,
+      title: 'Tedavi Onam Formu',
+      formType: 'TREATMENT_CONSENT',
+      content:
+        'Hasta uygulanacak tedavi hakkında bilgilendirildi ve onay verdi.',
+      status: 'SIGNED',
+      signedAt: new Date('2026-08-18T08:00:00.000Z'),
+      note: 'Demo signed consent form',
+      isActive: true,
+      clinicId: clinic.id,
+      patientId: DEMO_PATIENT_1_ID,
+    },
+  });
+
+  await prisma.consentForm.upsert({
+    where: { id: DEMO_CONSENT_FORM_2_ID },
+    update: {
+      title: 'KVKK Onam Formu',
+      formType: 'KVKK_CONSENT',
+      content:
+        'Hasta kişisel verilerin işlenmesine ilişkin bilgilendirme formunu inceleyecektir.',
+      status: 'PENDING',
+      signedAt: null,
+      note: 'Demo pending consent form',
+      isActive: true,
+      clinicId: clinic.id,
+      patientId: DEMO_PATIENT_2_ID,
+    },
+    create: {
+      id: DEMO_CONSENT_FORM_2_ID,
+      title: 'KVKK Onam Formu',
+      formType: 'KVKK_CONSENT',
+      content:
+        'Hasta kişisel verilerin işlenmesine ilişkin bilgilendirme formunu inceleyecektir.',
+      status: 'PENDING',
+      signedAt: null,
+      note: 'Demo pending consent form',
+      isActive: true,
+      clinicId: clinic.id,
+      patientId: DEMO_PATIENT_2_ID,
+    },
+  });
+
   if (doctor) {
     await prisma.appointment.upsert({
       where: { id: DEMO_APPOINTMENT_1_ID },
@@ -236,6 +298,31 @@ async function main() {
         clinicId: clinic.id,
         patientId: DEMO_PATIENT_1_ID,
         appointmentId: DEMO_APPOINTMENT_1_ID,
+      },
+    });
+
+    await prisma.treatmentPlan.upsert({
+      where: { id: DEMO_TREATMENT_PLAN_1_ID },
+      update: {
+        description: 'Dolgu ve kontrol tedavi planı',
+        priority: 'HIGH',
+        status: 'ACTIVE',
+        startDate: new Date('2026-08-18T07:00:00.000Z'),
+        isActive: true,
+        clinicId: clinic.id,
+        patientId: DEMO_PATIENT_1_ID,
+        doctorId: doctor.id,
+      },
+      create: {
+        id: DEMO_TREATMENT_PLAN_1_ID,
+        description: 'Dolgu ve kontrol tedavi planı',
+        priority: 'HIGH',
+        status: 'ACTIVE',
+        startDate: new Date('2026-08-18T07:00:00.000Z'),
+        isActive: true,
+        clinicId: clinic.id,
+        patientId: DEMO_PATIENT_1_ID,
+        doctorId: doctor.id,
       },
     });
   }
