@@ -45,6 +45,8 @@ const DEMO_CONSENT_FORM_1_ID = '66666666-6666-4666-8666-666666666666';
 const DEMO_CONSENT_FORM_2_ID = '77777777-7777-4777-8777-777777777777';
 const DEMO_TREATMENT_PLAN_1_ID = '88888888-8888-4888-8888-888888888888';
 
+const DEMO_MESSAGE_1_ID = '99999999-9999-4999-8999-999999999999';
+
 async function main() {
   const clinic = await prisma.clinic.upsert({
     where: { id: DEMO_CLINIC.id },
@@ -59,6 +61,8 @@ async function main() {
   });
 
   let doctorUser: Awaited<ReturnType<typeof prisma.user.upsert>> | null = null;
+  let secretaryUser: Awaited<ReturnType<typeof prisma.user.upsert>> | null =
+    null;
 
   for (const demoUser of DEMO_USERS) {
     const passwordHash = await hashPassword(DEMO_PASSWORD);
@@ -83,6 +87,10 @@ async function main() {
 
     if (demoUser.role === 'DOCTOR') {
       doctorUser = upsertedUser;
+    }
+
+    if (demoUser.role === 'SECRETARY') {
+      secretaryUser = upsertedUser;
     }
   }
 
@@ -323,6 +331,31 @@ async function main() {
         clinicId: clinic.id,
         patientId: DEMO_PATIENT_1_ID,
         doctorId: doctor.id,
+      },
+    });
+  }
+
+  if (secretaryUser && doctorUser) {
+    await prisma.message.upsert({
+      where: { id: DEMO_MESSAGE_1_ID },
+      update: {
+        subject: 'Yarınki hasta programı',
+        content: 'Yarınki hasta programında güncelleme bulunmaktadır.',
+        priority: 'NORMAL',
+        isRead: false,
+        clinicId: clinic.id,
+        senderId: secretaryUser.id,
+        receiverId: doctorUser.id,
+      },
+      create: {
+        id: DEMO_MESSAGE_1_ID,
+        subject: 'Yarınki hasta programı',
+        content: 'Yarınki hasta programında güncelleme bulunmaktadır.',
+        priority: 'NORMAL',
+        isRead: false,
+        clinicId: clinic.id,
+        senderId: secretaryUser.id,
+        receiverId: doctorUser.id,
       },
     });
   }
