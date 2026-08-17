@@ -52,6 +52,13 @@ enum TreatmentPlanPriority {
   LOW
 }
 
+enum MessagePriority {
+  URGENT
+  HIGH
+  NORMAL
+  LOW
+}
+
 model Clinic {
   id        String   @id @default(uuid())
   name      String
@@ -63,13 +70,14 @@ model Clinic {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users        User[]
-  patients     Patient[]
-  doctors      Doctor[]
+  users          User[]
+  patients       Patient[]
+  doctors        Doctor[]
   appointments   Appointment[]
   payments       Payment[]
   consentForms   ConsentForm[]
   treatmentPlans TreatmentPlan[]
+  messages       Message[]
 }
 
 model User {
@@ -86,6 +94,9 @@ model User {
   clinic       Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
   doctorProfile Doctor?
+
+  sentMessages     Message[] @relation("MessageSender")
+  receivedMessages Message[] @relation("MessageReceiver")
 
   @@index([clinicId])
 }
@@ -254,4 +265,29 @@ model TreatmentPlan {
   @@index([clinicId, priority])
   @@index([clinicId, isActive])
   @@index([clinicId, startDate])
+}
+
+model Message {
+  id        String          @id @default(uuid())
+  subject   String
+  content   String
+  priority  MessagePriority @default(NORMAL)
+  isRead    Boolean         @default(false)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  senderId String
+  sender   User   @relation("MessageSender", fields: [senderId], references: [id], onDelete: Restrict)
+
+  receiverId String
+  receiver   User   @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Restrict)
+
+  @@index([clinicId])
+  @@index([clinicId, receiverId])
+  @@index([clinicId, senderId])
+  @@index([clinicId, receiverId, isRead])
+  @@index([clinicId, createdAt])
 }
