@@ -1,5 +1,16 @@
-import type { PatientDetail } from "@/data/patient-detail";
 import type { PatientStatus } from "@/data/patients";
+
+export interface PatientProfileData {
+  fullName: string;
+  status: PatientStatus;
+  age: string;
+  gender: string;
+  phone: string;
+  email: string;
+  birthDate: string;
+  bloodType: string;
+  lastVisit: string;
+}
 
 const statusBadgeClass: Record<PatientStatus, string> = {
   Aktif: "bg-[#DCFCE7] text-[#16A34A]",
@@ -79,7 +90,7 @@ function InfoItem({
   );
 }
 
-export default function PatientProfileCard({ patient }: { patient: PatientDetail }) {
+export default function PatientProfileCard({ patient }: { patient: PatientProfileData }) {
   return (
     <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-7 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <div className="flex flex-wrap items-center gap-8">
@@ -99,7 +110,7 @@ export default function PatientProfileCard({ patient }: { patient: PatientDetail
           </div>
 
           <div className="mt-5 grid grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-4">
-            <InfoItem icon="age" label="Yaş" value={String(patient.age)} />
+            <InfoItem icon="age" label="Yaş" value={patient.age} />
             <InfoItem icon="gender" label="Cinsiyet" value={patient.gender} />
             <InfoItem icon="phone" label="Telefon" value={patient.phone} />
             <InfoItem icon="email" label="E-posta" value={patient.email} />
