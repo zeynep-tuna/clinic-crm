@@ -116,7 +116,11 @@ function TrashIcon() {
   );
 }
 
-export default function PatientsTable() {
+interface PatientsTableProps {
+  refreshKey?: number;
+}
+
+export default function PatientsTable({ refreshKey }: PatientsTableProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
@@ -141,7 +145,7 @@ export default function PatientsTable() {
 
   useEffect(() => {
     loadPatients();
-  }, [loadPatients]);
+  }, [loadPatients, refreshKey]);
 
   const total = patientList.length;
   const activeCount = patientList.filter((patient) => patient.isActive).length;

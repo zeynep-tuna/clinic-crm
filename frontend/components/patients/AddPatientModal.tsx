@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPatient, type CreatePatientInput } from "@/lib/patients-api";
 
 const genderOptions = ["Kadın", "Erkek"];
 
@@ -44,6 +45,8 @@ function validatePatientForm(values: PatientFormState): PatientFormErrors {
 
   if (!values.fullName.trim()) {
     nextErrors.fullName = "Ad soyad zorunludur.";
+  } else if (values.fullName.trim().split(/\s+/).length < 2) {
+    nextErrors.fullName = "Ad soyad en az iki kelime içermelidir.";
   }
 
   if (!values.phone.trim()) {
@@ -71,10 +74,28 @@ function validatePatientForm(values: PatientFormState): PatientFormErrors {
   return nextErrors;
 }
 
-export default function AddPatientModal() {
+function splitFullName(fullName: string) {
+  const parts = fullName.trim().split(/\s+/);
+  const lastName = parts[parts.length - 1];
+  const firstName = parts.slice(0, -1).join(" ");
+  return { firstName, lastName };
+}
+
+function toIsoDate(ddmmyyyy: string) {
+  const [day, month, year] = ddmmyyyy.split(".");
+  return `${year}-${month}-${day}`;
+}
+
+interface AddPatientModalProps {
+  onCreated?: () => void;
+}
+
+export default function AddPatientModal({ onCreated }: AddPatientModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [form, setForm] = useState<PatientFormState>(initialFormState);
   const [errors, setErrors] = useState<PatientFormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -102,18 +123,45 @@ export default function AddPatientModal() {
   function closeModal() {
     setIsOpen(false);
     setErrors({});
+    setApiError(null);
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setApiError(null);
+
     const validationErrors = validatePatientForm(form);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-    setForm(initialFormState);
-    setErrors({});
-    setIsOpen(false);
+
+    const { firstName, lastName } = splitFullName(form.fullName);
+
+    const input: CreatePatientInput = {
+      firstName,
+      lastName,
+      ...(form.phone.trim() ? { phone: form.phone.trim() } : {}),
+      ...(form.email.trim() ? { email: form.email.trim() } : {}),
+      ...(form.birthDate.trim() ? { birthDate: toIsoDate(form.birthDate.trim()) } : {}),
+      ...(form.gender ? { gender: form.gender } : {}),
+      ...(form.address.trim() ? { address: form.address.trim() } : {}),
+      ...(form.notes.trim() ? { notes: form.notes.trim() } : {}),
+    };
+
+    setIsSubmitting(true);
+
+    try {
+      await createPatient(input);
+      setForm(initialFormState);
+      setErrors({});
+      setIsOpen(false);
+      onCreated?.();
+    } catch {
+      setApiError("Hasta eklenirken bir hata oluştu.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -284,6 +332,12 @@ export default function AddPatientModal() {
                 />
               </div>
 
+              {apiError && (
+                <p className="rounded-xl bg-[#FEF2F2] px-4 py-2.5 text-sm text-[#EF4444] sm:col-span-2">
+                  {apiError}
+                </p>
+              )}
+
               <div className="flex items-center justify-end gap-3 sm:col-span-2">
                 <button
                   type="button"
@@ -294,9 +348,10 @@ export default function AddPatientModal() {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#4c3fd1]"
+                  disabled={isSubmitting}
+                  className="rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#4c3fd1] disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  Hasta Kaydet
+                  {isSubmitting ? "Hasta ekleniyor..." : "Hasta Kaydet"}
                 </button>
               </div>
             </form>
