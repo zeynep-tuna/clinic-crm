@@ -1,7 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import AppointmentsTable from "@/components/appointments/AppointmentsTable";
 import AddAppointmentModal from "@/components/appointments/AddAppointmentModal";
 
 export default function AppointmentsPage() {
+  const [refreshKey, setRefreshKey] = useState(0);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -12,10 +17,10 @@ export default function AppointmentsPage() {
           </p>
         </div>
 
-        <AddAppointmentModal />
+        <AddAppointmentModal onCreated={() => setRefreshKey((key) => key + 1)} />
       </div>
 
-      <AppointmentsTable />
+      <AppointmentsTable refreshKey={refreshKey} />
     </div>
   );
 }

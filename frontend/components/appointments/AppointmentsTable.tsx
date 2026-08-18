@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { listAppointments, type Appointment } from "@/lib/appointments-api";
+import {
+  listAppointments,
+  updateAppointment,
+  type Appointment,
+} from "@/lib/appointments-api";
 import EmptyState from "@/components/common/EmptyState";
 import AddAppointmentModal from "@/components/appointments/AddAppointmentModal";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
@@ -167,13 +171,19 @@ function CancelIcon() {
   );
 }
 
-export default function AppointmentsTable() {
+interface AppointmentsTableProps {
+  refreshKey?: number;
+}
+
+export default function AppointmentsTable({ refreshKey }: AppointmentsTableProps) {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
   const [appointmentList, setAppointmentList] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pendingCancelId, setPendingCancelId] = useState<string | null>(null);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [cancelError, setCancelError] = useState<string | null>(null);
 
   const loadAppointments = useCallback(async () => {
     setIsLoading(true);
@@ -191,7 +201,25 @@ export default function AppointmentsTable() {
 
   useEffect(() => {
     loadAppointments();
-  }, [loadAppointments]);
+  }, [loadAppointments, refreshKey]);
+
+  async function handleConfirmCancel() {
+    const appointmentId = pendingCancelId;
+    if (!appointmentId) return;
+
+    setPendingCancelId(null);
+    setCancelError(null);
+    setCancellingId(appointmentId);
+
+    try {
+      await updateAppointment(appointmentId, { status: "CANCELLED" });
+      await loadAppointments();
+    } catch {
+      setCancelError("Randevu iptal edilirken bir hata oluştu.");
+    } finally {
+      setCancellingId(null);
+    }
+  }
 
   const totalCount = appointmentList.length;
   const confirmedCount = appointmentList.filter((appointment) => getStatusLabel(appointment) === "Onaylandı").length;
@@ -280,6 +308,12 @@ export default function AppointmentsTable() {
 
       {!isLoading && !error && (
         <>
+          {cancelError && (
+            <div className="rounded-[20px] border border-[#FEE2E2] bg-[#FEF2F2] px-5 py-3 text-sm text-[#EF4444]">
+              {cancelError}
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-[#EAF0F8]/60">
             {summaryItems.map((item) => {
               const isSelected = item.selectable && activeFilter === item.filterValue;
@@ -466,11 +500,12 @@ export default function AppointmentsTable() {
                           <button
                             type="button"
                             aria-label="Randevuyu iptal et"
+                            disabled={cancellingId === appointment.id}
                             onClick={(event) => {
                               event.stopPropagation();
                               setPendingCancelId(appointment.id);
                             }}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444]"
+                            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444] disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             <CancelIcon />
                           </button>
@@ -517,19 +552,10 @@ export default function AppointmentsTable() {
       <ConfirmDialog
         open={pendingCancelId !== null}
         title="Randevuyu iptal etmek istiyor musunuz?"
-        description="Seçili hasta randevusu iptal edilecek. Bu işlem demo ortamında yalnızca arayüz üzerinde uygulanır."
+        description="Seçili hasta randevusu iptal edilecek."
         confirmLabel="Randevuyu İptal Et"
         variant="warning"
-        onConfirm={() => {
-          setAppointmentList((prev) =>
-            prev.map((appointment) =>
-              appointment.id === pendingCancelId
-                ? { ...appointment, status: "CANCELLED" }
-                : appointment
-            )
-          );
-          setPendingCancelId(null);
-        }}
+        onConfirm={handleConfirmCancel}
         onCancel={() => setPendingCancelId(null)}
       />
     </div>

@@ -1,23 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-const patientOptions = [
-  "Ayşe Demir",
-  "Mehmet Kaya",
-  "Zeynep Aydın",
-  "Ali Yıldız",
-  "Fatma Öz",
-  "Elif Arslan",
-];
-
-const doctorOptions = [
-  "Dr. Elif Kaya",
-  "Dr. Ahmet Can",
-  "Dr. Selin Arı",
-  "Dr. Mert Koç",
-  "Dr. Pınar Işık",
-];
+import { ApiError } from "@/lib/api";
+import { listPatients, type Patient } from "@/lib/patients-api";
+import { listDoctors, type Doctor } from "@/lib/doctors-api";
+import {
+  createAppointment,
+  type CreateAppointmentInput,
+} from "@/lib/appointments-api";
 
 const departmentOptions = [
   "Diş Hekimliği",
@@ -31,9 +21,18 @@ const appointmentTypeOptions = ["Muayene", "Kontrol", "Tedavi", "Konsültasyon"]
 
 const statusOptions = ["Onaylandı", "Bekliyor", "Tamamlandı", "İptal"];
 
+const STATUS_TO_BACKEND: Record<string, CreateAppointmentInput["status"]> = {
+  Onaylandı: "CONFIRMED",
+  Bekliyor: "SCHEDULED",
+  Tamamlandı: "COMPLETED",
+  İptal: "CANCELLED",
+};
+
+const APPOINTMENT_DURATION_MINUTES = 30;
+
 interface AppointmentFormState {
-  patient: string;
-  doctor: string;
+  patientId: string;
+  doctorId: string;
   department: string;
   date: string;
   time: string;
@@ -43,8 +42,8 @@ interface AppointmentFormState {
 }
 
 const initialFormState: AppointmentFormState = {
-  patient: "",
-  doctor: "",
+  patientId: "",
+  doctorId: "",
   department: "",
   date: "",
   time: "",
@@ -58,12 +57,12 @@ type AppointmentFormErrors = Partial<Record<keyof AppointmentFormState, string>>
 function validateAppointmentForm(values: AppointmentFormState): AppointmentFormErrors {
   const nextErrors: AppointmentFormErrors = {};
 
-  if (!values.patient) {
-    nextErrors.patient = "Hasta seçimi zorunludur.";
+  if (!values.patientId) {
+    nextErrors.patientId = "Hasta seçimi zorunludur.";
   }
 
-  if (!values.doctor) {
-    nextErrors.doctor = "Diş hekimi seçimi zorunludur.";
+  if (!values.doctorId) {
+    nextErrors.doctorId = "Diş hekimi seçimi zorunludur.";
   }
 
   if (!values.date.trim()) {
@@ -92,10 +91,43 @@ function validateAppointmentForm(values: AppointmentFormState): AppointmentFormE
   return nextErrors;
 }
 
-export default function AddAppointmentModal() {
+function buildStartAtIso(dateStr: string, timeStr: string): string | null {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  const [hour, minute] = timeStr.split(":").map(Number);
+
+  if (!year || !month || !day || Number.isNaN(hour) || Number.isNaN(minute)) {
+    return null;
+  }
+
+  const localDate = new Date(year, month - 1, day, hour, minute, 0, 0);
+  if (Number.isNaN(localDate.getTime())) {
+    return null;
+  }
+
+  return localDate.toISOString();
+}
+
+function addMinutesIso(iso: string, minutes: number): string {
+  const date = new Date(iso);
+  date.setMinutes(date.getMinutes() + minutes);
+  return date.toISOString();
+}
+
+interface AddAppointmentModalProps {
+  onCreated?: () => void;
+}
+
+export default function AddAppointmentModal({ onCreated }: AddAppointmentModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [form, setForm] = useState<AppointmentFormState>(initialFormState);
   const [errors, setErrors] = useState<AppointmentFormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [isLoadingOptions, setIsLoadingOptions] = useState(false);
+  const [optionsError, setOptionsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -108,6 +140,33 @@ export default function AddAppointmentModal() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let cancelled = false;
+    setIsLoadingOptions(true);
+    setOptionsError(null);
+
+    Promise.all([listPatients(), listDoctors()])
+      .then(([patientsData, doctorsData]) => {
+        if (cancelled) return;
+        setPatients(patientsData);
+        setDoctors(doctorsData);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setOptionsError("Hasta veya doktor listesi yüklenirken bir hata oluştu.");
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setIsLoadingOptions(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [isOpen]);
 
   function updateField<K extends keyof AppointmentFormState>(
@@ -126,18 +185,59 @@ export default function AddAppointmentModal() {
   function closeModal() {
     setIsOpen(false);
     setErrors({});
+    setApiError(null);
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setApiError(null);
+
     const validationErrors = validateAppointmentForm(form);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-    setForm(initialFormState);
-    setErrors({});
-    setIsOpen(false);
+
+    const startAt = buildStartAtIso(form.date, form.time);
+    if (!startAt) {
+      setErrors((prev) => ({ ...prev, date: "Geçerli bir tarih ve saat girin." }));
+      return;
+    }
+
+    const endAt = addMinutesIso(startAt, APPOINTMENT_DURATION_MINUTES);
+
+    const input: CreateAppointmentInput = {
+      patientId: form.patientId,
+      doctorId: form.doctorId,
+      startAt,
+      endAt,
+      ...(form.appointmentType ? { title: form.appointmentType } : {}),
+      ...(form.notes.trim() ? { notes: form.notes.trim() } : {}),
+      ...(form.status ? { status: STATUS_TO_BACKEND[form.status] } : {}),
+    };
+
+    setIsSubmitting(true);
+
+    try {
+      await createAppointment(input);
+      setForm(initialFormState);
+      setErrors({});
+      setIsOpen(false);
+      onCreated?.();
+    } catch (submitError) {
+      const isDoctorConflict =
+        submitError instanceof ApiError &&
+        submitError.status === 400 &&
+        submitError.message.includes("already has an active appointment");
+
+      if (isDoctorConflict) {
+        setApiError("Seçilen doktorun bu saat aralığında başka bir randevusu var.");
+      } else {
+        setApiError("Randevu oluşturulurken bir hata oluştu.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -183,42 +283,50 @@ export default function AddAppointmentModal() {
             </div>
 
             <form onSubmit={handleSubmit} className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
+              {optionsError && (
+                <p className="rounded-xl bg-[#FEF2F2] px-4 py-2.5 text-sm text-[#EF4444] sm:col-span-2">
+                  {optionsError}
+                </p>
+              )}
+
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Hasta</label>
                 <select
-                  value={form.patient}
-                  onChange={(event) => updateField("patient", event.target.value)}
+                  value={form.patientId}
+                  onChange={(event) => updateField("patientId", event.target.value)}
+                  disabled={isLoadingOptions}
                   className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
-                    errors.patient ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                    errors.patientId ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
                   }`}
                 >
-                  <option value="">Hasta seçin</option>
-                  {patientOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
+                  <option value="">{isLoadingOptions ? "Yükleniyor..." : "Hasta seçin"}</option>
+                  {patients.map((patient) => (
+                    <option key={patient.id} value={patient.id}>
+                      {`${patient.firstName} ${patient.lastName}`.trim()}
                     </option>
                   ))}
                 </select>
-                {errors.patient && <p className="mt-1 text-sm text-[#EF4444]">{errors.patient}</p>}
+                {errors.patientId && <p className="mt-1 text-sm text-[#EF4444]">{errors.patientId}</p>}
               </div>
 
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Diş Hekimi</label>
                 <select
-                  value={form.doctor}
-                  onChange={(event) => updateField("doctor", event.target.value)}
+                  value={form.doctorId}
+                  onChange={(event) => updateField("doctorId", event.target.value)}
+                  disabled={isLoadingOptions}
                   className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
-                    errors.doctor ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                    errors.doctorId ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
                   }`}
                 >
-                  <option value="">Diş hekimi seçin</option>
-                  {doctorOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
+                  <option value="">{isLoadingOptions ? "Yükleniyor..." : "Diş hekimi seçin"}</option>
+                  {doctors.map((doctor) => (
+                    <option key={doctor.id} value={doctor.id}>
+                      {doctor.fullName}
                     </option>
                   ))}
                 </select>
-                {errors.doctor && <p className="mt-1 text-sm text-[#EF4444]">{errors.doctor}</p>}
+                {errors.doctorId && <p className="mt-1 text-sm text-[#EF4444]">{errors.doctorId}</p>}
               </div>
 
               <div>
@@ -341,6 +449,12 @@ export default function AddAppointmentModal() {
                 />
               </div>
 
+              {apiError && (
+                <p className="rounded-xl bg-[#FEF2F2] px-4 py-2.5 text-sm text-[#EF4444] sm:col-span-2">
+                  {apiError}
+                </p>
+              )}
+
               <div className="flex items-center justify-end gap-3 sm:col-span-2">
                 <button
                   type="button"
@@ -351,9 +465,10 @@ export default function AddAppointmentModal() {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#4c3fd1]"
+                  disabled={isSubmitting}
+                  className="rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#4c3fd1] disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  Randevu Kaydet
+                  {isSubmitting ? "Randevu oluşturuluyor..." : "Randevu Kaydet"}
                 </button>
               </div>
             </form>
