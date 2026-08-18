@@ -4,23 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiFetch, ApiError } from "@/lib/api";
-import { saveAccessToken } from "@/lib/auth-storage";
-
-type UserRole = "ADMIN" | "SECRETARY" | "DOCTOR";
-
-interface AuthUser {
-  id: string;
-  clinicId: string;
-  fullName: string;
-  email: string;
-  role: UserRole;
-  isActive: boolean;
-}
-
-interface LoginResponse {
-  accessToken: string;
-  user: AuthUser;
-}
+import { clearAccessToken, saveAccessToken } from "@/lib/auth-storage";
+import { getRoleHome, isUserRole, type LoginResponse } from "@/lib/auth";
 
 function HeartIcon() {
   return (
@@ -133,19 +118,13 @@ export default function LoginForm() {
 
       saveAccessToken(response.accessToken, rememberMe);
 
-      switch (response.user.role) {
-        case "ADMIN":
-          router.push("/dashboard");
-          break;
-        case "SECRETARY":
-          router.push("/secretary/dashboard");
-          break;
-        case "DOCTOR":
-          router.push("/doctor/dashboard");
-          break;
-        default:
-          setLoginError("Giriş yapılırken bir hata oluştu. Lütfen tekrar deneyin.");
+      if (!isUserRole(response.user.role)) {
+        clearAccessToken();
+        setLoginError("Giriş yapılırken bir hata oluştu. Lütfen tekrar deneyin.");
+        return;
       }
+
+      router.push(getRoleHome(response.user.role));
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
         setLoginError("E-posta veya şifre hatalı.");
