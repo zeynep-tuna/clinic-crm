@@ -3,6 +3,24 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { apiFetch, ApiError } from "@/lib/api";
+import { saveAccessToken } from "@/lib/auth-storage";
+
+type UserRole = "ADMIN" | "SECRETARY" | "DOCTOR";
+
+interface AuthUser {
+  id: string;
+  clinicId: string;
+  fullName: string;
+  email: string;
+  role: UserRole;
+  isActive: boolean;
+}
+
+interface LoginResponse {
+  accessToken: string;
+  user: AuthUser;
+}
 
 function HeartIcon() {
   return (
@@ -75,6 +93,8 @@ export default function LoginForm() {
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<LoginFormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   function handleEmailChange(value: string) {
     setEmail(value);
@@ -90,31 +110,50 @@ export default function LoginForm() {
     }
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setLoginError(null);
+
     const validationErrors = validateLoginForm(email, password);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
+    setIsSubmitting(true);
 
-    if (
-      normalizedEmail.includes("secretary") ||
-      normalizedEmail.includes("sekreter") ||
-      normalizedEmail.includes("zeynep")
-    ) {
-      router.push("/secretary/dashboard");
-    } else if (
-      normalizedEmail.includes("doctor") ||
-      normalizedEmail.includes("doktor") ||
-      normalizedEmail.includes("hekim") ||
-      normalizedEmail.includes("elif")
-    ) {
-      router.push("/doctor/dashboard");
-    } else {
-      router.push("/dashboard");
+    try {
+      const response = await apiFetch<LoginResponse>("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+        }),
+      });
+
+      saveAccessToken(response.accessToken, rememberMe);
+
+      switch (response.user.role) {
+        case "ADMIN":
+          router.push("/dashboard");
+          break;
+        case "SECRETARY":
+          router.push("/secretary/dashboard");
+          break;
+        case "DOCTOR":
+          router.push("/doctor/dashboard");
+          break;
+        default:
+          setLoginError("Giriş yapılırken bir hata oluştu. Lütfen tekrar deneyin.");
+      }
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        setLoginError("E-posta veya şifre hatalı.");
+      } else {
+        setLoginError("Giriş yapılırken bir hata oluştu. Lütfen tekrar deneyin.");
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -187,11 +226,16 @@ export default function LoginForm() {
           </Link>
         </div>
 
+        {loginError && (
+          <p className="rounded-xl bg-[#FEF2F2] px-4 py-2.5 text-sm text-[#EF4444]">{loginError}</p>
+        )}
+
         <button
           type="submit"
-          className="w-full rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#4c3fd1]"
+          disabled={isSubmitting}
+          className="w-full rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#4c3fd1] disabled:cursor-not-allowed disabled:opacity-70"
         >
-          Giriş Yap
+          {isSubmitting ? "Giriş yapılıyor..." : "Giriş Yap"}
         </button>
       </form>
 
