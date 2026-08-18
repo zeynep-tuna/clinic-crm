@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { listDoctors, type Doctor } from "@/lib/doctors-api";
+import { listDoctors, updateDoctor, type Doctor } from "@/lib/doctors-api";
 import EmptyState from "@/components/common/EmptyState";
 import AddDoctorModal from "@/components/doctors/AddDoctorModal";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
@@ -102,13 +102,19 @@ function MoreIcon() {
   );
 }
 
-export default function DoctorsTable() {
+interface DoctorsTableProps {
+  refreshKey?: number;
+}
+
+export default function DoctorsTable({ refreshKey }: DoctorsTableProps) {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
   const [doctorList, setDoctorList] = useState<Doctor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pendingDeactivateId, setPendingDeactivateId] = useState<string | null>(null);
+  const [deactivatingId, setDeactivatingId] = useState<string | null>(null);
+  const [deactivateError, setDeactivateError] = useState<string | null>(null);
 
   const loadDoctors = useCallback(async () => {
     setIsLoading(true);
@@ -126,7 +132,25 @@ export default function DoctorsTable() {
 
   useEffect(() => {
     loadDoctors();
-  }, [loadDoctors]);
+  }, [loadDoctors, refreshKey]);
+
+  async function handleConfirmDeactivate() {
+    const doctorId = pendingDeactivateId;
+    if (!doctorId) return;
+
+    setPendingDeactivateId(null);
+    setDeactivateError(null);
+    setDeactivatingId(doctorId);
+
+    try {
+      await updateDoctor(doctorId, { isActive: false });
+      await loadDoctors();
+    } catch {
+      setDeactivateError("Doktor pasifleştirilirken bir hata oluştu.");
+    } finally {
+      setDeactivatingId(null);
+    }
+  }
 
   const totalCount = doctorList.length;
   const activeCount = doctorList.filter((doctor) => doctor.isActive).length;
@@ -202,6 +226,12 @@ export default function DoctorsTable() {
 
       {!isLoading && !error && (
         <>
+          {deactivateError && (
+            <div className="rounded-[20px] border border-[#FEE2E2] bg-[#FEF2F2] px-5 py-3 text-sm text-[#EF4444]">
+              {deactivateError}
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-[#EAF0F8]/60">
             {summaryItems.map((item) => {
               const isSelected = activeFilter === item.filterValue;
@@ -369,11 +399,12 @@ export default function DoctorsTable() {
                           <button
                             type="button"
                             aria-label="Hekimi pasifleştir"
+                            disabled={deactivatingId === doctor.id}
                             onClick={(event) => {
                               event.stopPropagation();
                               setPendingDeactivateId(doctor.id);
                             }}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEF3C7] hover:text-[#F59E0B]"
+                            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEF3C7] hover:text-[#F59E0B] disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             <PauseCircleIcon />
                           </button>
@@ -423,14 +454,7 @@ export default function DoctorsTable() {
         description="Seçili diş hekimi aktif listeden pasif duruma alınacak. Randevu planlamasında görünürlüğü etkilenebilir."
         confirmLabel="Hekimi Pasifleştir"
         variant="warning"
-        onConfirm={() => {
-          setDoctorList((prev) =>
-            prev.map((doctor) =>
-              doctor.id === pendingDeactivateId ? { ...doctor, isActive: false } : doctor
-            )
-          );
-          setPendingDeactivateId(null);
-        }}
+        onConfirm={handleConfirmDeactivate}
         onCancel={() => setPendingDeactivateId(null)}
       />
     </div>

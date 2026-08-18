@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createDoctor, type CreateDoctorInput } from "@/lib/doctors-api";
 
 const specialtyOptions = [
   "Diş Hekimi",
@@ -70,10 +71,16 @@ function validateDoctorForm(values: DoctorFormState): DoctorFormErrors {
   return nextErrors;
 }
 
-export default function AddDoctorModal() {
+interface AddDoctorModalProps {
+  onCreated?: () => void;
+}
+
+export default function AddDoctorModal({ onCreated }: AddDoctorModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [form, setForm] = useState<DoctorFormState>(initialFormState);
   const [errors, setErrors] = useState<DoctorFormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -101,18 +108,39 @@ export default function AddDoctorModal() {
   function closeModal() {
     setIsOpen(false);
     setErrors({});
+    setApiError(null);
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setApiError(null);
+
     const validationErrors = validateDoctorForm(form);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-    setForm(initialFormState);
-    setErrors({});
-    setIsOpen(false);
+
+    const input: CreateDoctorInput = {
+      fullName: form.fullName.trim(),
+      ...(form.specialty.trim() ? { specialty: form.specialty.trim() } : {}),
+      ...(form.phone.trim() ? { phone: form.phone.trim() } : {}),
+      ...(form.email.trim() ? { email: form.email.trim() } : {}),
+    };
+
+    setIsSubmitting(true);
+
+    try {
+      await createDoctor(input);
+      setForm(initialFormState);
+      setErrors({});
+      setIsOpen(false);
+      onCreated?.();
+    } catch {
+      setApiError("Doktor eklenirken bir hata oluştu.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -257,6 +285,12 @@ export default function AddDoctorModal() {
                 />
               </div>
 
+              {apiError && (
+                <p className="rounded-xl bg-[#FEF2F2] px-4 py-2.5 text-sm text-[#EF4444] sm:col-span-2">
+                  {apiError}
+                </p>
+              )}
+
               <div className="flex items-center justify-end gap-3 sm:col-span-2">
                 <button
                   type="button"
@@ -267,9 +301,10 @@ export default function AddDoctorModal() {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#4c3fd1]"
+                  disabled={isSubmitting}
+                  className="rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#4c3fd1] disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  Doktor Kaydet
+                  {isSubmitting ? "Doktor ekleniyor..." : "Doktor Kaydet"}
                 </button>
               </div>
             </form>

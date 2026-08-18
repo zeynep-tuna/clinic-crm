@@ -1,7 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import DoctorsTable from "@/components/doctors/DoctorsTable";
 import AddDoctorModal from "@/components/doctors/AddDoctorModal";
 
 export default function DoctorsPage() {
+  const [refreshKey, setRefreshKey] = useState(0);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -12,10 +17,10 @@ export default function DoctorsPage() {
           </p>
         </div>
 
-        <AddDoctorModal />
+        <AddDoctorModal onCreated={() => setRefreshKey((key) => key + 1)} />
       </div>
 
-      <DoctorsTable />
+      <DoctorsTable refreshKey={refreshKey} />
     </div>
   );
 }
