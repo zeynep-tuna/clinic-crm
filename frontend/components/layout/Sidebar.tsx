@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { clearAccessToken } from "@/lib/auth-storage";
 
 type NavIcon =
   | "dashboard"
@@ -152,7 +153,13 @@ function isRouteActive(pathname: string, href: string) {
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
+
+  function handleLogout() {
+    clearAccessToken();
+    router.replace("/login");
+  }
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
@@ -222,8 +229,9 @@ export default function Sidebar() {
       </nav>
 
       <div className="border-t border-[#EEF2F8] p-3.5">
-        <Link
-          href="/login"
+        <button
+          type="button"
+          onClick={handleLogout}
           className={`group relative flex items-center rounded-xl py-2 text-sm font-medium text-[#667085] outline-none transition-colors hover:bg-[#FEF2F2] hover:text-[#EF4444] focus-visible:ring-2 focus-visible:ring-[#5B4DE3]/20 ${
             collapsed ? "justify-center px-0" : "gap-2.5 px-3.5"
           }`}
@@ -242,7 +250,7 @@ export default function Sidebar() {
               Çıkış Yap
             </span>
           )}
-        </Link>
+        </button>
 
         <div className={`mt-3 ${collapsed ? "flex justify-center" : "flex justify-end"}`}>
           <button

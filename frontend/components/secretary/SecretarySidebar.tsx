@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { clearAccessToken } from "@/lib/auth-storage";
 
 type NavIcon =
   | "dashboard"
@@ -140,7 +141,13 @@ function isRouteActive(pathname: string, href: string) {
 
 export default function SecretarySidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
+
+  function handleLogout() {
+    clearAccessToken();
+    router.replace("/login");
+  }
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
@@ -219,9 +226,9 @@ export default function SecretarySidebar() {
       </nav>
 
       <div className="border-t border-[#F1F4FA] px-3 pt-4 pb-4">
-        <Link
-          href="/login"
-          onClick={(event) => event.currentTarget.blur()}
+        <button
+          type="button"
+          onClick={handleLogout}
           className={`group relative flex h-11 items-center rounded-xl text-sm font-medium text-[#667085] outline-none transition-colors hover:bg-[#FEF2F2] hover:text-[#EF4444] focus-visible:ring-2 focus-visible:ring-[#5B4DE3]/20 ${
             collapsed ? "justify-center px-0" : "gap-2.5 px-3.5"
           }`}
@@ -240,7 +247,7 @@ export default function SecretarySidebar() {
               Çıkış Yap
             </span>
           )}
-        </Link>
+        </button>
 
         <div className={`mt-2 ${collapsed ? "flex justify-center" : "flex justify-end"}`}>
           <button
