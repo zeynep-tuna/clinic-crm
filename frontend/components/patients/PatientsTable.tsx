@@ -1,17 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { patients, type PatientStatus } from "@/data/patients";
+import { listPatients, type Patient } from "@/lib/patients-api";
 import EmptyState from "@/components/common/EmptyState";
 import AddPatientModal from "@/components/patients/AddPatientModal";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 
-type FilterValue = "Tümü" | PatientStatus;
+type UiStatus = "Aktif" | "Kontrol Bekliyor" | "Pasif";
+
+type FilterValue = "Tümü" | UiStatus;
 
 const filters: FilterValue[] = ["Tümü", "Aktif", "Kontrol Bekliyor", "Pasif"];
 
-const statusBadgeClass: Record<PatientStatus, string> = {
+const statusBadgeClass: Record<UiStatus, string> = {
   Aktif: "bg-[#DCFCE7] text-[#16A34A]",
   "Kontrol Bekliyor": "bg-[#FEF3C7] text-[#F59E0B]",
   Pasif: "bg-[#F3F4F6] text-[#667085]",
@@ -28,6 +30,27 @@ const avatarPalette = [
 function getAvatarColor(id: string) {
   const sum = id.split("").reduce((total, char) => total + char.charCodeAt(0), 0);
   return avatarPalette[sum % avatarPalette.length];
+}
+
+function getFullName(patient: Patient) {
+  return `${patient.firstName} ${patient.lastName}`.trim();
+}
+
+function getStatusLabel(patient: Patient): UiStatus {
+  return patient.isActive ? "Aktif" : "Pasif";
+}
+
+function formatBirthDate(birthDate: string | null) {
+  if (!birthDate) return "—";
+
+  const [year, month, day] = birthDate.slice(0, 10).split("-");
+  if (!year || !month || !day) return "—";
+
+  return `${day}.${month}.${year}`;
+}
+
+function formatNullable(value: string | null) {
+  return value ?? "—";
 }
 
 function UsersIcon() {
@@ -97,13 +120,34 @@ export default function PatientsTable() {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
-  const [patientList, setPatientList] = useState(patients);
+  const [patientList, setPatientList] = useState<Patient[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
+  const loadPatients = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const data = await listPatients({ includeInactive: true });
+      setPatientList(data);
+    } catch {
+      setError("Hastalar yüklenirken bir hata oluştu.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadPatients();
+  }, [loadPatients]);
+
   const total = patientList.length;
-  const activeCount = patientList.filter((patient) => patient.status === "Aktif").length;
-  const pendingCount = patientList.filter((patient) => patient.status === "Kontrol Bekliyor").length;
-  const inactiveCount = patientList.filter((patient) => patient.status === "Pasif").length;
+  const activeCount = patientList.filter((patient) => patient.isActive).length;
+  const inactiveCount = patientList.filter((patient) => !patient.isActive).length;
+  // Backend'de "Kontrol Bekliyor" durumunun karşılığı yok.
+  const pendingCount = 0;
 
   const summaryItems: {
     label: string;
@@ -140,221 +184,250 @@ export default function PatientsTable() {
     const term = search.trim().toLowerCase();
 
     return patientList.filter((patient) => {
-      const matchesFilter = activeFilter === "Tümü" || patient.status === activeFilter;
-      const matchesSearch = term === "" || patient.fullName.toLowerCase().includes(term);
+      const status = getStatusLabel(patient);
+      const matchesFilter = activeFilter === "Tümü" || status === activeFilter;
+      const matchesSearch = term === "" || getFullName(patient).toLowerCase().includes(term);
       return matchesFilter && matchesSearch;
     });
   }, [search, activeFilter, patientList]);
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="grid grid-cols-2 gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-[#EAF0F8]/60">
-        {summaryItems.map((item) => {
-          const isSelected = activeFilter === item.filterValue;
+      {isLoading && (
+        <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-10 text-center shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+          <p className="text-sm text-[#667085]">Hastalar yükleniyor...</p>
+        </div>
+      )}
 
-          return (
-            <button
-              key={item.label}
-              type="button"
-              onClick={() => setActiveFilter(item.filterValue)}
-              className={`flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 text-left transition-colors sm:px-5 ${
-                isSelected ? "bg-[#F7F8FF]" : "hover:bg-[#F7F8FF]"
-              }`}
-            >
-              <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${item.color}`}>
-                {item.icon}
-              </span>
-              <div>
-                <p className="text-xl font-bold text-[#0B1F55]">{item.value}</p>
-                <p className="text-xs text-[#667085]">{item.label}</p>
-              </div>
-            </button>
-          );
-        })}
-      </div>
+      {!isLoading && error && (
+        <div className="flex flex-col items-center gap-3 rounded-[20px] border border-[#EAF0F8] bg-white p-10 text-center shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+          <p className="text-sm text-[#EF4444]">{error}</p>
+          <button
+            type="button"
+            onClick={loadPatients}
+            className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+          >
+            Tekrar Dene
+          </button>
+        </div>
+      )}
 
-      <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="relative w-full max-w-xs">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.75}
-              className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98A2B3]"
-            >
-              <circle cx="11" cy="11" r="6.5" />
-              <path strokeLinecap="round" d="M20 20l-3.8-3.8" />
-            </svg>
-            <input
-              type="text"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Bu listede hasta ara..."
-              className="w-full rounded-xl border border-[#EAF0F8] bg-white py-2 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
-            />
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {filters.map((filter) => {
-              const isActive = activeFilter === filter;
+      {!isLoading && !error && (
+        <>
+          <div className="grid grid-cols-2 gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-[#EAF0F8]/60">
+            {summaryItems.map((item) => {
+              const isSelected = activeFilter === item.filterValue;
 
               return (
                 <button
-                  key={filter}
+                  key={item.label}
                   type="button"
-                  onClick={() => setActiveFilter(filter)}
-                  className={`rounded-xl border px-3.5 py-1.5 text-sm font-medium transition-colors ${
-                    isActive
-                      ? "border-[#5B4DE3] bg-[#5B4DE3] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06),0_2px_6px_rgba(91,77,227,0.25)]"
-                      : "border-[#EAF0F8] text-[#0B1F55] hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
+                  onClick={() => setActiveFilter(item.filterValue)}
+                  className={`flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 text-left transition-colors sm:px-5 ${
+                    isSelected ? "bg-[#F7F8FF]" : "hover:bg-[#F7F8FF]"
                   }`}
                 >
-                  {filter}
+                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${item.color}`}>
+                    {item.icon}
+                  </span>
+                  <div>
+                    <p className="text-xl font-bold text-[#0B1F55]">{item.value}</p>
+                    <p className="text-xs text-[#667085]">{item.label}</p>
+                  </div>
                 </button>
               );
             })}
           </div>
-        </div>
 
-        <div className="mt-5 overflow-x-auto">
-          {patientList.length === 0 && (
-            <EmptyState
-              variant="empty"
-              title="Henüz hasta kaydı yok"
-              description="Diş kliniğinizdeki hastaları takip etmek için yeni hasta kaydı oluşturabilirsiniz."
-              action={<AddPatientModal />}
-            />
-          )}
+          <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="relative w-full max-w-xs">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.75}
+                  className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98A2B3]"
+                >
+                  <circle cx="11" cy="11" r="6.5" />
+                  <path strokeLinecap="round" d="M20 20l-3.8-3.8" />
+                </svg>
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Bu listede hasta ara..."
+                  className="w-full rounded-xl border border-[#EAF0F8] bg-white py-2 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                />
+              </div>
 
-          {patientList.length > 0 && filteredPatients.length === 0 && (
-            <EmptyState
-              variant="search"
-              title="Eşleşen hasta bulunamadı"
-              description="Arama kelimenizi veya seçili filtreyi değiştirerek tekrar deneyin."
-              action={
+              <div className="flex flex-wrap items-center gap-2">
+                {filters.map((filter) => {
+                  const isActive = activeFilter === filter;
+
+                  return (
+                    <button
+                      key={filter}
+                      type="button"
+                      onClick={() => setActiveFilter(filter)}
+                      className={`rounded-xl border px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                        isActive
+                          ? "border-[#5B4DE3] bg-[#5B4DE3] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06),0_2px_6px_rgba(91,77,227,0.25)]"
+                          : "border-[#EAF0F8] text-[#0B1F55] hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
+                      }`}
+                    >
+                      {filter}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="mt-5 overflow-x-auto">
+              {patientList.length === 0 && (
+                <EmptyState
+                  variant="empty"
+                  title="Henüz hasta kaydı yok"
+                  description="Diş kliniğinizdeki hastaları takip etmek için yeni hasta kaydı oluşturabilirsiniz."
+                  action={<AddPatientModal />}
+                />
+              )}
+
+              {patientList.length > 0 && filteredPatients.length === 0 && (
+                <EmptyState
+                  variant="search"
+                  title="Eşleşen hasta bulunamadı"
+                  description="Arama kelimenizi veya seçili filtreyi değiştirerek tekrar deneyin."
+                  action={
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearch("");
+                        setActiveFilter("Tümü");
+                      }}
+                      className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+                    >
+                      Filtreleri temizle
+                    </button>
+                  }
+                />
+              )}
+
+              {filteredPatients.length > 0 && (
+              <table className="w-full min-w-220 text-left">
+                <thead>
+                  <tr className="border-b border-[#EAF0F8]/70 text-xs font-semibold tracking-wide text-[#667085] uppercase">
+                    <th className="pb-2.5 font-medium">Hasta Adı</th>
+                    <th className="pb-2.5 font-medium">Telefon</th>
+                    <th className="pb-2.5 font-medium">E-posta</th>
+                    <th className="pb-2.5 font-medium">Doğum Tarihi</th>
+                    <th className="pb-2.5 font-medium">Cinsiyet</th>
+                    <th className="pb-2.5 font-medium">Son Ziyaret</th>
+                    <th className="pb-2.5 font-medium">Durum</th>
+                    <th className="pb-2.5 font-medium">İşlem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredPatients.map((patient) => {
+                    const fullName = getFullName(patient);
+                    const status = getStatusLabel(patient);
+
+                    return (
+                    <tr
+                      key={patient.id}
+                      onClick={() => router.push(`/patients/${patient.id}`)}
+                      className="cursor-pointer border-b border-[#EAF0F8]/60 transition-colors last:border-0 hover:bg-[#F8F9FF]"
+                    >
+                      <td className="py-4">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${getAvatarColor(patient.id)}`}
+                          >
+                            {fullName.charAt(0)}
+                          </div>
+                          <span className="text-sm font-medium text-[#0B1F55]">{fullName}</span>
+                        </div>
+                      </td>
+                      <td className="py-4 text-sm text-[#0B1F55]">{formatNullable(patient.phone)}</td>
+                      <td className="py-4 text-sm text-[#667085]">{formatNullable(patient.email)}</td>
+                      <td className="py-4 text-sm text-[#0B1F55]">{formatBirthDate(patient.birthDate)}</td>
+                      <td className="py-4 text-sm text-[#0B1F55]">{formatNullable(patient.gender)}</td>
+                      <td className="py-4 text-sm text-[#0B1F55]">—</td>
+                      <td className="py-4">
+                        <span
+                          className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${statusBadgeClass[status]}`}
+                        >
+                          {status}
+                        </span>
+                      </td>
+                      <td className="py-4">
+                        <div className="flex items-center gap-3 text-[#667085]">
+                          <button
+                            type="button"
+                            aria-label="Düzenle"
+                            onClick={(event) => event.stopPropagation()}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
+                          >
+                            <EditIcon />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label="Diğer işlemler"
+                            onClick={(event) => event.stopPropagation()}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
+                          >
+                            <MoreIcon />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label="Hastayı sil"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setPendingDeleteId(patient.id);
+                            }}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444]"
+                          >
+                            <TrashIcon />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              )}
+            </div>
+
+            <div className="mt-5 flex items-center justify-between border-t border-[#EAF0F8]/70 pt-5">
+              <p className="text-sm text-[#667085]">Toplam {filteredPatients.length} kayıt</p>
+
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => {
-                    setSearch("");
-                    setActiveFilter("Tümü");
-                  }}
-                  className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+                  aria-label="Önceki sayfa"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#EAF0F8] text-[#667085] hover:bg-[#F7F8FF]"
                 >
-                  Filtreleri temizle
+                  &lt;
                 </button>
-              }
-            />
-          )}
-
-          {filteredPatients.length > 0 && (
-          <table className="w-full min-w-220 text-left">
-            <thead>
-              <tr className="border-b border-[#EAF0F8]/70 text-xs font-semibold tracking-wide text-[#667085] uppercase">
-                <th className="pb-2.5 font-medium">Hasta Adı</th>
-                <th className="pb-2.5 font-medium">Telefon</th>
-                <th className="pb-2.5 font-medium">E-posta</th>
-                <th className="pb-2.5 font-medium">Doğum Tarihi</th>
-                <th className="pb-2.5 font-medium">Cinsiyet</th>
-                <th className="pb-2.5 font-medium">Son Ziyaret</th>
-                <th className="pb-2.5 font-medium">Durum</th>
-                <th className="pb-2.5 font-medium">İşlem</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPatients.map((patient) => (
-                <tr
-                  key={patient.id}
-                  onClick={() => router.push(`/patients/${patient.id}`)}
-                  className="cursor-pointer border-b border-[#EAF0F8]/60 transition-colors last:border-0 hover:bg-[#F8F9FF]"
+                <button
+                  type="button"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#5B4DE3] text-sm font-semibold text-white"
                 >
-                  <td className="py-4">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${getAvatarColor(patient.id)}`}
-                      >
-                        {patient.fullName.charAt(0)}
-                      </div>
-                      <span className="text-sm font-medium text-[#0B1F55]">{patient.fullName}</span>
-                    </div>
-                  </td>
-                  <td className="py-4 text-sm text-[#0B1F55]">{patient.phone}</td>
-                  <td className="py-4 text-sm text-[#667085]">{patient.email}</td>
-                  <td className="py-4 text-sm text-[#0B1F55]">{patient.birthDate}</td>
-                  <td className="py-4 text-sm text-[#0B1F55]">{patient.gender}</td>
-                  <td className="py-4 text-sm text-[#0B1F55]">{patient.lastVisit}</td>
-                  <td className="py-4">
-                    <span
-                      className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${statusBadgeClass[patient.status]}`}
-                    >
-                      {patient.status}
-                    </span>
-                  </td>
-                  <td className="py-4">
-                    <div className="flex items-center gap-3 text-[#667085]">
-                      <button
-                        type="button"
-                        aria-label="Düzenle"
-                        onClick={(event) => event.stopPropagation()}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
-                      >
-                        <EditIcon />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label="Diğer işlemler"
-                        onClick={(event) => event.stopPropagation()}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
-                      >
-                        <MoreIcon />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label="Hastayı sil"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setPendingDeleteId(patient.id);
-                        }}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444]"
-                      >
-                        <TrashIcon />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          )}
-        </div>
-
-        <div className="mt-5 flex items-center justify-between border-t border-[#EAF0F8]/70 pt-5">
-          <p className="text-sm text-[#667085]">Toplam {filteredPatients.length} kayıt</p>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-label="Önceki sayfa"
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#EAF0F8] text-[#667085] hover:bg-[#F7F8FF]"
-            >
-              &lt;
-            </button>
-            <button
-              type="button"
-              className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#5B4DE3] text-sm font-semibold text-white"
-            >
-              1
-            </button>
-            <button
-              type="button"
-              aria-label="Sonraki sayfa"
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#EAF0F8] text-[#667085] hover:bg-[#F7F8FF]"
-            >
-              &gt;
-            </button>
+                  1
+                </button>
+                <button
+                  type="button"
+                  aria-label="Sonraki sayfa"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#EAF0F8] text-[#667085] hover:bg-[#F7F8FF]"
+                >
+                  &gt;
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
 
       <ConfirmDialog
         open={pendingDeleteId !== null}
