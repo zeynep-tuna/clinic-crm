@@ -1,24 +1,32 @@
-import { doctorAppointmentSummary } from "@/data/doctorAppointments";
+import type { Appointment } from "@/lib/appointments-api";
 import type { FilterValue } from "@/components/doctor/DoctorAppointmentsTable";
 
-type SummaryIcon = "today" | "confirmed" | "pending" | "completed";
+type SummaryIcon = "total" | "confirmed" | "pending" | "completed";
 
-const iconByCardId: Record<string, SummaryIcon> = {
-  today: "today",
-  confirmed: "confirmed",
-  pending: "pending",
-  completed: "completed",
+interface SummaryCard {
+  id: string;
+  icon: SummaryIcon;
+  title: string;
+  value: number;
+}
+
+const STATUS_LABELS: Record<Appointment["status"], string> = {
+  SCHEDULED: "Bekliyor",
+  CONFIRMED: "Onaylandı",
+  COMPLETED: "Tamamlandı",
+  CANCELLED: "İptal",
+  NO_SHOW: "Gelmedi",
 };
 
 const colorByCardId: Record<string, string> = {
-  today: "bg-[#EEF0FF] text-[#5B4DE3]",
+  total: "bg-[#EEF0FF] text-[#5B4DE3]",
   confirmed: "bg-[#DCFCE7] text-[#16A34A]",
   pending: "bg-[#FEF3C7] text-[#F59E0B]",
   completed: "bg-[#DBEAFE] text-[#2563EB]",
 };
 
 const filterByCardId: Record<string, FilterValue> = {
-  today: "Tümü",
+  total: "Tümü",
   confirmed: "Onaylandı",
   pending: "Bekliyor",
   completed: "Tamamlandı",
@@ -26,7 +34,7 @@ const filterByCardId: Record<string, FilterValue> = {
 
 function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
   switch (icon) {
-    case "today":
+    case "total":
       return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4.5 w-4.5">
           <rect x="4" y="5" width="16" height="15" rx="2" />
@@ -61,15 +69,29 @@ function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
 interface DoctorAppointmentSummaryCardsProps {
   activeFilter: FilterValue;
   onFilterChange: (filter: FilterValue) => void;
+  appointments: Appointment[];
 }
 
 export default function DoctorAppointmentSummaryCards({
   activeFilter,
   onFilterChange,
+  appointments,
 }: DoctorAppointmentSummaryCardsProps) {
+  const total = appointments.length;
+  const confirmed = appointments.filter((appointment) => STATUS_LABELS[appointment.status] === "Onaylandı").length;
+  const pending = appointments.filter((appointment) => STATUS_LABELS[appointment.status] === "Bekliyor").length;
+  const completed = appointments.filter((appointment) => STATUS_LABELS[appointment.status] === "Tamamlandı").length;
+
+  const cards: SummaryCard[] = [
+    { id: "total", icon: "total", title: "Toplam Randevu", value: total },
+    { id: "confirmed", icon: "confirmed", title: "Onaylanan", value: confirmed },
+    { id: "pending", icon: "pending", title: "Bekleyen", value: pending },
+    { id: "completed", icon: "completed", title: "Tamamlanan", value: completed },
+  ];
+
   return (
     <div className="grid grid-cols-2 gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-[#EEF2F8]">
-      {doctorAppointmentSummary.map((card) => {
+      {cards.map((card) => {
         const filterValue = filterByCardId[card.id] ?? "Tümü";
         const isSelected = activeFilter === filterValue;
 
@@ -83,9 +105,9 @@ export default function DoctorAppointmentSummaryCards({
             }`}
           >
             <span
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${colorByCardId[card.id] ?? "bg-[#EEF0FF] text-[#5B4DE3]"}`}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${colorByCardId[card.id]}`}
             >
-              <SummaryIconGlyph icon={iconByCardId[card.id] ?? "today"} />
+              <SummaryIconGlyph icon={card.icon} />
             </span>
             <div>
               <p className="text-xl font-bold text-[#0B1F55]">{card.value}</p>

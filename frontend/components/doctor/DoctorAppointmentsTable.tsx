@@ -1,21 +1,46 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { doctorAppointmentRows, type DoctorAppointmentStatus } from "@/data/doctorAppointments";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { listAppointments, type Appointment } from "@/lib/appointments-api";
 import DoctorAppointmentSummaryCards from "@/components/doctor/DoctorAppointmentSummaryCards";
 import EmptyState from "@/components/common/EmptyState";
-import ConfirmDialog from "@/components/common/ConfirmDialog";
 
-export type FilterValue = "Tümü" | DoctorAppointmentStatus;
+type UiStatus = "Bekliyor" | "Onaylandı" | "Tamamlandı" | "İptal" | "Gelmedi";
+
+export type FilterValue = "Tümü" | UiStatus;
 
 const filters: FilterValue[] = ["Tümü", "Onaylandı", "Bekliyor", "Tamamlandı", "İptal"];
 
-const statusBadgeClass: Record<DoctorAppointmentStatus, string> = {
+const statusBadgeClass: Record<UiStatus, string> = {
   Onaylandı: "bg-[#DCFCE7] text-[#16A34A]",
   Bekliyor: "bg-[#FEF3C7] text-[#F59E0B]",
   Tamamlandı: "bg-[#DBEAFE] text-[#2563EB]",
   İptal: "bg-[#FEE2E2] text-[#EF4444]",
+  Gelmedi: "bg-[#F3F4F6] text-[#667085]",
 };
+
+const STATUS_LABELS: Record<Appointment["status"], UiStatus> = {
+  SCHEDULED: "Bekliyor",
+  CONFIRMED: "Onaylandı",
+  COMPLETED: "Tamamlandı",
+  CANCELLED: "İptal",
+  NO_SHOW: "Gelmedi",
+};
+
+const timeFormatter = new Intl.DateTimeFormat("tr-TR", {
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+const dateFormatter = new Intl.DateTimeFormat("tr-TR", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
+const weekdayFormatter = new Intl.DateTimeFormat("tr-TR", {
+  weekday: "long",
+});
 
 const avatarPalette = [
   "bg-[#EEF0FF] text-[#5B4DE3]",
@@ -30,250 +55,256 @@ function getAvatarColor(id: string) {
   return avatarPalette[sum % avatarPalette.length];
 }
 
-function EditIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 4.5a2.1 2.1 0 0 1 3 3L7 20l-4 1 1-4Z" />
-    </svg>
-  );
+function getStatusLabel(appointment: Appointment): UiStatus {
+  return STATUS_LABELS[appointment.status];
 }
 
-function MoreIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-      <circle cx="5" cy="12" r="1.5" />
-      <circle cx="12" cy="12" r="1.5" />
-      <circle cx="19" cy="12" r="1.5" />
-    </svg>
-  );
+function getPatientName(appointment: Appointment) {
+  return `${appointment.patient.firstName} ${appointment.patient.lastName}`.trim();
 }
 
-function CancelIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
-      <circle cx="12" cy="12" r="8.5" />
-      <path strokeLinecap="round" d="M9.5 9.5l5 5M14.5 9.5l-5 5" />
-    </svg>
-  );
+function getAppointmentTitle(appointment: Appointment) {
+  return appointment.title ?? "—";
+}
+
+function formatAppointmentTime(startAt: string) {
+  return timeFormatter.format(new Date(startAt));
+}
+
+function formatAppointmentDate(startAt: string) {
+  return dateFormatter.format(new Date(startAt));
+}
+
+function formatAppointmentWeekday(startAt: string) {
+  const weekday = weekdayFormatter.format(new Date(startAt));
+  return weekday.charAt(0).toUpperCase() + weekday.slice(1);
 }
 
 export default function DoctorAppointmentsTable() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
-  const [appointmentList, setAppointmentList] = useState(doctorAppointmentRows);
-  const [pendingCancelId, setPendingCancelId] = useState<string | null>(null);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadAppointments = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const data = await listAppointments({ includeInactive: true });
+      setAppointments(data);
+    } catch {
+      setError("Randevular yüklenirken bir hata oluştu.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadAppointments();
+  }, [loadAppointments]);
 
   const filteredAppointments = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    return appointmentList.filter((appointment) => {
-      const matchesFilter = activeFilter === "Tümü" || appointment.status === activeFilter;
+    return appointments.filter((appointment) => {
+      const status = getStatusLabel(appointment);
+      const matchesFilter = activeFilter === "Tümü" || status === activeFilter;
       const matchesSearch =
         term === "" ||
-        appointment.patientName.toLowerCase().includes(term) ||
-        appointment.treatment.toLowerCase().includes(term) ||
-        appointment.status.toLowerCase().includes(term);
+        getPatientName(appointment).toLowerCase().includes(term) ||
+        getAppointmentTitle(appointment).toLowerCase().includes(term) ||
+        status.toLowerCase().includes(term);
       return matchesFilter && matchesSearch;
     });
-  }, [search, activeFilter, appointmentList]);
+  }, [search, activeFilter, appointments]);
 
   return (
     <div className="flex flex-col gap-5">
-      <DoctorAppointmentSummaryCards activeFilter={activeFilter} onFilterChange={setActiveFilter} />
-
-      <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="relative w-full max-w-xs">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.75}
-              className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98A2B3]"
-            >
-              <circle cx="11" cy="11" r="6.5" />
-              <path strokeLinecap="round" d="M20 20l-3.8-3.8" />
-            </svg>
-            <input
-              type="text"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Bu listede hasta, işlem veya randevu durumu ara..."
-              className="w-full rounded-xl border border-[#EAF0F8] bg-white py-2 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
-            />
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {filters.map((filter) => {
-              const isActive = activeFilter === filter;
-
-              return (
-                <button
-                  key={filter}
-                  type="button"
-                  onClick={() => setActiveFilter(filter)}
-                  className={`rounded-xl border px-3.5 py-1.5 text-sm font-medium transition-colors ${
-                    isActive
-                      ? "border-[#5B4DE3] bg-[#5B4DE3] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06),0_2px_6px_rgba(91,77,227,0.25)]"
-                      : "border-[#EAF0F8] text-[#0B1F55] hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
-                  }`}
-                >
-                  {filter}
-                </button>
-              );
-            })}
-          </div>
+      {isLoading && (
+        <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-10 text-center shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+          <p className="text-sm text-[#667085]">Randevular yükleniyor...</p>
         </div>
+      )}
 
-        <div className="mt-5 overflow-x-auto">
-          {appointmentList.length === 0 && (
-            <EmptyState
-              variant="empty"
-              title="Henüz randevunuz bulunmuyor"
-              description="Size atanmış muayene ve tedavi randevuları oluşturulduğunda burada görüntülenir."
-            />
-          )}
+      {!isLoading && error && (
+        <div className="flex flex-col items-center gap-3 rounded-[20px] border border-[#EAF0F8] bg-white p-10 text-center shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+          <p className="text-sm text-[#EF4444]">{error}</p>
+          <button
+            type="button"
+            onClick={loadAppointments}
+            className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+          >
+            Tekrar Dene
+          </button>
+        </div>
+      )}
 
-          {appointmentList.length > 0 && filteredAppointments.length === 0 && (
-            <EmptyState
-              variant="search"
-              title="Eşleşen randevu bulunamadı"
-              description="Hasta adı, işlem, tarih veya durum filtresini değiştirerek tekrar deneyin."
-              action={
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearch("");
-                    setActiveFilter("Tümü");
-                  }}
-                  className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+      {!isLoading && !error && (
+        <>
+          <DoctorAppointmentSummaryCards
+            appointments={appointments}
+            activeFilter={activeFilter}
+            onFilterChange={setActiveFilter}
+          />
+
+          <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="relative w-full max-w-xs">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.75}
+                  className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98A2B3]"
                 >
-                  Filtreleri temizle
-                </button>
-              }
-            />
-          )}
+                  <circle cx="11" cy="11" r="6.5" />
+                  <path strokeLinecap="round" d="M20 20l-3.8-3.8" />
+                </svg>
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Bu listede hasta, işlem veya randevu durumu ara..."
+                  className="w-full rounded-xl border border-[#EAF0F8] bg-white py-2 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                />
+              </div>
 
-          {filteredAppointments.length > 0 && (
-          <table className="w-full min-w-190 text-left">
-            <thead>
-              <tr className="border-b border-[#EEF2F8] text-xs font-semibold tracking-wide text-[#667085] uppercase">
-                <th className="pb-2.5 font-medium">Saat</th>
-                <th className="pb-2.5 font-medium">Hasta</th>
-                <th className="pb-2.5 font-medium">İşlem</th>
-                <th className="pb-2.5 font-medium">Tarih</th>
-                <th className="pb-2.5 font-medium">Durum</th>
-                <th className="pb-2.5 font-medium">İşlem</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredAppointments.map((appointment) => (
-                <tr
-                  key={appointment.id}
-                  className="cursor-pointer border-b border-[#EEF2F8] transition-colors last:border-0 hover:bg-[#F8F9FF]"
-                >
-                  <td className="py-4 text-sm font-semibold text-[#0B1F55]">{appointment.time}</td>
-                  <td className="py-4">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${getAvatarColor(appointment.id)}`}
-                      >
-                        {appointment.patientName.charAt(0)}
-                      </div>
-                      <span className="text-sm font-medium text-[#0B1F55]">{appointment.patientName}</span>
-                    </div>
-                  </td>
-                  <td className="py-4 text-sm text-[#0B1F55]">{appointment.treatment}</td>
-                  <td className="py-4 text-sm text-[#0B1F55]">{appointment.dateLabel}</td>
-                  <td className="py-4">
-                    <span
-                      className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${statusBadgeClass[appointment.status]}`}
+              <div className="flex flex-wrap items-center gap-2">
+                {filters.map((filter) => {
+                  const isActive = activeFilter === filter;
+
+                  return (
+                    <button
+                      key={filter}
+                      type="button"
+                      onClick={() => setActiveFilter(filter)}
+                      className={`rounded-xl border px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                        isActive
+                          ? "border-[#5B4DE3] bg-[#5B4DE3] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06),0_2px_6px_rgba(91,77,227,0.25)]"
+                          : "border-[#EAF0F8] text-[#0B1F55] hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
+                      }`}
                     >
-                      {appointment.status}
-                    </span>
-                  </td>
-                  <td className="py-4">
-                    <div className="flex items-center gap-2 text-[#667085]">
-                      <button
-                        type="button"
-                        aria-label="Düzenle"
-                        onClick={(event) => event.stopPropagation()}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F1F4FA] hover:text-[#0B1F55]"
-                      >
-                        <EditIcon />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label="Diğer işlemler"
-                        onClick={(event) => event.stopPropagation()}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F1F4FA] hover:text-[#0B1F55]"
-                      >
-                        <MoreIcon />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label="Randevuyu iptal et"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setPendingCancelId(appointment.id);
-                        }}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444]"
-                      >
-                        <CancelIcon />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          )}
-        </div>
+                      {filter}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-        <div className="mt-5 flex items-center justify-between border-t border-[#EEF2F8] pt-5">
-          <p className="text-sm text-[#667085]">Toplam {filteredAppointments.length} kayıt</p>
+            <div className="mt-5 overflow-x-auto">
+              {appointments.length === 0 && (
+                <EmptyState
+                  variant="empty"
+                  title="Henüz randevunuz bulunmuyor"
+                  description="Size atanmış muayene ve tedavi randevuları oluşturulduğunda burada görüntülenir."
+                />
+              )}
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-label="Önceki sayfa"
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#EAF0F8] text-[#667085] hover:bg-[#F7F8FF]"
-            >
-              &lt;
-            </button>
-            <button
-              type="button"
-              className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#5B4DE3] text-sm font-semibold text-white"
-            >
-              1
-            </button>
-            <button
-              type="button"
-              aria-label="Sonraki sayfa"
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#EAF0F8] text-[#667085] hover:bg-[#F7F8FF]"
-            >
-              &gt;
-            </button>
+              {appointments.length > 0 && filteredAppointments.length === 0 && (
+                <EmptyState
+                  variant="search"
+                  title="Eşleşen randevu bulunamadı"
+                  description="Hasta adı, işlem, tarih veya durum filtresini değiştirerek tekrar deneyin."
+                  action={
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearch("");
+                        setActiveFilter("Tümü");
+                      }}
+                      className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+                    >
+                      Filtreleri temizle
+                    </button>
+                  }
+                />
+              )}
+
+              {filteredAppointments.length > 0 && (
+              <table className="w-full min-w-190 text-left">
+                <thead>
+                  <tr className="border-b border-[#EEF2F8] text-xs font-semibold tracking-wide text-[#667085] uppercase">
+                    <th className="pb-2.5 font-medium">Saat</th>
+                    <th className="pb-2.5 font-medium">Hasta</th>
+                    <th className="pb-2.5 font-medium">İşlem</th>
+                    <th className="pb-2.5 font-medium">Tarih</th>
+                    <th className="pb-2.5 font-medium">Durum</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredAppointments.map((appointment) => {
+                    const patientName = getPatientName(appointment);
+                    const status = getStatusLabel(appointment);
+
+                    return (
+                    <tr
+                      key={appointment.id}
+                      className="border-b border-[#EEF2F8] transition-colors last:border-0 hover:bg-[#F8F9FF]"
+                    >
+                      <td className="py-4 text-sm font-semibold text-[#0B1F55]">
+                        {formatAppointmentTime(appointment.startAt)}
+                      </td>
+                      <td className="py-4">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${getAvatarColor(appointment.id)}`}
+                          >
+                            {patientName.charAt(0)}
+                          </div>
+                          <span className="text-sm font-medium text-[#0B1F55]">{patientName}</span>
+                        </div>
+                      </td>
+                      <td className="py-4 text-sm text-[#0B1F55]">{getAppointmentTitle(appointment)}</td>
+                      <td className="py-4 text-sm text-[#0B1F55]">
+                        <p>{formatAppointmentDate(appointment.startAt)}</p>
+                        <p className="text-xs text-[#667085]">{formatAppointmentWeekday(appointment.startAt)}</p>
+                      </td>
+                      <td className="py-4">
+                        <span
+                          className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${statusBadgeClass[status]}`}
+                        >
+                          {status}
+                        </span>
+                      </td>
+                    </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              )}
+            </div>
+
+            <div className="mt-5 flex items-center justify-between border-t border-[#EEF2F8] pt-5">
+              <p className="text-sm text-[#667085]">Toplam {filteredAppointments.length} kayıt</p>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  aria-label="Önceki sayfa"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#EAF0F8] text-[#667085] hover:bg-[#F7F8FF]"
+                >
+                  &lt;
+                </button>
+                <button
+                  type="button"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#5B4DE3] text-sm font-semibold text-white"
+                >
+                  1
+                </button>
+                <button
+                  type="button"
+                  aria-label="Sonraki sayfa"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#EAF0F8] text-[#667085] hover:bg-[#F7F8FF]"
+                >
+                  &gt;
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-
-      <ConfirmDialog
-        open={pendingCancelId !== null}
-        title="Randevuyu iptal etmek istiyor musunuz?"
-        description="Seçili hasta randevusu iptal edilecek. Bu işlem demo ortamında yalnızca arayüz üzerinde uygulanır."
-        confirmLabel="Randevuyu İptal Et"
-        variant="warning"
-        onConfirm={() => {
-          setAppointmentList((prev) =>
-            prev.map((appointment) =>
-              appointment.id === pendingCancelId ? { ...appointment, status: "İptal" } : appointment
-            )
-          );
-          setPendingCancelId(null);
-        }}
-        onCancel={() => setPendingCancelId(null)}
-      />
+        </>
+      )}
     </div>
   );
 }
