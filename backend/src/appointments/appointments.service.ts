@@ -139,7 +139,7 @@ export class AppointmentsService {
   ) {
     const existing = await this.findByIdAndClinic(id, userClinicId);
 
-    const { patientId, doctorId, startAt, endAt, ...rest } =
+    const { patientId, doctorId, startAt, endAt, status, ...rest } =
       updateAppointmentDto;
 
     if (patientId !== undefined) {
@@ -155,10 +155,16 @@ export class AppointmentsService {
 
     this.validateDateRange(nextStartAt, nextEndAt);
 
+    const nextStatus = status ?? existing.status;
+    const isReactivating =
+      NON_CONFLICTING_STATUSES.includes(existing.status) &&
+      !NON_CONFLICTING_STATUSES.includes(nextStatus);
+
     if (
       doctorId !== undefined ||
       startAt !== undefined ||
-      endAt !== undefined
+      endAt !== undefined ||
+      isReactivating
     ) {
       const nextDoctorId = doctorId ?? existing.doctorId;
 
@@ -179,6 +185,7 @@ export class AppointmentsService {
         ...(doctorId !== undefined ? { doctorId } : {}),
         ...(startAt !== undefined ? { startAt: nextStartAt } : {}),
         ...(endAt !== undefined ? { endAt: nextEndAt } : {}),
+        ...(status !== undefined ? { status } : {}),
       },
       include: { patient: true, doctor: true },
     });

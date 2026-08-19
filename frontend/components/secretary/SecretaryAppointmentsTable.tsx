@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ApiError } from "@/lib/api";
 import { updateAppointment, type Appointment } from "@/lib/appointments-api";
 import EmptyState from "@/components/common/EmptyState";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
@@ -85,29 +86,20 @@ function formatAppointmentWeekday(startAt: string) {
   return weekday.charAt(0).toUpperCase() + weekday.slice(1);
 }
 
-function EditIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 4.5a2.1 2.1 0 0 1 3 3L7 20l-4 1 1-4Z" />
-    </svg>
-  );
-}
-
-function MoreIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-      <circle cx="5" cy="12" r="1.5" />
-      <circle cx="12" cy="12" r="1.5" />
-      <circle cx="19" cy="12" r="1.5" />
-    </svg>
-  );
-}
-
 function CancelIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
       <circle cx="12" cy="12" r="8.5" />
       <path strokeLinecap="round" d="M9.5 9.5l5 5M14.5 9.5l-5 5" />
+    </svg>
+  );
+}
+
+function RestoreIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 9A7.5 7.5 0 1 1 6 15" />
     </svg>
   );
 }
@@ -129,6 +121,9 @@ export default function SecretaryAppointmentsTable({
   const [pendingCancelId, setPendingCancelId] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [cancelError, setCancelError] = useState<string | null>(null);
+  const [pendingUndoId, setPendingUndoId] = useState<string | null>(null);
+  const [undoingId, setUndoingId] = useState<string | null>(null);
+  const [undoError, setUndoError] = useState<{ appointmentId: string; message: string } | null>(null);
 
   const filteredAppointments = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -150,6 +145,7 @@ export default function SecretaryAppointmentsTable({
 
     setPendingCancelId(null);
     setCancelError(null);
+    setUndoError(null);
     setCancellingId(appointmentId);
 
     try {
@@ -159,6 +155,34 @@ export default function SecretaryAppointmentsTable({
       setCancelError("Randevu iptal edilirken bir hata oluştu.");
     } finally {
       setCancellingId(null);
+    }
+  }
+
+  async function handleConfirmUndo() {
+    const appointmentId = pendingUndoId;
+    if (!appointmentId) return;
+
+    setPendingUndoId(null);
+    setUndoError(null);
+    setUndoingId(appointmentId);
+
+    try {
+      await updateAppointment(appointmentId, { status: "SCHEDULED" });
+      await onRefresh();
+    } catch (error) {
+      const isConflict =
+        error instanceof ApiError &&
+        error.status === 400 &&
+        error.message.includes("already has an active appointment");
+
+      setUndoError({
+        appointmentId,
+        message: isConflict
+          ? "Bu saat artık müsait değil. Randevu iptali geri alınamadı."
+          : "Randevu iptali geri alınırken bir hata oluştu.",
+      });
+    } finally {
+      setUndoingId(null);
     }
   }
 
@@ -260,8 +284,10 @@ export default function SecretaryAppointmentsTable({
             {filteredAppointments.map((appointment) => {
               const patientName = getPatientName(appointment);
               const status = getStatusLabel(appointment);
+              const rowUndoError =
+                undoError?.appointmentId === appointment.id ? undoError.message : null;
 
-              return (
+              return [
               <tr
                 key={appointment.id}
                 className="border-b border-[#EAF0F8]/60 transition-colors last:border-0 hover:bg-[#F8F9FF]"
@@ -297,33 +323,39 @@ export default function SecretaryAppointmentsTable({
                 </td>
                 <td className="py-4">
                   <div className="flex items-center gap-3 text-[#667085]">
-                    <button
-                      type="button"
-                      aria-label="Düzenle"
-                      className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
-                    >
-                      <EditIcon />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Diğer işlemler"
-                      className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
-                    >
-                      <MoreIcon />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Randevuyu iptal et"
-                      disabled={cancellingId === appointment.id}
-                      onClick={() => setPendingCancelId(appointment.id)}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444] disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <CancelIcon />
-                    </button>
+                    {(status === "Bekliyor" || status === "Onaylandı") && (
+                      <button
+                        type="button"
+                        aria-label="Randevuyu iptal et"
+                        disabled={cancellingId === appointment.id}
+                        onClick={() => setPendingCancelId(appointment.id)}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444] disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <CancelIcon />
+                      </button>
+                    )}
+                    {status === "İptal" && (
+                      <button
+                        type="button"
+                        aria-label="Randevu iptalini geri al"
+                        disabled={undoingId === appointment.id}
+                        onClick={() => setPendingUndoId(appointment.id)}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#EEF0FF] hover:text-[#5B4DE3] disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <RestoreIcon />
+                      </button>
+                    )}
                   </div>
                 </td>
-              </tr>
-              );
+              </tr>,
+              rowUndoError && (
+                <tr key={`${appointment.id}-undo-error`} className="border-b border-[#EAF0F8]/60 last:border-0">
+                  <td colSpan={7} className="bg-[#FEF2F2] px-4 py-2.5 text-sm text-[#EF4444]">
+                    {rowUndoError}
+                  </td>
+                </tr>
+              ),
+              ];
             })}
           </tbody>
         </table>
@@ -365,6 +397,16 @@ export default function SecretaryAppointmentsTable({
         variant="warning"
         onConfirm={handleConfirmCancel}
         onCancel={() => setPendingCancelId(null)}
+      />
+
+      <ConfirmDialog
+        open={pendingUndoId !== null}
+        title="Randevu iptalini geri almak istiyor musunuz?"
+        description="Randevu yeniden Bekliyor durumuna alınacaktır."
+        confirmLabel="İptali Geri Al"
+        variant="warning"
+        onConfirm={handleConfirmUndo}
+        onCancel={() => setPendingUndoId(null)}
       />
     </div>
   );
