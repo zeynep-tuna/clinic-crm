@@ -1,19 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { doctorPatients, type DoctorPatientStatus } from "@/data/doctorPatients";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { listPatients, type Patient } from "@/lib/patients-api";
 import DoctorPatientSummaryCards from "@/components/doctor/DoctorPatientSummaryCards";
 import EmptyState from "@/components/common/EmptyState";
-import ConfirmDialog from "@/components/common/ConfirmDialog";
 
-export type FilterValue = "Tümü" | DoctorPatientStatus;
+type UiStatus = "Aktif" | "Pasif";
 
-const filters: FilterValue[] = ["Tümü", "Aktif", "Kontrol Bekliyor", "Tedavi Devam Ediyor"];
+export type FilterValue = "Tümü" | UiStatus;
 
-const statusBadgeClass: Record<DoctorPatientStatus, string> = {
+const filters: FilterValue[] = ["Tümü", "Aktif", "Pasif"];
+
+const statusBadgeClass: Record<UiStatus, string> = {
   Aktif: "bg-[#DCFCE7] text-[#16A34A]",
-  "Kontrol Bekliyor": "bg-[#FEF3C7] text-[#F59E0B]",
-  "Tedavi Devam Ediyor": "bg-[#DBEAFE] text-[#2563EB]",
+  Pasif: "bg-[#F3F4F6] text-[#667085]",
 };
 
 const avatarPalette = [
@@ -29,12 +29,16 @@ function getAvatarColor(id: string) {
   return avatarPalette[sum % avatarPalette.length];
 }
 
-function EditIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 4.5a2.1 2.1 0 0 1 3 3L7 20l-4 1 1-4Z" />
-    </svg>
-  );
+function getFullName(patient: Patient) {
+  return `${patient.firstName} ${patient.lastName}`.trim();
+}
+
+function getStatusLabel(patient: Patient): UiStatus {
+  return patient.isActive ? "Aktif" : "Pasif";
+}
+
+function formatNullable(value: string | null) {
+  return value ?? "—";
 }
 
 function MoreIcon() {
@@ -47,233 +51,236 @@ function MoreIcon() {
   );
 }
 
-function RemoveIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
-      <circle cx="12" cy="12" r="8.5" />
-      <path strokeLinecap="round" d="M8.5 12h7" />
-    </svg>
-  );
-}
-
 export default function DoctorPatientsTable() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
-  const [patientList, setPatientList] = useState(doctorPatients);
-  const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null);
+  const [patientList, setPatientList] = useState<Patient[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadPatients = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const data = await listPatients({ includeInactive: true });
+      setPatientList(data);
+    } catch {
+      setError("Hastalar yüklenirken bir hata oluştu.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadPatients();
+  }, [loadPatients]);
 
   const filteredPatients = useMemo(() => {
     const term = search.trim().toLowerCase();
 
     return patientList.filter((patient) => {
-      const matchesFilter = activeFilter === "Tümü" || patient.status === activeFilter;
-      const matchesSearch =
-        term === "" ||
-        patient.fullName.toLowerCase().includes(term) ||
-        patient.treatmentStatus.toLowerCase().includes(term);
+      const status = getStatusLabel(patient);
+      const matchesFilter = activeFilter === "Tümü" || status === activeFilter;
+      const matchesSearch = term === "" || getFullName(patient).toLowerCase().includes(term);
       return matchesFilter && matchesSearch;
     });
   }, [search, activeFilter, patientList]);
 
   return (
     <div className="flex flex-col gap-5">
-      <DoctorPatientSummaryCards activeFilter={activeFilter} onFilterChange={setActiveFilter} />
-
-      <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="relative w-full max-w-xs">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.75}
-              className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98A2B3]"
-            >
-              <circle cx="11" cy="11" r="6.5" />
-              <path strokeLinecap="round" d="M20 20l-3.8-3.8" />
-            </svg>
-            <input
-              type="text"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Bu listede hasta veya tedavi durumu ara..."
-              className="w-full rounded-xl border border-[#EAF0F8] bg-white py-2 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
-            />
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {filters.map((filter) => {
-              const isActive = activeFilter === filter;
-
-              return (
-                <button
-                  key={filter}
-                  type="button"
-                  onClick={() => setActiveFilter(filter)}
-                  className={`rounded-xl border px-3.5 py-1.5 text-sm font-medium transition-colors ${
-                    isActive
-                      ? "border-[#5B4DE3] bg-[#5B4DE3] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06),0_2px_6px_rgba(91,77,227,0.25)]"
-                      : "border-[#EAF0F8] text-[#0B1F55] hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
-                  }`}
-                >
-                  {filter}
-                </button>
-              );
-            })}
-          </div>
+      {isLoading && (
+        <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-10 text-center shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+          <p className="text-sm text-[#667085]">Hastalar yükleniyor...</p>
         </div>
+      )}
 
-        <div className="mt-5 overflow-x-auto">
-          {patientList.length === 0 && (
-            <EmptyState
-              variant="empty"
-              title="Henüz size atanmış hasta yok"
-              description="Size atanmış diş kliniği hastaları olduğunda tedavi ve takip bilgileri burada görüntülenir."
-            />
-          )}
+      {!isLoading && error && (
+        <div className="flex flex-col items-center gap-3 rounded-[20px] border border-[#EAF0F8] bg-white p-10 text-center shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+          <p className="text-sm text-[#EF4444]">{error}</p>
+          <button
+            type="button"
+            onClick={loadPatients}
+            className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+          >
+            Tekrar Dene
+          </button>
+        </div>
+      )}
 
-          {patientList.length > 0 && filteredPatients.length === 0 && (
-            <EmptyState
-              variant="search"
-              title="Eşleşen hasta bulunamadı"
-              description="Hasta adı, tedavi durumu veya seçili filtreyi değiştirerek tekrar deneyin."
-              action={
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearch("");
-                    setActiveFilter("Tümü");
-                  }}
-                  className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+      {!isLoading && !error && (
+        <>
+          <DoctorPatientSummaryCards
+            activeFilter={activeFilter}
+            onFilterChange={setActiveFilter}
+            patients={patientList}
+          />
+
+          <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="relative w-full max-w-xs">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.75}
+                  className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98A2B3]"
                 >
-                  Filtreleri temizle
-                </button>
-              }
-            />
-          )}
+                  <circle cx="11" cy="11" r="6.5" />
+                  <path strokeLinecap="round" d="M20 20l-3.8-3.8" />
+                </svg>
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Bu listede hasta ara..."
+                  className="w-full rounded-xl border border-[#EAF0F8] bg-white py-2 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                />
+              </div>
 
-          {filteredPatients.length > 0 && (
-          <table className="w-full min-w-220 text-left">
-            <thead>
-              <tr className="border-b border-[#EEF2F8] text-xs font-semibold tracking-wide text-[#667085] uppercase">
-                <th className="pb-2.5 font-medium">Hasta Adı</th>
-                <th className="pb-2.5 font-medium">Telefon</th>
-                <th className="pb-2.5 font-medium">Son Ziyaret</th>
-                <th className="pb-2.5 font-medium">Tedavi Durumu</th>
-                <th className="pb-2.5 font-medium">Son Not</th>
-                <th className="pb-2.5 font-medium">Durum</th>
-                <th className="pb-2.5 font-medium">İşlem</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPatients.map((patient) => (
-                <tr
-                  key={patient.id}
-                  className="cursor-pointer border-b border-[#EEF2F8] transition-colors last:border-0 hover:bg-[#F8F9FF]"
-                >
-                  <td className="py-4">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${getAvatarColor(patient.id)}`}
-                      >
-                        {patient.fullName.charAt(0)}
-                      </div>
-                      <span className="text-sm font-medium text-[#0B1F55]">{patient.fullName}</span>
-                    </div>
-                  </td>
-                  <td className="py-4 text-sm text-[#0B1F55]">{patient.phone}</td>
-                  <td className="py-4 text-sm text-[#0B1F55]">{patient.lastVisit}</td>
-                  <td className="py-4 text-sm text-[#0B1F55]">{patient.treatmentStatus}</td>
-                  <td className="py-4 text-sm text-[#667085]">
-                    <span className="block max-w-52 truncate" title={patient.lastNote}>
-                      {patient.lastNote}
-                    </span>
-                  </td>
-                  <td className="py-4">
-                    <span
-                      className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${statusBadgeClass[patient.status]}`}
+              <div className="flex flex-wrap items-center gap-2">
+                {filters.map((filter) => {
+                  const isActive = activeFilter === filter;
+
+                  return (
+                    <button
+                      key={filter}
+                      type="button"
+                      onClick={() => setActiveFilter(filter)}
+                      className={`rounded-xl border px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                        isActive
+                          ? "border-[#5B4DE3] bg-[#5B4DE3] text-white shadow-[0_1px_2px_rgba(16,24,40,0.06),0_2px_6px_rgba(91,77,227,0.25)]"
+                          : "border-[#EAF0F8] text-[#0B1F55] hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
+                      }`}
                     >
-                      {patient.status}
-                    </span>
-                  </td>
-                  <td className="py-4">
-                    <div className="flex items-center gap-2 text-[#667085]">
-                      <button
-                        type="button"
-                        aria-label="Düzenle"
-                        onClick={(event) => event.stopPropagation()}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F1F4FA] hover:text-[#0B1F55]"
-                      >
-                        <EditIcon />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label="Diğer işlemler"
-                        onClick={(event) => event.stopPropagation()}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F1F4FA] hover:text-[#0B1F55]"
-                      >
-                        <MoreIcon />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label="Hastayı kaldır"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setPendingRemoveId(patient.id);
-                        }}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEF3C7] hover:text-[#F59E0B]"
-                      >
-                        <RemoveIcon />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          )}
-        </div>
+                      {filter}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-        <div className="mt-5 flex items-center justify-between border-t border-[#EEF2F8] pt-5">
-          <p className="text-sm text-[#667085]">Toplam {filteredPatients.length} kayıt</p>
+            <div className="mt-5 overflow-x-auto">
+              {patientList.length === 0 && (
+                <EmptyState
+                  variant="empty"
+                  title="Henüz size atanmış hasta yok"
+                  description="Size atanmış diş kliniği hastaları olduğunda tedavi ve takip bilgileri burada görüntülenir."
+                />
+              )}
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-label="Önceki sayfa"
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#EAF0F8] text-[#667085] hover:bg-[#F7F8FF]"
-            >
-              &lt;
-            </button>
-            <button
-              type="button"
-              className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#5B4DE3] text-sm font-semibold text-white"
-            >
-              1
-            </button>
-            <button
-              type="button"
-              aria-label="Sonraki sayfa"
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#EAF0F8] text-[#667085] hover:bg-[#F7F8FF]"
-            >
-              &gt;
-            </button>
+              {patientList.length > 0 && filteredPatients.length === 0 && (
+                <EmptyState
+                  variant="search"
+                  title="Eşleşen hasta bulunamadı"
+                  description="Hasta adı veya seçili filtreyi değiştirerek tekrar deneyin."
+                  action={
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearch("");
+                        setActiveFilter("Tümü");
+                      }}
+                      className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+                    >
+                      Filtreleri temizle
+                    </button>
+                  }
+                />
+              )}
+
+              {filteredPatients.length > 0 && (
+              <table className="w-full min-w-220 text-left">
+                <thead>
+                  <tr className="border-b border-[#EEF2F8] text-xs font-semibold tracking-wide text-[#667085] uppercase">
+                    <th className="pb-2.5 font-medium">Hasta Adı</th>
+                    <th className="pb-2.5 font-medium">Telefon</th>
+                    <th className="pb-2.5 font-medium">Son Ziyaret</th>
+                    <th className="pb-2.5 font-medium">Tedavi Durumu</th>
+                    <th className="pb-2.5 font-medium">Son Not</th>
+                    <th className="pb-2.5 font-medium">Durum</th>
+                    <th className="pb-2.5 font-medium">İşlem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredPatients.map((patient) => {
+                    const fullName = getFullName(patient);
+                    const status = getStatusLabel(patient);
+
+                    return (
+                    <tr
+                      key={patient.id}
+                      className="border-b border-[#EEF2F8] transition-colors last:border-0"
+                    >
+                      <td className="py-4">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${getAvatarColor(patient.id)}`}
+                          >
+                            {fullName.charAt(0)}
+                          </div>
+                          <span className="text-sm font-medium text-[#0B1F55]">{fullName}</span>
+                        </div>
+                      </td>
+                      <td className="py-4 text-sm text-[#0B1F55]">{formatNullable(patient.phone)}</td>
+                      <td className="py-4 text-sm text-[#0B1F55]">—</td>
+                      <td className="py-4 text-sm text-[#0B1F55]">—</td>
+                      <td className="py-4 text-sm text-[#667085]">—</td>
+                      <td className="py-4">
+                        <span
+                          className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${statusBadgeClass[status]}`}
+                        >
+                          {status}
+                        </span>
+                      </td>
+                      <td className="py-4">
+                        <div className="flex items-center gap-2 text-[#667085]">
+                          <button
+                            type="button"
+                            aria-label="Diğer işlemler"
+                            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F1F4FA] hover:text-[#0B1F55]"
+                          >
+                            <MoreIcon />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              )}
+            </div>
+
+            <div className="mt-5 flex items-center justify-between border-t border-[#EEF2F8] pt-5">
+              <p className="text-sm text-[#667085]">Toplam {filteredPatients.length} kayıt</p>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  aria-label="Önceki sayfa"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#EAF0F8] text-[#667085] hover:bg-[#F7F8FF]"
+                >
+                  &lt;
+                </button>
+                <button
+                  type="button"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#5B4DE3] text-sm font-semibold text-white"
+                >
+                  1
+                </button>
+                <button
+                  type="button"
+                  aria-label="Sonraki sayfa"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#EAF0F8] text-[#667085] hover:bg-[#F7F8FF]"
+                >
+                  &gt;
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-
-      <ConfirmDialog
-        open={pendingRemoveId !== null}
-        title="Hasta kaydını kaldırmak istiyor musunuz?"
-        description="Seçili hasta kaydı diş hekimi takip listesinden kaldırılacak. Bu işlem demo ortamında yalnızca arayüz üzerinde uygulanır."
-        confirmLabel="Hastayı Kaldır"
-        variant="warning"
-        onConfirm={() => {
-          setPatientList((prev) => prev.filter((patient) => patient.id !== pendingRemoveId));
-          setPendingRemoveId(null);
-        }}
-        onCancel={() => setPendingRemoveId(null)}
-      />
+        </>
+      )}
     </div>
   );
 }

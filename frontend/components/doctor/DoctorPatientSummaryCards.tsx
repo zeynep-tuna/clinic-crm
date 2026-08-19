@@ -1,7 +1,7 @@
-import { doctorPatients } from "@/data/doctorPatients";
+import type { Patient } from "@/lib/patients-api";
 import type { FilterValue } from "@/components/doctor/DoctorPatientsTable";
 
-type SummaryIcon = "total" | "active" | "pending" | "inTreatment";
+type SummaryIcon = "total" | "active" | "inactive";
 
 interface SummaryCard {
   id: string;
@@ -13,15 +13,13 @@ interface SummaryCard {
 const colorByCardId: Record<string, string> = {
   total: "bg-[#EEF0FF] text-[#5B4DE3]",
   active: "bg-[#DCFCE7] text-[#16A34A]",
-  pending: "bg-[#FEF3C7] text-[#F59E0B]",
-  inTreatment: "bg-[#DBEAFE] text-[#2563EB]",
+  inactive: "bg-[#F3F4F6] text-[#667085]",
 };
 
 const filterByCardId: Record<string, FilterValue> = {
   total: "Tümü",
   active: "Aktif",
-  pending: "Kontrol Bekliyor",
-  inTreatment: "Tedavi Devam Ediyor",
+  inactive: "Pasif",
 };
 
 function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
@@ -41,22 +39,11 @@ function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M8.5 12.5l2.3 2.3 4.7-5.1" />
         </svg>
       );
-    case "pending":
+    case "inactive":
       return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4.5 w-4.5">
           <circle cx="12" cy="12" r="8.5" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5V12l3 2" />
-        </svg>
-      );
-    case "inTreatment":
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4.5 w-4.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v6M9 6h6" />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M7 11h10l-1.2 8.4a2 2 0 0 1-2 1.6H10.2a2 2 0 0 1-2-1.6L7 11Z"
-          />
+          <path strokeLinecap="round" d="M10 9.5v5M14 9.5v5" />
         </svg>
       );
     default:
@@ -67,26 +54,26 @@ function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
 interface DoctorPatientSummaryCardsProps {
   activeFilter: FilterValue;
   onFilterChange: (filter: FilterValue) => void;
+  patients: Patient[];
 }
 
 export default function DoctorPatientSummaryCards({
   activeFilter,
   onFilterChange,
+  patients,
 }: DoctorPatientSummaryCardsProps) {
-  const total = doctorPatients.length;
-  const active = doctorPatients.filter((patient) => patient.status === "Aktif").length;
-  const pendingCheck = doctorPatients.filter((patient) => patient.status === "Kontrol Bekliyor").length;
-  const inTreatment = doctorPatients.filter((patient) => patient.status === "Tedavi Devam Ediyor").length;
+  const total = patients.length;
+  const active = patients.filter((patient) => patient.isActive).length;
+  const inactive = patients.filter((patient) => !patient.isActive).length;
 
   const cards: SummaryCard[] = [
     { id: "total", icon: "total", title: "Toplam Hasta", value: total },
     { id: "active", icon: "active", title: "Aktif Hasta", value: active },
-    { id: "pending", icon: "pending", title: "Kontrol Bekliyor", value: pendingCheck },
-    { id: "inTreatment", icon: "inTreatment", title: "Tedavisi Devam Eden", value: inTreatment },
+    { id: "inactive", icon: "inactive", title: "Pasif Hasta", value: inactive },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-[#EEF2F8]">
+    <div className="grid grid-cols-3 gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:gap-0 sm:divide-x sm:divide-[#EEF2F8]">
       {cards.map((card) => {
         const filterValue = filterByCardId[card.id] ?? "Tümü";
         const isSelected = activeFilter === filterValue;
