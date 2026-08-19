@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { deletePatient, listPatients, type Patient } from "@/lib/patients-api";
+import { deletePatient, listPatients, updatePatient, type Patient } from "@/lib/patients-api";
 import EmptyState from "@/components/common/EmptyState";
 import AddPatientModal from "@/components/patients/AddPatientModal";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
@@ -90,6 +90,15 @@ function PauseCircleIcon() {
   );
 }
 
+function RestoreIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 9A7.5 7.5 0 1 1 6 15" />
+    </svg>
+  );
+}
+
 interface PatientsTableProps {
   refreshKey?: number;
 }
@@ -104,6 +113,9 @@ export default function PatientsTable({ refreshKey }: PatientsTableProps) {
   const [pendingDeactivateId, setPendingDeactivateId] = useState<string | null>(null);
   const [deactivatingId, setDeactivatingId] = useState<string | null>(null);
   const [deactivateError, setDeactivateError] = useState<string | null>(null);
+  const [pendingReactivateId, setPendingReactivateId] = useState<string | null>(null);
+  const [reactivatingId, setReactivatingId] = useState<string | null>(null);
+  const [reactivateError, setReactivateError] = useState<string | null>(null);
 
   const loadPatients = useCallback(async () => {
     setIsLoading(true);
@@ -138,6 +150,24 @@ export default function PatientsTable({ refreshKey }: PatientsTableProps) {
       setDeactivateError("Hasta pasifleştirilirken bir hata oluştu.");
     } finally {
       setDeactivatingId(null);
+    }
+  }
+
+  async function handleConfirmReactivate() {
+    const patientId = pendingReactivateId;
+    if (!patientId) return;
+
+    setPendingReactivateId(null);
+    setReactivateError(null);
+    setReactivatingId(patientId);
+
+    try {
+      await updatePatient(patientId, { isActive: true });
+      await loadPatients();
+    } catch {
+      setReactivateError("Hasta tekrar aktifleştirilirken bir hata oluştu.");
+    } finally {
+      setReactivatingId(null);
     }
   }
 
@@ -215,6 +245,12 @@ export default function PatientsTable({ refreshKey }: PatientsTableProps) {
           {deactivateError && (
             <div className="rounded-[20px] border border-[#FEE2E2] bg-[#FEF2F2] px-5 py-3 text-sm text-[#EF4444]">
               {deactivateError}
+            </div>
+          )}
+
+          {reactivateError && (
+            <div className="rounded-[20px] border border-[#FEE2E2] bg-[#FEF2F2] px-5 py-3 text-sm text-[#EF4444]">
+              {reactivateError}
             </div>
           )}
 
@@ -365,8 +401,8 @@ export default function PatientsTable({ refreshKey }: PatientsTableProps) {
                         </span>
                       </td>
                       <td className="py-4">
-                        {patient.isActive ? (
-                          <div className="flex items-center gap-3 text-[#667085]">
+                        <div className="flex items-center gap-3 text-[#667085]">
+                          {patient.isActive ? (
                             <button
                               type="button"
                               aria-label="Hastayı pasifleştir"
@@ -379,10 +415,21 @@ export default function PatientsTable({ refreshKey }: PatientsTableProps) {
                             >
                               <PauseCircleIcon />
                             </button>
-                          </div>
-                        ) : (
-                          <span className="text-sm text-[#667085]">—</span>
-                        )}
+                          ) : (
+                            <button
+                              type="button"
+                              aria-label="Hastayı tekrar aktifleştir"
+                              disabled={reactivatingId === patient.id}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setPendingReactivateId(patient.id);
+                              }}
+                              className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#EEF0FF] hover:text-[#5B4DE3] disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              <RestoreIcon />
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                     );
@@ -430,6 +477,16 @@ export default function PatientsTable({ refreshKey }: PatientsTableProps) {
         variant="warning"
         onConfirm={handleConfirmDeactivate}
         onCancel={() => setPendingDeactivateId(null)}
+      />
+
+      <ConfirmDialog
+        open={pendingReactivateId !== null}
+        title="Hastayı tekrar aktifleştirmek istiyor musunuz?"
+        description="Seçili hasta yeniden aktif duruma alınacak ve aktif hasta listelerinde görünecektir."
+        confirmLabel="Tekrar Aktifleştir"
+        variant="warning"
+        onConfirm={handleConfirmReactivate}
+        onCancel={() => setPendingReactivateId(null)}
       />
     </div>
   );
