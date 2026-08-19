@@ -1,21 +1,47 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { secretaryAppointmentRows, type SecretaryAppointmentStatus } from "@/data/secretaryAppointments";
+import { updateAppointment, type Appointment } from "@/lib/appointments-api";
 import EmptyState from "@/components/common/EmptyState";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import AddSecretaryAppointmentModal from "@/components/secretary/AddSecretaryAppointmentModal";
 
-export type FilterValue = "Tümü" | SecretaryAppointmentStatus;
+type UiStatus = "Bekliyor" | "Onaylandı" | "Tamamlandı" | "İptal" | "Gelmedi";
+
+export type FilterValue = "Tümü" | UiStatus;
 
 const filters: FilterValue[] = ["Tümü", "Onaylandı", "Bekliyor", "Tamamlandı", "İptal"];
 
-const statusBadgeClass: Record<SecretaryAppointmentStatus, string> = {
+const statusBadgeClass: Record<UiStatus, string> = {
   Onaylandı: "bg-[#DCFCE7] text-[#16A34A]",
   Bekliyor: "bg-[#FEF3C7] text-[#F59E0B]",
   Tamamlandı: "bg-[#DBEAFE] text-[#2563EB]",
   İptal: "bg-[#FEE2E2] text-[#EF4444]",
+  Gelmedi: "bg-[#F3F4F6] text-[#667085]",
 };
+
+const STATUS_LABELS: Record<Appointment["status"], UiStatus> = {
+  SCHEDULED: "Bekliyor",
+  CONFIRMED: "Onaylandı",
+  COMPLETED: "Tamamlandı",
+  CANCELLED: "İptal",
+  NO_SHOW: "Gelmedi",
+};
+
+const timeFormatter = new Intl.DateTimeFormat("tr-TR", {
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+const dateFormatter = new Intl.DateTimeFormat("tr-TR", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
+const weekdayFormatter = new Intl.DateTimeFormat("tr-TR", {
+  weekday: "long",
+});
 
 const avatarPalette = [
   "bg-[#EEF0FF] text-[#5B4DE3]",
@@ -28,6 +54,35 @@ const avatarPalette = [
 function getAvatarColor(id: string) {
   const sum = id.split("").reduce((total, char) => total + char.charCodeAt(0), 0);
   return avatarPalette[sum % avatarPalette.length];
+}
+
+function getStatusLabel(appointment: Appointment): UiStatus {
+  return STATUS_LABELS[appointment.status];
+}
+
+function getPatientName(appointment: Appointment) {
+  return `${appointment.patient.firstName} ${appointment.patient.lastName}`.trim();
+}
+
+function getPatientPhone(appointment: Appointment) {
+  return appointment.patient.phone ?? "—";
+}
+
+function getDoctorName(appointment: Appointment) {
+  return appointment.doctor.fullName;
+}
+
+function formatAppointmentTime(startAt: string) {
+  return timeFormatter.format(new Date(startAt));
+}
+
+function formatAppointmentDate(startAt: string) {
+  return dateFormatter.format(new Date(startAt));
+}
+
+function formatAppointmentWeekday(startAt: string) {
+  const weekday = weekdayFormatter.format(new Date(startAt));
+  return weekday.charAt(0).toUpperCase() + weekday.slice(1);
 }
 
 function EditIcon() {
@@ -60,31 +115,61 @@ function CancelIcon() {
 interface SecretaryAppointmentsTableProps {
   activeFilter: FilterValue;
   onFilterChange: (filter: FilterValue) => void;
+  appointments: Appointment[];
+  onRefresh: () => void | Promise<void>;
 }
 
 export default function SecretaryAppointmentsTable({
   activeFilter,
   onFilterChange,
+  appointments,
+  onRefresh,
 }: SecretaryAppointmentsTableProps) {
   const [search, setSearch] = useState("");
-  const [appointmentList, setAppointmentList] = useState(secretaryAppointmentRows);
   const [pendingCancelId, setPendingCancelId] = useState<string | null>(null);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [cancelError, setCancelError] = useState<string | null>(null);
 
   const filteredAppointments = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    return appointmentList.filter((appointment) => {
-      const matchesFilter = activeFilter === "Tümü" || appointment.status === activeFilter;
+    return appointments.filter((appointment) => {
+      const status = getStatusLabel(appointment);
+      const matchesFilter = activeFilter === "Tümü" || status === activeFilter;
       const matchesSearch =
         term === "" ||
-        appointment.patientName.toLowerCase().includes(term) ||
-        appointment.doctorName.toLowerCase().includes(term);
+        getPatientName(appointment).toLowerCase().includes(term) ||
+        getDoctorName(appointment).toLowerCase().includes(term);
       return matchesFilter && matchesSearch;
     });
-  }, [search, activeFilter, appointmentList]);
+  }, [search, activeFilter, appointments]);
+
+  async function handleConfirmCancel() {
+    const appointmentId = pendingCancelId;
+    if (!appointmentId) return;
+
+    setPendingCancelId(null);
+    setCancelError(null);
+    setCancellingId(appointmentId);
+
+    try {
+      await updateAppointment(appointmentId, { status: "CANCELLED" });
+      await onRefresh();
+    } catch {
+      setCancelError("Randevu iptal edilirken bir hata oluştu.");
+    } finally {
+      setCancellingId(null);
+    }
+  }
 
   return (
     <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+      {cancelError && (
+        <div className="mb-4 rounded-xl border border-[#FEE2E2] bg-[#FEF2F2] px-5 py-3 text-sm text-[#EF4444]">
+          {cancelError}
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="relative w-full max-w-xs">
           <svg
@@ -129,16 +214,16 @@ export default function SecretaryAppointmentsTable({
       </div>
 
       <div className="mt-5 overflow-x-auto">
-        {appointmentList.length === 0 && (
+        {appointments.length === 0 && (
           <EmptyState
             variant="empty"
             title="Henüz randevu bulunmuyor"
             description="Hastaların muayene ve tedavi randevularını planlamak için yeni randevu oluşturabilirsiniz."
-            action={<AddSecretaryAppointmentModal />}
+            action={<AddSecretaryAppointmentModal onCreated={onRefresh} />}
           />
         )}
 
-        {appointmentList.length > 0 && filteredAppointments.length === 0 && (
+        {appointments.length > 0 && filteredAppointments.length === 0 && (
           <EmptyState
             variant="search"
             title="Eşleşen randevu bulunamadı"
@@ -172,31 +257,42 @@ export default function SecretaryAppointmentsTable({
             </tr>
           </thead>
           <tbody>
-            {filteredAppointments.map((appointment) => (
+            {filteredAppointments.map((appointment) => {
+              const patientName = getPatientName(appointment);
+              const status = getStatusLabel(appointment);
+
+              return (
               <tr
                 key={appointment.id}
-                onClick={() => console.log("Randevu detayına git:", appointment.id)}
-                className="cursor-pointer border-b border-[#EAF0F8]/60 transition-colors last:border-0 hover:bg-[#F8F9FF]"
+                className="border-b border-[#EAF0F8]/60 transition-colors last:border-0 hover:bg-[#F8F9FF]"
               >
-                <td className="py-4 text-sm font-semibold text-[#0B1F55]">{appointment.time}</td>
+                <td className="py-4 text-sm font-semibold text-[#0B1F55]">
+                  {formatAppointmentTime(appointment.startAt)}
+                </td>
                 <td className="py-4">
                   <div className="flex items-center gap-3">
                     <div
                       className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${getAvatarColor(appointment.id)}`}
                     >
-                      {appointment.patientName.charAt(0)}
+                      {patientName.charAt(0)}
                     </div>
-                    <span className="text-sm font-medium text-[#0B1F55]">{appointment.patientName}</span>
+                    <div>
+                      <p className="text-sm font-medium text-[#0B1F55]">{patientName}</p>
+                      <p className="text-xs text-[#667085]">{getPatientPhone(appointment)}</p>
+                    </div>
                   </div>
                 </td>
-                <td className="py-4 text-sm text-[#0B1F55]">{appointment.doctorName}</td>
-                <td className="py-4 text-sm text-[#0B1F55]">{appointment.department}</td>
-                <td className="py-4 text-sm text-[#0B1F55]">{appointment.dateLabel}</td>
+                <td className="py-4 text-sm text-[#0B1F55]">{getDoctorName(appointment)}</td>
+                <td className="py-4 text-sm text-[#667085]">—</td>
+                <td className="py-4 text-sm text-[#0B1F55]">
+                  <p>{formatAppointmentDate(appointment.startAt)}</p>
+                  <p className="text-xs text-[#667085]">{formatAppointmentWeekday(appointment.startAt)}</p>
+                </td>
                 <td className="py-4">
                   <span
-                    className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${statusBadgeClass[appointment.status]}`}
+                    className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${statusBadgeClass[status]}`}
                   >
-                    {appointment.status}
+                    {status}
                   </span>
                 </td>
                 <td className="py-4">
@@ -204,7 +300,6 @@ export default function SecretaryAppointmentsTable({
                     <button
                       type="button"
                       aria-label="Düzenle"
-                      onClick={(event) => event.stopPropagation()}
                       className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
                     >
                       <EditIcon />
@@ -212,7 +307,6 @@ export default function SecretaryAppointmentsTable({
                     <button
                       type="button"
                       aria-label="Diğer işlemler"
-                      onClick={(event) => event.stopPropagation()}
                       className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
                     >
                       <MoreIcon />
@@ -220,18 +314,17 @@ export default function SecretaryAppointmentsTable({
                     <button
                       type="button"
                       aria-label="Randevuyu iptal et"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setPendingCancelId(appointment.id);
-                      }}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444]"
+                      disabled={cancellingId === appointment.id}
+                      onClick={() => setPendingCancelId(appointment.id)}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <CancelIcon />
                     </button>
                   </div>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
         )}
@@ -267,17 +360,10 @@ export default function SecretaryAppointmentsTable({
       <ConfirmDialog
         open={pendingCancelId !== null}
         title="Randevuyu iptal etmek istiyor musunuz?"
-        description="Seçili hasta randevusu iptal edilecek. Bu işlem demo ortamında yalnızca arayüz üzerinde uygulanır."
+        description="Seçili hasta randevusu iptal edilecek."
         confirmLabel="Randevuyu İptal Et"
         variant="warning"
-        onConfirm={() => {
-          setAppointmentList((prev) =>
-            prev.map((appointment) =>
-              appointment.id === pendingCancelId ? { ...appointment, status: "İptal" } : appointment
-            )
-          );
-          setPendingCancelId(null);
-        }}
+        onConfirm={handleConfirmCancel}
         onCancel={() => setPendingCancelId(null)}
       />
     </div>

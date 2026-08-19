@@ -1,13 +1,21 @@
-import { secretaryAppointmentSummary } from "@/data/secretaryAppointments";
+import type { Appointment } from "@/lib/appointments-api";
 import type { FilterValue } from "@/components/secretary/SecretaryAppointmentsTable";
 
 type SummaryIcon = "today" | "confirmed" | "pending" | "cancelled";
 
-const iconByCardId: Record<string, SummaryIcon> = {
-  today: "today",
-  confirmed: "confirmed",
-  pending: "pending",
-  cancelled: "cancelled",
+interface SummaryCard {
+  id: string;
+  icon: SummaryIcon;
+  title: string;
+  value: number;
+}
+
+const STATUS_LABELS: Record<Appointment["status"], string> = {
+  SCHEDULED: "Bekliyor",
+  CONFIRMED: "Onaylandı",
+  COMPLETED: "Tamamlandı",
+  CANCELLED: "İptal",
+  NO_SHOW: "Gelmedi",
 };
 
 const colorByCardId: Record<string, string> = {
@@ -62,15 +70,29 @@ function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
 interface SecretaryAppointmentSummaryCardsProps {
   activeFilter: FilterValue;
   onFilterChange: (filter: FilterValue) => void;
+  appointments: Appointment[];
 }
 
 export default function SecretaryAppointmentSummaryCards({
   activeFilter,
   onFilterChange,
+  appointments,
 }: SecretaryAppointmentSummaryCardsProps) {
+  const total = appointments.length;
+  const confirmed = appointments.filter((appointment) => STATUS_LABELS[appointment.status] === "Onaylandı").length;
+  const pending = appointments.filter((appointment) => STATUS_LABELS[appointment.status] === "Bekliyor").length;
+  const cancelled = appointments.filter((appointment) => STATUS_LABELS[appointment.status] === "İptal").length;
+
+  const cards: SummaryCard[] = [
+    { id: "today", icon: "today", title: "Toplam Randevu", value: total },
+    { id: "confirmed", icon: "confirmed", title: "Onaylandı", value: confirmed },
+    { id: "pending", icon: "pending", title: "Bekliyor", value: pending },
+    { id: "cancelled", icon: "cancelled", title: "İptal", value: cancelled },
+  ];
+
   return (
     <div className="grid grid-cols-2 gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-[#EAF0F8]/60">
-      {secretaryAppointmentSummary.map((card) => {
+      {cards.map((card) => {
         const filterValue = filterByCardId[card.id] ?? "Tümü";
         const isSelected = activeFilter === filterValue;
 
@@ -84,9 +106,9 @@ export default function SecretaryAppointmentSummaryCards({
             }`}
           >
             <span
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${colorByCardId[card.id] ?? "bg-[#EEF0FF] text-[#5B4DE3]"}`}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${colorByCardId[card.id]}`}
             >
-              <SummaryIconGlyph icon={iconByCardId[card.id] ?? "today"} />
+              <SummaryIconGlyph icon={card.icon} />
             </span>
             <div>
               <p className="text-xl font-bold text-[#0B1F55]">{card.value}</p>
