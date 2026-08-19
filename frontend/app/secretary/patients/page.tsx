@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import SecretaryPatientsTable, { type FilterValue } from "@/components/secretary/SecretaryPatientsTable";
 import AddSecretaryPatientModal from "@/components/secretary/AddSecretaryPatientModal";
-import { secretaryPatientRows } from "@/data/secretaryPatients";
+import { listPatients, type Patient } from "@/lib/patients-api";
 
 function UsersIcon() {
   return (
@@ -44,11 +44,33 @@ function PauseCircleIcon() {
 
 export default function SecretaryPatientsPage() {
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const total = secretaryPatientRows.length;
-  const activeCount = secretaryPatientRows.filter((patient) => patient.status === "Aktif").length;
-  const pendingCount = secretaryPatientRows.filter((patient) => patient.status === "Kontrol Bekliyor").length;
-  const inactiveCount = secretaryPatientRows.filter((patient) => patient.status === "Pasif").length;
+  const loadPatients = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const data = await listPatients({ includeInactive: true });
+      setPatients(data);
+    } catch {
+      setError("Hastalar yüklenirken bir hata oluştu.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadPatients();
+  }, [loadPatients]);
+
+  const total = patients.length;
+  const activeCount = patients.filter((patient) => patient.isActive).length;
+  // Backend'de "Kontrol Bekliyor" durumunun karşılığı yok.
+  const pendingCount = 0;
+  const inactiveCount = patients.filter((patient) => !patient.isActive).length;
 
   const summaryItems: { label: string; value: number; icon: React.ReactNode; color: string; filterValue: FilterValue }[] = [
     { label: "Toplam Hasta", value: total, icon: <UsersIcon />, color: "bg-[#EEF0FF] text-[#5B4DE3]", filterValue: "Tümü" },
@@ -92,36 +114,59 @@ export default function SecretaryPatientsPage() {
             </p>
           </div>
 
-          <AddSecretaryPatientModal />
+          <AddSecretaryPatientModal onCreated={loadPatients} />
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-[#EAF0F8]/60">
-        {summaryItems.map((item) => {
-          const isSelected = activeFilter === item.filterValue;
+      {isLoading && (
+        <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-10 text-center shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+          <p className="text-sm text-[#667085]">Hastalar yükleniyor...</p>
+        </div>
+      )}
 
-          return (
-            <button
-              key={item.label}
-              type="button"
-              onClick={() => setActiveFilter(item.filterValue)}
-              className={`flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 text-left transition-colors sm:px-5 sm:first:pl-2 sm:first:ml-0 sm:last:pr-2 ${
-                isSelected ? "bg-[#F7F8FF]" : "hover:bg-[#F7F8FF]"
-              }`}
-            >
-              <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${item.color}`}>
-                {item.icon}
-              </span>
-              <div>
-                <p className="text-xl font-bold text-[#0B1F55]">{item.value}</p>
-                <p className="text-xs text-[#667085]">{item.label}</p>
-              </div>
-            </button>
-          );
-        })}
-      </div>
+      {!isLoading && error && (
+        <div className="flex flex-col items-center gap-3 rounded-[20px] border border-[#EAF0F8] bg-white p-10 text-center shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+          <p className="text-sm text-[#EF4444]">{error}</p>
+          <button
+            type="button"
+            onClick={loadPatients}
+            className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+          >
+            Tekrar Dene
+          </button>
+        </div>
+      )}
 
-      <SecretaryPatientsTable activeFilter={activeFilter} onFilterChange={setActiveFilter} />
+      {!isLoading && !error && (
+        <>
+          <div className="grid grid-cols-2 gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-[#EAF0F8]/60">
+            {summaryItems.map((item) => {
+              const isSelected = activeFilter === item.filterValue;
+
+              return (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={() => setActiveFilter(item.filterValue)}
+                  className={`flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 text-left transition-colors sm:px-5 sm:first:pl-2 sm:first:ml-0 sm:last:pr-2 ${
+                    isSelected ? "bg-[#F7F8FF]" : "hover:bg-[#F7F8FF]"
+                  }`}
+                >
+                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${item.color}`}>
+                    {item.icon}
+                  </span>
+                  <div>
+                    <p className="text-xl font-bold text-[#0B1F55]">{item.value}</p>
+                    <p className="text-xs text-[#667085]">{item.label}</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          <SecretaryPatientsTable activeFilter={activeFilter} onFilterChange={setActiveFilter} patients={patients} />
+        </>
+      )}
     </div>
   );
 }

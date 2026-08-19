@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPatient, type CreatePatientInput } from "@/lib/patients-api";
 
 const genderOptions = ["Kadın", "Erkek"];
 
@@ -33,6 +34,8 @@ function validateSecretaryPatientForm(values: SecretaryPatientFormState): Secret
 
   if (!values.fullName.trim()) {
     nextErrors.fullName = "Ad soyad zorunludur.";
+  } else if (values.fullName.trim().split(/\s+/).length < 2) {
+    nextErrors.fullName = "Ad soyad en az iki kelime içermelidir.";
   }
 
   if (!values.phone.trim()) {
@@ -49,6 +52,10 @@ function validateSecretaryPatientForm(values: SecretaryPatientFormState): Secret
     nextErrors.email = "Geçerli bir e-posta adresi girin.";
   }
 
+  if (values.birthDate.trim() && !/^\d{2}\.\d{2}\.\d{4}$/.test(values.birthDate.trim())) {
+    nextErrors.birthDate = "Geçerli bir tarih girin.";
+  }
+
   if (!values.gender) {
     nextErrors.gender = "Lütfen cinsiyet seçin.";
   }
@@ -60,10 +67,28 @@ function validateSecretaryPatientForm(values: SecretaryPatientFormState): Secret
   return nextErrors;
 }
 
-export default function AddSecretaryPatientModal() {
+function splitFullName(fullName: string) {
+  const parts = fullName.trim().split(/\s+/);
+  const lastName = parts[parts.length - 1];
+  const firstName = parts.slice(0, -1).join(" ");
+  return { firstName, lastName };
+}
+
+function toIsoDate(ddmmyyyy: string) {
+  const [day, month, year] = ddmmyyyy.split(".");
+  return `${year}-${month}-${day}`;
+}
+
+interface AddSecretaryPatientModalProps {
+  onCreated?: () => void;
+}
+
+export default function AddSecretaryPatientModal({ onCreated }: AddSecretaryPatientModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [form, setForm] = useState<SecretaryPatientFormState>(initialFormState);
   const [errors, setErrors] = useState<SecretaryPatientFormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -95,19 +120,44 @@ export default function AddSecretaryPatientModal() {
     setIsOpen(false);
     setForm(initialFormState);
     setErrors({});
+    setApiError(null);
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setApiError(null);
+
     const validationErrors = validateSecretaryPatientForm(form);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-    console.log("Yeni hasta:", form);
-    setForm(initialFormState);
-    setErrors({});
-    setIsOpen(false);
+
+    const { firstName, lastName } = splitFullName(form.fullName);
+
+    const input: CreatePatientInput = {
+      firstName,
+      lastName,
+      ...(form.phone.trim() ? { phone: form.phone.trim() } : {}),
+      ...(form.email.trim() ? { email: form.email.trim() } : {}),
+      ...(form.birthDate.trim() ? { birthDate: toIsoDate(form.birthDate.trim()) } : {}),
+      ...(form.gender ? { gender: form.gender } : {}),
+      ...(form.notes.trim() ? { notes: form.notes.trim() } : {}),
+    };
+
+    setIsSubmitting(true);
+
+    try {
+      await createPatient(input);
+      setForm(initialFormState);
+      setErrors({});
+      setIsOpen(false);
+      onCreated?.();
+    } catch {
+      setApiError("Hasta eklenirken bir hata oluştu.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -213,9 +263,12 @@ export default function AddSecretaryPatientModal() {
                     value={form.birthDate}
                     onChange={(event) => updateField("birthDate", event.target.value)}
                     placeholder="GG.AA.YYYY"
-                    className="w-full rounded-xl border border-[#EAF0F8] py-2.5 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+                    className={`w-full rounded-xl border py-2.5 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                      errors.birthDate ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                    }`}
                   />
                 </div>
+                {errors.birthDate && <p className="mt-1 text-sm text-[#EF4444]">{errors.birthDate}</p>}
               </div>
 
               <div>
@@ -267,6 +320,12 @@ export default function AddSecretaryPatientModal() {
                 />
               </div>
 
+              {apiError && (
+                <p className="rounded-xl bg-[#FEF2F2] px-4 py-2.5 text-sm text-[#EF4444] sm:col-span-2">
+                  {apiError}
+                </p>
+              )}
+
               <div className="flex items-center justify-end gap-3 sm:col-span-2">
                 <button
                   type="button"
@@ -277,9 +336,10 @@ export default function AddSecretaryPatientModal() {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#4c3fd1]"
+                  disabled={isSubmitting}
+                  className="rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#4c3fd1] disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  Hasta Kaydet
+                  {isSubmitting ? "Hasta ekleniyor..." : "Hasta Kaydet"}
                 </button>
               </div>
             </form>

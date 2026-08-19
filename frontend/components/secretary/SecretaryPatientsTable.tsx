@@ -1,17 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import { secretaryPatientRows, type SecretaryPatientStatus } from "@/data/secretaryPatients";
+import { useEffect, useMemo, useState } from "react";
+import { type Patient } from "@/lib/patients-api";
 import EmptyState from "@/components/common/EmptyState";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import AddSecretaryPatientModal from "@/components/secretary/AddSecretaryPatientModal";
 
-export type FilterValue = "Tümü" | SecretaryPatientStatus;
+type UiStatus = "Aktif" | "Kontrol Bekliyor" | "Pasif";
+
+export type FilterValue = "Tümü" | UiStatus;
 
 const filters: FilterValue[] = ["Tümü", "Aktif", "Kontrol Bekliyor", "Pasif"];
 
-const statusBadgeClass: Record<SecretaryPatientStatus, string> = {
+const statusBadgeClass: Record<UiStatus, string> = {
   Aktif: "bg-[#DCFCE7] text-[#16A34A]",
   "Kontrol Bekliyor": "bg-[#FEF3C7] text-[#F59E0B]",
   Pasif: "bg-[#F3F4F6] text-[#667085]",
@@ -25,9 +26,31 @@ const avatarPalette = [
   "bg-[#F3F4F6] text-[#475467]",
 ];
 
+const registeredDateFormatter = new Intl.DateTimeFormat("tr-TR", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
 function getAvatarColor(id: string) {
   const sum = id.split("").reduce((total, char) => total + char.charCodeAt(0), 0);
   return avatarPalette[sum % avatarPalette.length];
+}
+
+function getFullName(patient: Patient) {
+  return `${patient.firstName} ${patient.lastName}`.trim();
+}
+
+function getStatusLabel(patient: Patient): UiStatus {
+  return patient.isActive ? "Aktif" : "Pasif";
+}
+
+function formatNullable(value: string | null) {
+  return value ?? "—";
+}
+
+function formatRegisteredDate(createdAt: string) {
+  return registeredDateFormatter.format(new Date(createdAt));
 }
 
 function EditIcon() {
@@ -59,20 +82,29 @@ function TrashIcon() {
 interface SecretaryPatientsTableProps {
   activeFilter: FilterValue;
   onFilterChange: (filter: FilterValue) => void;
+  patients: Patient[];
 }
 
-export default function SecretaryPatientsTable({ activeFilter, onFilterChange }: SecretaryPatientsTableProps) {
-  const router = useRouter();
+export default function SecretaryPatientsTable({
+  activeFilter,
+  onFilterChange,
+  patients,
+}: SecretaryPatientsTableProps) {
   const [search, setSearch] = useState("");
-  const [patientList, setPatientList] = useState(secretaryPatientRows);
+  const [patientList, setPatientList] = useState<Patient[]>(patients);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setPatientList(patients);
+  }, [patients]);
 
   const filteredPatients = useMemo(() => {
     const term = search.trim().toLowerCase();
 
     return patientList.filter((patient) => {
-      const matchesFilter = activeFilter === "Tümü" || patient.status === activeFilter;
-      const matchesSearch = term === "" || patient.fullName.toLowerCase().includes(term);
+      const status = getStatusLabel(patient);
+      const matchesFilter = activeFilter === "Tümü" || status === activeFilter;
+      const matchesSearch = term === "" || getFullName(patient).toLowerCase().includes(term);
       return matchesFilter && matchesSearch;
     });
   }, [search, activeFilter, patientList]);
@@ -166,31 +198,34 @@ export default function SecretaryPatientsTable({ activeFilter, onFilterChange }:
             </tr>
           </thead>
           <tbody>
-            {filteredPatients.map((patient) => (
+            {filteredPatients.map((patient) => {
+              const fullName = getFullName(patient);
+              const status = getStatusLabel(patient);
+
+              return (
               <tr
                 key={patient.id}
-                onClick={() => router.push(`/patients/${patient.id}`)}
-                className="cursor-pointer border-b border-[#EAF0F8]/60 transition-colors last:border-0 hover:bg-[#F8F9FF]"
+                className="border-b border-[#EAF0F8]/60 transition-colors last:border-0"
               >
                 <td className="py-4">
                   <div className="flex items-center gap-3">
                     <div
                       className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${getAvatarColor(patient.id)}`}
                     >
-                      {patient.fullName.charAt(0)}
+                      {fullName.charAt(0)}
                     </div>
-                    <span className="text-sm font-medium text-[#0B1F55]">{patient.fullName}</span>
+                    <span className="text-sm font-medium text-[#0B1F55]">{fullName}</span>
                   </div>
                 </td>
-                <td className="py-4 text-sm text-[#0B1F55]">{patient.phone}</td>
-                <td className="py-4 text-sm text-[#667085]">{patient.email}</td>
-                <td className="py-4 text-sm text-[#0B1F55]">{patient.lastVisit}</td>
-                <td className="py-4 text-sm text-[#0B1F55]">{patient.registeredDate}</td>
+                <td className="py-4 text-sm text-[#0B1F55]">{formatNullable(patient.phone)}</td>
+                <td className="py-4 text-sm text-[#667085]">{formatNullable(patient.email)}</td>
+                <td className="py-4 text-sm text-[#0B1F55]">—</td>
+                <td className="py-4 text-sm text-[#0B1F55]">{formatRegisteredDate(patient.createdAt)}</td>
                 <td className="py-4">
                   <span
-                    className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${statusBadgeClass[patient.status]}`}
+                    className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${statusBadgeClass[status]}`}
                   >
-                    {patient.status}
+                    {status}
                   </span>
                 </td>
                 <td className="py-4">
@@ -225,7 +260,8 @@ export default function SecretaryPatientsTable({ activeFilter, onFilterChange }:
                   </div>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
         )}
