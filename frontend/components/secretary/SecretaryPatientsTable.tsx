@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { type Patient } from "@/lib/patients-api";
 import EmptyState from "@/components/common/EmptyState";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
@@ -90,6 +91,7 @@ export default function SecretaryPatientsTable({
   onFilterChange,
   patients,
 }: SecretaryPatientsTableProps) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [patientList, setPatientList] = useState<Patient[]>(patients);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
@@ -205,7 +207,8 @@ export default function SecretaryPatientsTable({
               return (
               <tr
                 key={patient.id}
-                className="border-b border-[#EAF0F8]/60 transition-colors last:border-0"
+                onClick={() => router.push(`/secretary/patients/${patient.id}`)}
+                className="cursor-pointer border-b border-[#EAF0F8]/60 transition-colors last:border-0 hover:bg-[#F8F9FF]"
               >
                 <td className="py-4">
                   <div className="flex items-center gap-3">
