@@ -1,10 +1,12 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import type { Prisma } from '../../generated/prisma/client';
+import type { AuthenticatedUser } from '../auth/types/authenticated-user.type';
 import {
   APPOINTMENT_STATUSES,
   CreateAppointmentDto,
@@ -34,17 +36,29 @@ function isAppointmentStatus(value: string): value is AppointmentStatusValue {
 export class AppointmentsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll(userClinicId: string, filters: AppointmentFilters = {}) {
+  async findAll(
+    currentUser: AuthenticatedUser,
+    filters: AppointmentFilters = {},
+  ) {
     const { dateFrom, dateTo, doctorId, patientId, status, includeInactive } =
       filters;
 
     const where: Prisma.AppointmentWhereInput = {
-      clinicId: userClinicId,
+      clinicId: currentUser.clinicId,
       ...(includeInactive ? {} : { isActive: true }),
-      ...(doctorId ? { doctorId } : {}),
       ...(patientId ? { patientId } : {}),
       ...(status && isAppointmentStatus(status) ? { status } : {}),
     };
+
+    if (currentUser.role === 'DOCTOR') {
+      const currentDoctor = await this.resolveCurrentDoctor(
+        currentUser.id,
+        currentUser.clinicId,
+      );
+      where.doctorId = currentDoctor.id;
+    } else if (doctorId) {
+      where.doctorId = doctorId;
+    }
 
     if (dateFrom || dateTo) {
       where.startAt = {
@@ -60,9 +74,22 @@ export class AppointmentsService {
     });
   }
 
-  async findOne(id: string, userClinicId: string) {
+  async findOne(id: string, currentUser: AuthenticatedUser) {
+    const where: Prisma.AppointmentWhereInput = {
+      id,
+      clinicId: currentUser.clinicId,
+    };
+
+    if (currentUser.role === 'DOCTOR') {
+      const currentDoctor = await this.resolveCurrentDoctor(
+        currentUser.id,
+        currentUser.clinicId,
+      );
+      where.doctorId = currentDoctor.id;
+    }
+
     const appointment = await this.prisma.appointment.findFirst({
-      where: { id, clinicId: userClinicId },
+      where,
       include: { patient: true, doctor: true },
     });
 
@@ -110,7 +137,7 @@ export class AppointmentsService {
     userClinicId: string,
     updateAppointmentDto: UpdateAppointmentDto,
   ) {
-    const existing = await this.findOne(id, userClinicId);
+    const existing = await this.findByIdAndClinic(id, userClinicId);
 
     const { patientId, doctorId, startAt, endAt, ...rest } =
       updateAppointmentDto;
@@ -158,12 +185,44 @@ export class AppointmentsService {
   }
 
   async softDelete(id: string, userClinicId: string) {
-    await this.findOne(id, userClinicId);
+    await this.findByIdAndClinic(id, userClinicId);
 
     return this.prisma.appointment.update({
       where: { id },
       data: { isActive: false },
     });
+  }
+
+  private async findByIdAndClinic(id: string, userClinicId: string) {
+    const appointment = await this.prisma.appointment.findFirst({
+      where: { id, clinicId: userClinicId },
+      include: { patient: true, doctor: true },
+    });
+
+    if (!appointment) {
+      throw new NotFoundException(`Appointment with id ${id} not found`);
+    }
+
+    return appointment;
+  }
+
+  private async resolveCurrentDoctor(
+    authenticatedUserId: string,
+    userClinicId: string,
+  ) {
+    const doctor = await this.prisma.doctor.findFirst({
+      where: {
+        userId: authenticatedUserId,
+        clinicId: userClinicId,
+        isActive: true,
+      },
+    });
+
+    if (!doctor) {
+      throw new ForbiddenException('Doctor profile not found');
+    }
+
+    return doctor;
   }
 
   private async validatePatient(patientId: string, userClinicId: string) {

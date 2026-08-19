@@ -36,7 +36,7 @@ export class AppointmentsController {
     @Query('status') status?: string,
     @Query('includeInactive') includeInactive?: string,
   ) {
-    return this.appointmentsService.findAll(request.user!.clinicId, {
+    return this.appointmentsService.findAll(request.user!, {
       dateFrom,
       dateTo,
       doctorId,
@@ -49,7 +49,7 @@ export class AppointmentsController {
   @Roles('ADMIN', 'SECRETARY', 'DOCTOR')
   @Get(':id')
   findOne(@Req() request: RequestWithUser, @Param('id') id: string) {
-    return this.appointmentsService.findOne(id, request.user!.clinicId);
+    return this.appointmentsService.findOne(id, request.user!);
   }
 
   @Roles('ADMIN', 'SECRETARY')
