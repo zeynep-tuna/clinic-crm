@@ -164,7 +164,12 @@ export default function SecretaryPatientsPage() {
             })}
           </div>
 
-          <SecretaryPatientsTable activeFilter={activeFilter} onFilterChange={setActiveFilter} patients={patients} />
+          <SecretaryPatientsTable
+            activeFilter={activeFilter}
+            onFilterChange={setActiveFilter}
+            patients={patients}
+            onRefresh={loadPatients}
+          />
         </>
       )}
     </div>

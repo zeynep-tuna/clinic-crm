@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { listPatients, type Patient } from "@/lib/patients-api";
+import { deletePatient, listPatients, type Patient } from "@/lib/patients-api";
 import EmptyState from "@/components/common/EmptyState";
 import AddPatientModal from "@/components/patients/AddPatientModal";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
@@ -90,32 +90,6 @@ function PauseCircleIcon() {
   );
 }
 
-function EditIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 4.5a2.1 2.1 0 0 1 3 3L7 20l-4 1 1-4Z" />
-    </svg>
-  );
-}
-
-function MoreIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-      <circle cx="5" cy="12" r="1.5" />
-      <circle cx="12" cy="12" r="1.5" />
-      <circle cx="19" cy="12" r="1.5" />
-    </svg>
-  );
-}
-
-function TrashIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 7h15M9.5 7V5a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 5v2M18 7l-.7 12a1.5 1.5 0 0 1-1.5 1.4H8.2a1.5 1.5 0 0 1-1.5-1.4L6 7" />
-    </svg>
-  );
-}
-
 interface PatientsTableProps {
   refreshKey?: number;
 }
@@ -127,7 +101,9 @@ export default function PatientsTable({ refreshKey }: PatientsTableProps) {
   const [patientList, setPatientList] = useState<Patient[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [pendingDeactivateId, setPendingDeactivateId] = useState<string | null>(null);
+  const [deactivatingId, setDeactivatingId] = useState<string | null>(null);
+  const [deactivateError, setDeactivateError] = useState<string | null>(null);
 
   const loadPatients = useCallback(async () => {
     setIsLoading(true);
@@ -146,6 +122,24 @@ export default function PatientsTable({ refreshKey }: PatientsTableProps) {
   useEffect(() => {
     loadPatients();
   }, [loadPatients, refreshKey]);
+
+  async function handleConfirmDeactivate() {
+    const patientId = pendingDeactivateId;
+    if (!patientId) return;
+
+    setPendingDeactivateId(null);
+    setDeactivateError(null);
+    setDeactivatingId(patientId);
+
+    try {
+      await deletePatient(patientId);
+      await loadPatients();
+    } catch {
+      setDeactivateError("Hasta pasifleştirilirken bir hata oluştu.");
+    } finally {
+      setDeactivatingId(null);
+    }
+  }
 
   const total = patientList.length;
   const activeCount = patientList.filter((patient) => patient.isActive).length;
@@ -218,6 +212,12 @@ export default function PatientsTable({ refreshKey }: PatientsTableProps) {
 
       {!isLoading && !error && (
         <>
+          {deactivateError && (
+            <div className="rounded-[20px] border border-[#FEE2E2] bg-[#FEF2F2] px-5 py-3 text-sm text-[#EF4444]">
+              {deactivateError}
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-[#EAF0F8]/60">
             {summaryItems.map((item) => {
               const isSelected = activeFilter === item.filterValue;
@@ -365,35 +365,24 @@ export default function PatientsTable({ refreshKey }: PatientsTableProps) {
                         </span>
                       </td>
                       <td className="py-4">
-                        <div className="flex items-center gap-3 text-[#667085]">
-                          <button
-                            type="button"
-                            aria-label="Düzenle"
-                            onClick={(event) => event.stopPropagation()}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
-                          >
-                            <EditIcon />
-                          </button>
-                          <button
-                            type="button"
-                            aria-label="Diğer işlemler"
-                            onClick={(event) => event.stopPropagation()}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
-                          >
-                            <MoreIcon />
-                          </button>
-                          <button
-                            type="button"
-                            aria-label="Hastayı sil"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              setPendingDeleteId(patient.id);
-                            }}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444]"
-                          >
-                            <TrashIcon />
-                          </button>
-                        </div>
+                        {patient.isActive ? (
+                          <div className="flex items-center gap-3 text-[#667085]">
+                            <button
+                              type="button"
+                              aria-label="Hastayı pasifleştir"
+                              disabled={deactivatingId === patient.id}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setPendingDeactivateId(patient.id);
+                              }}
+                              className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444] disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              <PauseCircleIcon />
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-sm text-[#667085]">—</span>
+                        )}
                       </td>
                     </tr>
                     );
@@ -434,16 +423,13 @@ export default function PatientsTable({ refreshKey }: PatientsTableProps) {
       )}
 
       <ConfirmDialog
-        open={pendingDeleteId !== null}
-        title="Hasta kaydını silmek istiyor musunuz?"
-        description="Seçili hasta kaydı listeden kaldırılacak. Bu işlem demo ortamında yalnızca arayüz üzerinde uygulanır."
-        confirmLabel="Hastayı Sil"
-        variant="danger"
-        onConfirm={() => {
-          setPatientList((prev) => prev.filter((patient) => patient.id !== pendingDeleteId));
-          setPendingDeleteId(null);
-        }}
-        onCancel={() => setPendingDeleteId(null)}
+        open={pendingDeactivateId !== null}
+        title="Hastayı pasifleştirmek istiyor musunuz?"
+        description="Seçili hasta pasif duruma alınacak ve aktif hasta listelerinde görünmeyecek. Hasta kaydı kalıcı olarak silinmez."
+        confirmLabel="Hastayı Pasifleştir"
+        variant="warning"
+        onConfirm={handleConfirmDeactivate}
+        onCancel={() => setPendingDeactivateId(null)}
       />
     </div>
   );

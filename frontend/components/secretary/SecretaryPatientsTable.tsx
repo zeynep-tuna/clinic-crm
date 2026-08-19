@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { type Patient } from "@/lib/patients-api";
+import { deletePatient, type Patient } from "@/lib/patients-api";
 import EmptyState from "@/components/common/EmptyState";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import AddSecretaryPatientModal from "@/components/secretary/AddSecretaryPatientModal";
@@ -54,28 +54,11 @@ function formatRegisteredDate(createdAt: string) {
   return registeredDateFormatter.format(new Date(createdAt));
 }
 
-function EditIcon() {
+function PauseCircleIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 4.5a2.1 2.1 0 0 1 3 3L7 20l-4 1 1-4Z" />
-    </svg>
-  );
-}
-
-function MoreIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-      <circle cx="5" cy="12" r="1.5" />
-      <circle cx="12" cy="12" r="1.5" />
-      <circle cx="19" cy="12" r="1.5" />
-    </svg>
-  );
-}
-
-function TrashIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 7h15M9.5 7V5a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 5v2M18 7l-.7 12a1.5 1.5 0 0 1-1.5 1.4H8.2a1.5 1.5 0 0 1-1.5-1.4L6 7" />
+      <circle cx="12" cy="12" r="8.5" />
+      <path strokeLinecap="round" d="M10 9.5v5M14 9.5v5" />
     </svg>
   );
 }
@@ -84,35 +67,58 @@ interface SecretaryPatientsTableProps {
   activeFilter: FilterValue;
   onFilterChange: (filter: FilterValue) => void;
   patients: Patient[];
+  onRefresh: () => void | Promise<void>;
 }
 
 export default function SecretaryPatientsTable({
   activeFilter,
   onFilterChange,
   patients,
+  onRefresh,
 }: SecretaryPatientsTableProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
-  const [patientList, setPatientList] = useState<Patient[]>(patients);
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
-
-  useEffect(() => {
-    setPatientList(patients);
-  }, [patients]);
+  const [pendingDeactivateId, setPendingDeactivateId] = useState<string | null>(null);
+  const [deactivatingId, setDeactivatingId] = useState<string | null>(null);
+  const [deactivateError, setDeactivateError] = useState<string | null>(null);
 
   const filteredPatients = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    return patientList.filter((patient) => {
+    return patients.filter((patient) => {
       const status = getStatusLabel(patient);
       const matchesFilter = activeFilter === "Tümü" || status === activeFilter;
       const matchesSearch = term === "" || getFullName(patient).toLowerCase().includes(term);
       return matchesFilter && matchesSearch;
     });
-  }, [search, activeFilter, patientList]);
+  }, [search, activeFilter, patients]);
+
+  async function handleConfirmDeactivate() {
+    const patientId = pendingDeactivateId;
+    if (!patientId) return;
+
+    setPendingDeactivateId(null);
+    setDeactivateError(null);
+    setDeactivatingId(patientId);
+
+    try {
+      await deletePatient(patientId);
+      await onRefresh();
+    } catch {
+      setDeactivateError("Hasta pasifleştirilirken bir hata oluştu.");
+    } finally {
+      setDeactivatingId(null);
+    }
+  }
 
   return (
     <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+      {deactivateError && (
+        <div className="mb-4 rounded-xl border border-[#FEE2E2] bg-[#FEF2F2] px-5 py-3 text-sm text-[#EF4444]">
+          {deactivateError}
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="relative w-full max-w-xs">
           <svg
@@ -157,16 +163,16 @@ export default function SecretaryPatientsTable({
       </div>
 
       <div className="mt-5 overflow-x-auto">
-        {patientList.length === 0 && (
+        {patients.length === 0 && (
           <EmptyState
             variant="empty"
             title="Henüz hasta kaydı yok"
             description="Diş kliniğine gelen hastaları takip etmek için yeni hasta kaydı oluşturabilirsiniz."
-            action={<AddSecretaryPatientModal />}
+            action={<AddSecretaryPatientModal onCreated={onRefresh} />}
           />
         )}
 
-        {patientList.length > 0 && filteredPatients.length === 0 && (
+        {patients.length > 0 && filteredPatients.length === 0 && (
           <EmptyState
             variant="search"
             title="Eşleşen hasta bulunamadı"
@@ -232,35 +238,24 @@ export default function SecretaryPatientsTable({
                   </span>
                 </td>
                 <td className="py-4">
-                  <div className="flex items-center gap-3 text-[#667085]">
-                    <button
-                      type="button"
-                      aria-label="Düzenle"
-                      onClick={(event) => event.stopPropagation()}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
-                    >
-                      <EditIcon />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Diğer işlemler"
-                      onClick={(event) => event.stopPropagation()}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
-                    >
-                      <MoreIcon />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Hastayı sil"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setPendingDeleteId(patient.id);
-                      }}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444]"
-                    >
-                      <TrashIcon />
-                    </button>
-                  </div>
+                  {patient.isActive ? (
+                    <div className="flex items-center gap-3 text-[#667085]">
+                      <button
+                        type="button"
+                        aria-label="Hastayı pasifleştir"
+                        disabled={deactivatingId === patient.id}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setPendingDeactivateId(patient.id);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444] disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <PauseCircleIcon />
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="text-sm text-[#667085]">—</span>
+                  )}
                 </td>
               </tr>
               );
@@ -298,16 +293,13 @@ export default function SecretaryPatientsTable({
       </div>
 
       <ConfirmDialog
-        open={pendingDeleteId !== null}
-        title="Hasta kaydını silmek istiyor musunuz?"
-        description="Seçili hasta kaydı listeden kaldırılacak. Bu işlem demo ortamında yalnızca arayüz üzerinde uygulanır."
-        confirmLabel="Hastayı Sil"
-        variant="danger"
-        onConfirm={() => {
-          setPatientList((prev) => prev.filter((patient) => patient.id !== pendingDeleteId));
-          setPendingDeleteId(null);
-        }}
-        onCancel={() => setPendingDeleteId(null)}
+        open={pendingDeactivateId !== null}
+        title="Hastayı pasifleştirmek istiyor musunuz?"
+        description="Seçili hasta pasif duruma alınacak ve aktif hasta listelerinde görünmeyecek. Hasta kaydı kalıcı olarak silinmez."
+        confirmLabel="Hastayı Pasifleştir"
+        variant="warning"
+        onConfirm={handleConfirmDeactivate}
+        onCancel={() => setPendingDeactivateId(null)}
       />
     </div>
   );

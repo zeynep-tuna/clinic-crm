@@ -5,15 +5,12 @@ import { createPatient, type CreatePatientInput } from "@/lib/patients-api";
 
 const genderOptions = ["Kadın", "Erkek"];
 
-const statusOptions = ["Aktif", "Kontrol Bekliyor", "Pasif"];
-
 interface SecretaryPatientFormState {
   fullName: string;
   phone: string;
   email: string;
   birthDate: string;
   gender: string;
-  status: string;
   notes: string;
 }
 
@@ -23,7 +20,6 @@ const initialFormState: SecretaryPatientFormState = {
   email: "",
   birthDate: "",
   gender: "",
-  status: "",
   notes: "",
 };
 
@@ -52,16 +48,8 @@ function validateSecretaryPatientForm(values: SecretaryPatientFormState): Secret
     nextErrors.email = "Geçerli bir e-posta adresi girin.";
   }
 
-  if (values.birthDate.trim() && !/^\d{2}\.\d{2}\.\d{4}$/.test(values.birthDate.trim())) {
-    nextErrors.birthDate = "Geçerli bir tarih girin.";
-  }
-
   if (!values.gender) {
     nextErrors.gender = "Lütfen cinsiyet seçin.";
-  }
-
-  if (!values.status) {
-    nextErrors.status = "Hasta durumu zorunludur.";
   }
 
   return nextErrors;
@@ -72,11 +60,6 @@ function splitFullName(fullName: string) {
   const lastName = parts[parts.length - 1];
   const firstName = parts.slice(0, -1).join(" ");
   return { firstName, lastName };
-}
-
-function toIsoDate(ddmmyyyy: string) {
-  const [day, month, year] = ddmmyyyy.split(".");
-  return `${year}-${month}-${day}`;
 }
 
 interface AddSecretaryPatientModalProps {
@@ -140,7 +123,7 @@ export default function AddSecretaryPatientModal({ onCreated }: AddSecretaryPati
       lastName,
       ...(form.phone.trim() ? { phone: form.phone.trim() } : {}),
       ...(form.email.trim() ? { email: form.email.trim() } : {}),
-      ...(form.birthDate.trim() ? { birthDate: toIsoDate(form.birthDate.trim()) } : {}),
+      ...(form.birthDate ? { birthDate: form.birthDate } : {}),
       ...(form.gender ? { gender: form.gender } : {}),
       ...(form.notes.trim() ? { notes: form.notes.trim() } : {}),
     };
@@ -259,10 +242,9 @@ export default function AddSecretaryPatientModal({ onCreated }: AddSecretaryPati
                     <path strokeLinecap="round" d="M4 10h16M8 3v4M16 3v4" />
                   </svg>
                   <input
-                    type="text"
+                    type="date"
                     value={form.birthDate}
                     onChange={(event) => updateField("birthDate", event.target.value)}
-                    placeholder="GG.AA.YYYY"
                     className={`w-full rounded-xl border py-2.5 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
                       errors.birthDate ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
                     }`}
@@ -288,25 +270,6 @@ export default function AddSecretaryPatientModal({ onCreated }: AddSecretaryPati
                   ))}
                 </select>
                 {errors.gender && <p className="mt-1 text-sm text-[#EF4444]">{errors.gender}</p>}
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Hasta Durumu</label>
-                <select
-                  value={form.status}
-                  onChange={(event) => updateField("status", event.target.value)}
-                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
-                    errors.status ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
-                  }`}
-                >
-                  <option value="">Seçiniz</option>
-                  {statusOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-                {errors.status && <p className="mt-1 text-sm text-[#EF4444]">{errors.status}</p>}
               </div>
 
               <div className="sm:col-span-2">
