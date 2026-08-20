@@ -40,7 +40,7 @@ export default function SecretaryPaymentsPage() {
           </p>
         </div>
 
-        <AddSecretaryPaymentModal />
+        <AddSecretaryPaymentModal onCreated={loadPayments} />
       </div>
 
       {isLoading && (
@@ -74,6 +74,7 @@ export default function SecretaryPaymentsPage() {
             activeFilter={activeFilter}
             onFilterChange={setActiveFilter}
             payments={payments}
+            onRefresh={loadPayments}
           />
         </>
       )}

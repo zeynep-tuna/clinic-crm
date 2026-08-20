@@ -73,12 +73,14 @@ interface SecretaryPaymentsTableProps {
   activeFilter: FilterValue;
   onFilterChange: (filter: FilterValue) => void;
   payments: Payment[];
+  onRefresh: () => void | Promise<void>;
 }
 
 export default function SecretaryPaymentsTable({
   activeFilter,
   onFilterChange,
   payments,
+  onRefresh,
 }: SecretaryPaymentsTableProps) {
   const [search, setSearch] = useState("");
 
@@ -147,7 +149,7 @@ export default function SecretaryPaymentsTable({
             variant="empty"
             title="Henüz ödeme kaydı yok"
             description="Hasta tedavi ödemeleri oluşturulduğunda tahsilat durumlarını buradan takip edebilirsiniz."
-            action={<AddSecretaryPaymentModal />}
+            action={<AddSecretaryPaymentModal onCreated={onRefresh} />}
           />
         )}
 
