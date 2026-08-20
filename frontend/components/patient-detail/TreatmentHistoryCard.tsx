@@ -36,7 +36,7 @@ export default function TreatmentHistoryCard({ history }: { history: TreatmentRe
         </table>
 
         {history.length === 0 && (
-          <p className="py-6 text-center text-sm text-[#667085]">Kayıtlı tedavi geçmişi yok.</p>
+          <p className="py-6 text-center text-sm text-[#667085]">Bu hastaya ait tedavi planı bulunmuyor.</p>
         )}
       </div>
 

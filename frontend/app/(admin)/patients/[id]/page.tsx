@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ApiError } from "@/lib/api";
 import { getPatient, type Patient } from "@/lib/patients-api";
+import { listTreatmentPlans, type TreatmentPlan } from "@/lib/treatment-plans-api";
 import type {
   TreatmentRecord,
   UpcomingAppointment,
@@ -19,7 +20,21 @@ import UpcomingAppointmentsCard from "@/components/patient-detail/UpcomingAppoin
 import PatientPaymentSummaryCard from "@/components/patient-detail/PatientPaymentSummaryCard";
 import DoctorNotesCard from "@/components/patient-detail/DoctorNotesCard";
 
-const EMPTY_TREATMENT_HISTORY: TreatmentRecord[] = [];
+const treatmentDateFormatter = new Intl.DateTimeFormat("tr-TR", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
+function toTreatmentRecords(plans: TreatmentPlan[]): TreatmentRecord[] {
+  return plans.map((plan) => ({
+    date: treatmentDateFormatter.format(new Date(plan.startDate)),
+    treatment: plan.description,
+    doctor: plan.doctor.fullName,
+    description: "—",
+  }));
+}
+
 const EMPTY_UPCOMING_APPOINTMENTS: UpcomingAppointment[] = [];
 const EMPTY_PAYMENT_SUMMARY: PatientPaymentSummary = {
   total: 0,
@@ -137,6 +152,10 @@ export default function PatientDetailPage() {
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [treatmentPlans, setTreatmentPlans] = useState<TreatmentPlan[]>([]);
+  const [isLoadingTreatmentPlans, setIsLoadingTreatmentPlans] = useState(true);
+  const [treatmentPlansError, setTreatmentPlansError] = useState<string | null>(null);
+
   const loadPatient = useCallback(async () => {
     setIsLoading(true);
     setNotFound(false);
@@ -156,9 +175,27 @@ export default function PatientDetailPage() {
     }
   }, [id]);
 
+  const loadTreatmentHistory = useCallback(async () => {
+    setIsLoadingTreatmentPlans(true);
+    setTreatmentPlansError(null);
+
+    try {
+      const data = await listTreatmentPlans({ patientId: id, includeInactive: true });
+      setTreatmentPlans(data);
+    } catch {
+      setTreatmentPlansError("Tedavi planları yüklenirken bir hata oluştu.");
+    } finally {
+      setIsLoadingTreatmentPlans(false);
+    }
+  }, [id]);
+
   useEffect(() => {
     loadPatient();
   }, [loadPatient]);
+
+  useEffect(() => {
+    loadTreatmentHistory();
+  }, [loadTreatmentHistory]);
 
   if (isLoading) {
     return (
@@ -230,7 +267,29 @@ export default function PatientDetailPage() {
       <PatientProfileCard patient={toPatientProfileData(patient)} />
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <TreatmentHistoryCard history={EMPTY_TREATMENT_HISTORY} />
+        {isLoadingTreatmentPlans && (
+          <div className="flex items-center justify-center rounded-[20px] border border-[#EAF0F8] bg-white p-10 text-center shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+            <p className="text-sm text-[#667085]">Tedavi planları yükleniyor...</p>
+          </div>
+        )}
+
+        {!isLoadingTreatmentPlans && treatmentPlansError && (
+          <div className="flex flex-col items-center justify-center gap-3 rounded-[20px] border border-[#EAF0F8] bg-white p-10 text-center shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+            <p className="text-sm text-[#EF4444]">{treatmentPlansError}</p>
+            <button
+              type="button"
+              onClick={loadTreatmentHistory}
+              className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+            >
+              Tekrar Dene
+            </button>
+          </div>
+        )}
+
+        {!isLoadingTreatmentPlans && !treatmentPlansError && (
+          <TreatmentHistoryCard history={toTreatmentRecords(treatmentPlans)} />
+        )}
+
         <UpcomingAppointmentsCard appointments={EMPTY_UPCOMING_APPOINTMENTS} />
       </div>
 

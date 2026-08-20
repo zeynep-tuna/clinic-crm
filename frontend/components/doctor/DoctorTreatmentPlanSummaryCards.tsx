@@ -1,26 +1,27 @@
-import { doctorTreatmentPlanSummary } from "@/data/doctorTreatmentPlans";
+import type { TreatmentPlan } from "@/lib/treatment-plans-api";
 import type { FilterValue } from "@/components/doctor/DoctorTreatmentPlansTable";
 
-type SummaryIcon = "active" | "completed" | "pending-review" | "updated-this-week";
+type SummaryIcon = "active" | "completed" | "pending-review" | "postponed";
 
-const iconByCardId: Record<string, SummaryIcon> = {
-  active: "active",
-  completed: "completed",
-  "pending-review": "pending-review",
-  "updated-this-week": "updated-this-week",
-};
+interface SummaryCard {
+  id: string;
+  icon: SummaryIcon;
+  title: string;
+  value: number;
+}
 
 const colorByCardId: Record<string, string> = {
   active: "bg-[#EEF0FF] text-[#5B4DE3]",
   completed: "bg-[#DCFCE7] text-[#16A34A]",
   "pending-review": "bg-[#FEF3C7] text-[#F59E0B]",
-  "updated-this-week": "bg-[#DBEAFE] text-[#2563EB]",
+  postponed: "bg-[#FEE2E2] text-[#EF4444]",
 };
 
 const filterByCardId: Record<string, FilterValue> = {
   active: "Aktif",
   completed: "Tamamlandı",
   "pending-review": "Kontrol Bekliyor",
+  postponed: "Ertelendi",
 };
 
 function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
@@ -50,7 +51,7 @@ function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5V12l3 2" />
         </svg>
       );
-    case "updated-this-week":
+    case "postponed":
       return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4.5 w-4.5">
           <path
@@ -69,39 +70,33 @@ function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
 interface DoctorTreatmentPlanSummaryCardsProps {
   activeFilter: FilterValue;
   onFilterChange: (filter: FilterValue) => void;
+  treatmentPlans: TreatmentPlan[];
 }
 
 export default function DoctorTreatmentPlanSummaryCards({
   activeFilter,
   onFilterChange,
+  treatmentPlans,
 }: DoctorTreatmentPlanSummaryCardsProps) {
+  const activePlans = treatmentPlans.filter((plan) => plan.isActive);
+
+  const activeCount = activePlans.filter((plan) => plan.status === "ACTIVE").length;
+  const completedCount = activePlans.filter((plan) => plan.status === "COMPLETED").length;
+  const pendingReviewCount = activePlans.filter((plan) => plan.status === "REVIEW_PENDING").length;
+  const postponedCount = activePlans.filter((plan) => plan.status === "POSTPONED").length;
+
+  const cards: SummaryCard[] = [
+    { id: "active", icon: "active", title: "Aktif Plan", value: activeCount },
+    { id: "completed", icon: "completed", title: "Tamamlanan", value: completedCount },
+    { id: "pending-review", icon: "pending-review", title: "Kontrol Bekleyen", value: pendingReviewCount },
+    { id: "postponed", icon: "postponed", title: "Ertelenen", value: postponedCount },
+  ];
+
   return (
     <div className="grid grid-cols-2 gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-[#EEF2F8]">
-      {doctorTreatmentPlanSummary.map((card) => {
-        const filterValue = filterByCardId[card.id];
-        const isSelected = filterValue !== undefined && activeFilter === filterValue;
-
-        const content = (
-          <>
-            <span
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${colorByCardId[card.id] ?? "bg-[#EEF0FF] text-[#5B4DE3]"}`}
-            >
-              <SummaryIconGlyph icon={iconByCardId[card.id] ?? "active"} />
-            </span>
-            <div>
-              <p className="text-xl font-bold text-[#0B1F55]">{card.value}</p>
-              <p className="text-xs text-[#667085]">{card.title}</p>
-            </div>
-          </>
-        );
-
-        if (filterValue === undefined) {
-          return (
-            <div key={card.id} className="flex items-center gap-3 rounded-xl px-2 py-1.5 text-left sm:px-5">
-              {content}
-            </div>
-          );
-        }
+      {cards.map((card) => {
+        const filterValue = filterByCardId[card.id] ?? "Tümü";
+        const isSelected = activeFilter === filterValue;
 
         return (
           <button
@@ -112,7 +107,15 @@ export default function DoctorTreatmentPlanSummaryCards({
               isSelected ? "bg-[#F7F8FF]" : "hover:bg-[#F7F8FF]"
             }`}
           >
-            {content}
+            <span
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${colorByCardId[card.id]}`}
+            >
+              <SummaryIconGlyph icon={card.icon} />
+            </span>
+            <div>
+              <p className="text-xl font-bold text-[#0B1F55]">{card.value}</p>
+              <p className="text-xs text-[#667085]">{card.title}</p>
+            </div>
           </button>
         );
       })}
