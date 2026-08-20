@@ -1,7 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import PaymentsTable from "@/components/payments/PaymentsTable";
 import AddPaymentModal from "@/components/payments/AddPaymentModal";
 
 export default function PaymentsPage() {
+  const [refreshKey, setRefreshKey] = useState(0);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -12,10 +17,10 @@ export default function PaymentsPage() {
           </p>
         </div>
 
-        <AddPaymentModal />
+        <AddPaymentModal onCreated={() => setRefreshKey((key) => key + 1)} />
       </div>
 
-      <PaymentsTable />
+      <PaymentsTable refreshKey={refreshKey} />
     </div>
   );
 }

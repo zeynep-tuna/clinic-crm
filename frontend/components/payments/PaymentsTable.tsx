@@ -109,7 +109,11 @@ function RefundIcon() {
   );
 }
 
-export default function PaymentsTable() {
+interface PaymentsTableProps {
+  refreshKey?: number;
+}
+
+export default function PaymentsTable({ refreshKey }: PaymentsTableProps) {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
   const [paymentList, setPaymentList] = useState<Payment[]>([]);
@@ -132,7 +136,7 @@ export default function PaymentsTable() {
 
   useEffect(() => {
     loadPayments();
-  }, [loadPayments]);
+  }, [loadPayments, refreshKey]);
 
   const activePayments = useMemo(
     () => paymentList.filter((payment) => payment.isActive),
@@ -298,7 +302,7 @@ export default function PaymentsTable() {
                   variant="empty"
                   title="Henüz ödeme kaydı yok"
                   description="Hasta tedavi ödemeleri oluşturulduğunda tahsilat durumlarını buradan takip edebilirsiniz."
-                  action={<AddPaymentModal />}
+                  action={<AddPaymentModal onCreated={loadPayments} />}
                 />
               )}
 

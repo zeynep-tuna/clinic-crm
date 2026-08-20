@@ -1,38 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { listPatients, type Patient } from "@/lib/patients-api";
+import {
+  createPayment,
+  type CreatePaymentInput,
+  type PaymentMethod,
+} from "@/lib/payments-api";
 
-const patientOptions = [
-  "Ayşe Demir",
-  "Mehmet Kaya",
-  "Zeynep Aydın",
-  "Ali Yıldız",
-  "Fatma Öz",
-  "Elif Arslan",
+const paymentMethodOptions: { value: PaymentMethod; label: string }[] = [
+  { value: "CASH", label: "Nakit" },
+  { value: "CARD", label: "Kart" },
+  { value: "BANK_TRANSFER", label: "Havale / Banka Transferi" },
 ];
 
-const statusOptions = ["Ödendi", "Bekliyor", "Kısmi Ödeme", "İade"];
-
-const methodOptions = ["Kredi Kartı", "Nakit", "Havale/EFT"];
-
 interface PaymentFormState {
-  patient: string;
-  treatment: string;
+  patientId: string;
   amount: string;
-  status: string;
-  method: string;
-  date: string;
-  notes: string;
+  paymentMethod: string;
+  paymentDate: string;
+  note: string;
 }
 
 const initialFormState: PaymentFormState = {
-  patient: "",
-  treatment: "",
+  patientId: "",
   amount: "",
-  status: "",
-  method: "",
-  date: "",
-  notes: "",
+  paymentMethod: "",
+  paymentDate: "",
+  note: "",
 };
 
 type PaymentFormErrors = Partial<Record<keyof PaymentFormState, string>>;
@@ -40,35 +35,40 @@ type PaymentFormErrors = Partial<Record<keyof PaymentFormState, string>>;
 function validatePaymentForm(values: PaymentFormState): PaymentFormErrors {
   const nextErrors: PaymentFormErrors = {};
 
-  if (!values.patient) {
-    nextErrors.patient = "Hasta seçimi zorunludur.";
-  }
-
-  if (!values.treatment.trim()) {
-    nextErrors.treatment = "Tedavi/işlem bilgisi zorunludur.";
+  if (!values.patientId) {
+    nextErrors.patientId = "Hasta seçimi zorunludur.";
   }
 
   if (!values.amount.trim()) {
     nextErrors.amount = "Ödeme tutarı zorunludur.";
-  } else if (Number.isNaN(Number(values.amount)) || Number(values.amount) <= 0) {
-    nextErrors.amount = "Ödeme tutarı 0'dan büyük olmalıdır.";
+  } else {
+    const amount = Number(values.amount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      nextErrors.amount = "Ödeme tutarı 0'dan büyük geçerli bir sayı olmalıdır.";
+    }
   }
 
-  if (!values.method) {
-    nextErrors.method = "Ödeme yöntemi zorunludur.";
-  }
-
-  if (!values.status) {
-    nextErrors.status = "Ödeme durumu zorunludur.";
+  if (!values.paymentMethod) {
+    nextErrors.paymentMethod = "Ödeme yöntemi zorunludur.";
   }
 
   return nextErrors;
 }
 
-export default function AddPaymentModal() {
+interface AddPaymentModalProps {
+  onCreated?: () => void | Promise<void>;
+}
+
+export default function AddPaymentModal({ onCreated }: AddPaymentModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [form, setForm] = useState<PaymentFormState>(initialFormState);
   const [errors, setErrors] = useState<PaymentFormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [isLoadingPatients, setIsLoadingPatients] = useState(false);
+  const [patientsError, setPatientsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -83,6 +83,32 @@ export default function AddPaymentModal() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let cancelled = false;
+    setIsLoadingPatients(true);
+    setPatientsError(null);
+
+    listPatients()
+      .then((data) => {
+        if (cancelled) return;
+        setPatients(data);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setPatientsError("Hastalar yüklenirken bir hata oluştu.");
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setIsLoadingPatients(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen]);
+
   function updateField<K extends keyof PaymentFormState>(key: K, value: PaymentFormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => {
@@ -95,19 +121,42 @@ export default function AddPaymentModal() {
 
   function closeModal() {
     setIsOpen(false);
+    setForm(initialFormState);
     setErrors({});
+    setApiError(null);
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setApiError(null);
+
     const validationErrors = validatePaymentForm(form);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-    setForm(initialFormState);
-    setErrors({});
-    setIsOpen(false);
+
+    const input: CreatePaymentInput = {
+      patientId: form.patientId,
+      amount: Number(form.amount),
+      paymentMethod: form.paymentMethod as PaymentMethod,
+      ...(form.paymentDate ? { paymentDate: form.paymentDate } : {}),
+      ...(form.note.trim() ? { note: form.note.trim() } : {}),
+    };
+
+    setIsSubmitting(true);
+
+    try {
+      await createPayment(input);
+      setForm(initialFormState);
+      setErrors({});
+      setIsOpen(false);
+      await onCreated?.();
+    } catch {
+      setApiError("Ödeme eklenirken bir hata oluştu.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -153,36 +202,30 @@ export default function AddPaymentModal() {
             </div>
 
             <form onSubmit={handleSubmit} className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
+              {patientsError && (
+                <p className="rounded-xl bg-[#FEF2F2] px-4 py-2.5 text-sm text-[#EF4444] sm:col-span-2">
+                  {patientsError}
+                </p>
+              )}
+
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Hasta</label>
                 <select
-                  value={form.patient}
-                  onChange={(event) => updateField("patient", event.target.value)}
+                  value={form.patientId}
+                  onChange={(event) => updateField("patientId", event.target.value)}
+                  disabled={isLoadingPatients}
                   className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
-                    errors.patient ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                    errors.patientId ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
                   }`}
                 >
-                  <option value="">Hasta seçin</option>
-                  {patientOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
+                  <option value="">{isLoadingPatients ? "Yükleniyor..." : "Hasta seçin"}</option>
+                  {patients.map((patient) => (
+                    <option key={patient.id} value={patient.id}>
+                      {`${patient.firstName} ${patient.lastName}`.trim()}
                     </option>
                   ))}
                 </select>
-                {errors.patient && <p className="mt-1 text-sm text-[#EF4444]">{errors.patient}</p>}
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Tedavi</label>
-                <input
-                  type="text"
-                  value={form.treatment}
-                  onChange={(event) => updateField("treatment", event.target.value)}
-                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
-                    errors.treatment ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
-                  }`}
-                />
-                {errors.treatment && <p className="mt-1 text-sm text-[#EF4444]">{errors.treatment}</p>}
+                {errors.patientId && <p className="mt-1 text-sm text-[#EF4444]">{errors.patientId}</p>}
               </div>
 
               <div>
@@ -190,6 +233,7 @@ export default function AddPaymentModal() {
                 <input
                   type="number"
                   min={0}
+                  step="0.01"
                   value={form.amount}
                   onChange={(event) => updateField("amount", event.target.value)}
                   className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
@@ -200,49 +244,30 @@ export default function AddPaymentModal() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Ödeme Durumu</label>
-                <select
-                  value={form.status}
-                  onChange={(event) => updateField("status", event.target.value)}
-                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
-                    errors.status ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
-                  }`}
-                >
-                  <option value="">Durum seçin</option>
-                  {statusOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-                {errors.status && <p className="mt-1 text-sm text-[#EF4444]">{errors.status}</p>}
-              </div>
-
-              <div>
                 <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Ödeme Yöntemi</label>
                 <select
-                  value={form.method}
-                  onChange={(event) => updateField("method", event.target.value)}
+                  value={form.paymentMethod}
+                  onChange={(event) => updateField("paymentMethod", event.target.value)}
                   className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
-                    errors.method ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                    errors.paymentMethod ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
                   }`}
                 >
                   <option value="">Yöntem seçin</option>
-                  {methodOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
+                  {paymentMethodOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
                     </option>
                   ))}
                 </select>
-                {errors.method && <p className="mt-1 text-sm text-[#EF4444]">{errors.method}</p>}
+                {errors.paymentMethod && <p className="mt-1 text-sm text-[#EF4444]">{errors.paymentMethod}</p>}
               </div>
 
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Tarih</label>
                 <input
                   type="date"
-                  value={form.date}
-                  onChange={(event) => updateField("date", event.target.value)}
+                  value={form.paymentDate}
+                  onChange={(event) => updateField("paymentDate", event.target.value)}
                   autoComplete="off"
                   className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                 />
@@ -251,13 +276,19 @@ export default function AddPaymentModal() {
               <div className="sm:col-span-2">
                 <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Notlar</label>
                 <textarea
-                  value={form.notes}
-                  onChange={(event) => updateField("notes", event.target.value)}
+                  value={form.note}
+                  onChange={(event) => updateField("note", event.target.value)}
                   placeholder="Ek notlarınızı buraya yazabilirsiniz..."
                   rows={4}
                   className="w-full resize-y rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                 />
               </div>
+
+              {apiError && (
+                <p className="rounded-xl bg-[#FEF2F2] px-4 py-2.5 text-sm text-[#EF4444] sm:col-span-2">
+                  {apiError}
+                </p>
+              )}
 
               <div className="flex items-center justify-end gap-3 sm:col-span-2">
                 <button
@@ -269,9 +300,10 @@ export default function AddPaymentModal() {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#4c3fd1]"
+                  disabled={isSubmitting}
+                  className="rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#4c3fd1] disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  Ödeme Kaydet
+                  {isSubmitting ? "Kaydediliyor..." : "Ödeme Kaydet"}
                 </button>
               </div>
             </form>
