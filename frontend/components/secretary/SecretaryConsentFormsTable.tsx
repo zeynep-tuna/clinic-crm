@@ -1,32 +1,33 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  secretaryConsentFormRows,
-  type SecretaryConsentFormStatus,
-  type SecretaryConsentFormType,
-} from "@/data/secretaryConsentForms";
+import type { ConsentForm, ConsentFormStatus } from "@/lib/consent-forms-api";
 import EmptyState from "@/components/common/EmptyState";
-import ConfirmDialog from "@/components/common/ConfirmDialog";
 import AddSecretaryConsentFormModal from "@/components/secretary/AddSecretaryConsentFormModal";
 
-export type FilterValue = "Tümü" | SecretaryConsentFormStatus;
+type UiStatus = "İmzalandı" | "Bekliyor" | "Eksik";
+
+export type FilterValue = "Tümü" | UiStatus;
 
 const filters: FilterValue[] = ["Tümü", "İmzalandı", "Bekliyor", "Eksik"];
 
-const statusBadgeClass: Record<SecretaryConsentFormStatus, string> = {
+const statusBadgeClass: Record<UiStatus, string> = {
   İmzalandı: "bg-[#DCFCE7] text-[#16A34A]",
   Bekliyor: "bg-[#FEF3C7] text-[#F59E0B]",
   Eksik: "bg-[#FEE2E2] text-[#EF4444]",
 };
 
-const formTypeBadgeClass: Record<SecretaryConsentFormType, string> = {
-  Tedavi: "bg-[#EEF0FF] text-[#5B4DE3]",
-  İmplant: "bg-[#FEF3C7] text-[#F59E0B]",
-  Ortodonti: "bg-[#CCFBF1] text-[#0F766E]",
-  Cerrahi: "bg-[#FEE2E2] text-[#EF4444]",
-  KVKK: "bg-[#DBEAFE] text-[#2563EB]",
-  Muayene: "bg-[#DCFCE7] text-[#16A34A]",
+const STATUS_LABELS: Record<ConsentFormStatus, UiStatus> = {
+  SIGNED: "İmzalandı",
+  PENDING: "Bekliyor",
+  MISSING: "Eksik",
+};
+
+type RecordStatus = "Aktif" | "Pasif";
+
+const RECORD_STATUS_BADGE_CLASS: Record<RecordStatus, string> = {
+  Aktif: "bg-[#DCFCE7] text-[#16A34A]",
+  Pasif: "bg-[#F3F4F6] text-[#667085]",
 };
 
 const avatarPalette = [
@@ -37,72 +38,62 @@ const avatarPalette = [
   "bg-[#F3F4F6] text-[#475467]",
 ];
 
+const dateFormatter = new Intl.DateTimeFormat("tr-TR", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
 function getAvatarColor(id: string) {
   const sum = id.split("").reduce((total, char) => total + char.charCodeAt(0), 0);
   return avatarPalette[sum % avatarPalette.length];
 }
 
-function DownloadIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v11m0 0 4-4m-4 4-4-4" />
-      <path strokeLinecap="round" d="M4 18.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-.5" />
-    </svg>
-  );
+function getPatientName(form: ConsentForm) {
+  return `${form.patient.firstName} ${form.patient.lastName}`.trim();
 }
 
-function EditIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 4.5a2.1 2.1 0 0 1 3 3L7 20l-4 1 1-4Z" />
-    </svg>
-  );
+function getStatusLabel(form: ConsentForm): UiStatus {
+  return STATUS_LABELS[form.status];
 }
 
-function MoreIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-      <circle cx="5" cy="12" r="1.5" />
-      <circle cx="12" cy="12" r="1.5" />
-      <circle cx="19" cy="12" r="1.5" />
-    </svg>
-  );
+function getRecordStatusLabel(form: ConsentForm): RecordStatus {
+  return form.isActive ? "Aktif" : "Pasif";
 }
 
-function TrashIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 7h15M9.5 7V5a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 5v2M18 7l-.7 12a1.5 1.5 0 0 1-1.5 1.4H8.2a1.5 1.5 0 0 1-1.5-1.4L6 7" />
-    </svg>
-  );
+function formatCreatedDate(createdAt: string) {
+  return dateFormatter.format(new Date(createdAt));
 }
 
 interface SecretaryConsentFormsTableProps {
   activeFilter: FilterValue;
   onFilterChange: (filter: FilterValue) => void;
+  consentForms: ConsentForm[];
+  onRefresh: () => void | Promise<void>;
 }
 
 export default function SecretaryConsentFormsTable({
   activeFilter,
   onFilterChange,
+  consentForms,
+  onRefresh,
 }: SecretaryConsentFormsTableProps) {
   const [search, setSearch] = useState("");
-  const [formList, setFormList] = useState(secretaryConsentFormRows);
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const filteredForms = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    return formList.filter((form) => {
-      const matchesFilter = activeFilter === "Tümü" || form.status === activeFilter;
+    return consentForms.filter((form) => {
+      const status = getStatusLabel(form);
+      const matchesFilter = activeFilter === "Tümü" || status === activeFilter;
       const matchesSearch =
         term === "" ||
-        form.patientName.toLowerCase().includes(term) ||
-        form.formName.toLowerCase().includes(term) ||
+        getPatientName(form).toLowerCase().includes(term) ||
+        form.title.toLowerCase().includes(term) ||
         form.formType.toLowerCase().includes(term);
       return matchesFilter && matchesSearch;
     });
-  }, [search, activeFilter, formList]);
+  }, [search, activeFilter, consentForms]);
 
   return (
     <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
@@ -150,20 +141,20 @@ export default function SecretaryConsentFormsTable({
       </div>
 
       <div className="mt-5 overflow-x-auto">
-        {formList.length === 0 && (
+        {consentForms.length === 0 && (
           <EmptyState
             variant="empty"
             title="Henüz onam formu bulunmuyor"
             description="Diş tedavileri için dijital onam formları oluşturulduğunda burada takip edebilirsiniz."
-            action={<AddSecretaryConsentFormModal />}
+            action={<AddSecretaryConsentFormModal onCreated={onRefresh} />}
           />
         )}
 
-        {formList.length > 0 && filteredForms.length === 0 && (
+        {consentForms.length > 0 && filteredForms.length === 0 && (
           <EmptyState
             variant="search"
             title="Eşleşen onam formu bulunamadı"
-            description="Hasta adı, form türü veya imza durumunu değiştirerek tekrar deneyin."
+            description="Hasta adı, form türü veya seçili filtreyi değiştirerek tekrar deneyin."
             action={
               <button
                 type="button"
@@ -180,20 +171,24 @@ export default function SecretaryConsentFormsTable({
         )}
 
         {filteredForms.length > 0 && (
-        <table className="w-full min-w-230 text-left">
+        <table className="w-full min-w-220 text-left">
           <thead>
             <tr className="border-b border-[#EAF0F8] text-xs font-semibold tracking-wide text-[#667085] uppercase">
               <th className="pb-2.5 font-medium">Hasta</th>
               <th className="pb-2.5 font-medium">Form Adı</th>
               <th className="pb-2.5 font-medium">Form Türü</th>
-              <th className="pb-2.5 font-medium">Tarih</th>
-              <th className="pb-2.5 font-medium">Dosya</th>
+              <th className="pb-2.5 font-medium">Oluşturulma Tarihi</th>
               <th className="pb-2.5 font-medium">Durum</th>
-              <th className="pb-2.5 font-medium">İşlem</th>
+              <th className="pb-2.5 font-medium">Kayıt Durumu</th>
             </tr>
           </thead>
           <tbody>
-            {filteredForms.map((form) => (
+            {filteredForms.map((form) => {
+              const patientName = getPatientName(form);
+              const status = getStatusLabel(form);
+              const recordStatus = getRecordStatusLabel(form);
+
+              return (
               <tr
                 key={form.id}
                 onClick={() => console.log("Onam formu detayına git:", form.id)}
@@ -204,73 +199,35 @@ export default function SecretaryConsentFormsTable({
                     <div
                       className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${getAvatarColor(form.id)}`}
                     >
-                      {form.patientName.charAt(0)}
+                      {patientName.charAt(0)}
                     </div>
-                    <span className="text-sm font-medium text-[#0B1F55]">{form.patientName}</span>
+                    <span className="text-sm font-medium text-[#0B1F55]">{patientName}</span>
                   </div>
                 </td>
-                <td className="py-4 text-sm text-[#0B1F55]">{form.formName}</td>
+                <td className="py-4 text-sm text-[#0B1F55]">{form.title}</td>
                 <td className="py-4">
-                  <span
-                    className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${formTypeBadgeClass[form.formType]}`}
-                  >
+                  <span className="inline-block rounded-full border border-[#EAF0F8] bg-[#F7F8FF] px-3 py-1 text-xs font-medium text-[#667085]">
                     {form.formType}
                   </span>
                 </td>
-                <td className="py-4 text-sm text-[#0B1F55]">{form.date}</td>
+                <td className="py-4 text-sm text-[#0B1F55]">{formatCreatedDate(form.createdAt)}</td>
                 <td className="py-4">
-                  <span className="inline-block rounded-full border border-[#EAF0F8] bg-[#F7F8FF] px-3 py-1 text-xs font-medium text-[#667085]">
-                    {form.fileType}
+                  <span
+                    className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${statusBadgeClass[status]}`}
+                  >
+                    {status}
                   </span>
                 </td>
                 <td className="py-4">
                   <span
-                    className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${statusBadgeClass[form.status]}`}
+                    className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${RECORD_STATUS_BADGE_CLASS[recordStatus]}`}
                   >
-                    {form.status}
+                    {recordStatus}
                   </span>
                 </td>
-                <td className="py-4">
-                  <div className="flex items-center gap-3 text-[#667085]">
-                    <button
-                      type="button"
-                      aria-label="İndir"
-                      onClick={(event) => event.stopPropagation()}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
-                    >
-                      <DownloadIcon />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Düzenle"
-                      onClick={(event) => event.stopPropagation()}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
-                    >
-                      <EditIcon />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Diğer işlemler"
-                      onClick={(event) => event.stopPropagation()}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
-                    >
-                      <MoreIcon />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Onam formunu sil"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setPendingDeleteId(form.id);
-                      }}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEE2E2] hover:text-[#EF4444]"
-                    >
-                      <TrashIcon />
-                    </button>
-                  </div>
-                </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
         )}
@@ -302,19 +259,6 @@ export default function SecretaryConsentFormsTable({
           </button>
         </div>
       </div>
-
-      <ConfirmDialog
-        open={pendingDeleteId !== null}
-        title="Onam formunu silmek istiyor musunuz?"
-        description="Seçili dijital onam formu listeden kaldırılacak. İmzalı formlar için gerçek sistemlerde ayrıca yetki kontrolü gerekir."
-        confirmLabel="Onam Formunu Sil"
-        variant="danger"
-        onConfirm={() => {
-          setFormList((prev) => prev.filter((form) => form.id !== pendingDeleteId));
-          setPendingDeleteId(null);
-        }}
-        onCancel={() => setPendingDeleteId(null)}
-      />
     </div>
   );
 }
