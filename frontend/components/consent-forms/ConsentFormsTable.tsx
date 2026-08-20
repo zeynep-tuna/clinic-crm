@@ -102,7 +102,11 @@ function AlertIcon() {
   );
 }
 
-export default function ConsentFormsTable() {
+interface ConsentFormsTableProps {
+  refreshKey?: number;
+}
+
+export default function ConsentFormsTable({ refreshKey }: ConsentFormsTableProps) {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
   const [formList, setFormList] = useState<ConsentForm[]>([]);
@@ -125,7 +129,7 @@ export default function ConsentFormsTable() {
 
   useEffect(() => {
     loadConsentForms();
-  }, [loadConsentForms]);
+  }, [loadConsentForms, refreshKey]);
 
   const activeForms = useMemo(() => formList.filter((form) => form.isActive), [formList]);
 
@@ -284,7 +288,7 @@ export default function ConsentFormsTable() {
                   variant="empty"
                   title="Henüz onam formu bulunmuyor"
                   description="Diş tedavileri için dijital onam formları oluşturarak hasta onay süreçlerini takip edebilirsiniz."
-                  action={<AddConsentFormModal />}
+                  action={<AddConsentFormModal onCreated={loadConsentForms} />}
                 />
               )}
 

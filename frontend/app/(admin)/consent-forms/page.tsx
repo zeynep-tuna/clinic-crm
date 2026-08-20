@@ -1,7 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import ConsentFormsTable from "@/components/consent-forms/ConsentFormsTable";
 import AddConsentFormModal from "@/components/consent-forms/AddConsentFormModal";
 
 export default function ConsentFormsPage() {
+  const [refreshKey, setRefreshKey] = useState(0);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -12,10 +17,10 @@ export default function ConsentFormsPage() {
           </p>
         </div>
 
-        <AddConsentFormModal />
+        <AddConsentFormModal onCreated={() => setRefreshKey((key) => key + 1)} />
       </div>
 
-      <ConsentFormsTable />
+      <ConsentFormsTable refreshKey={refreshKey} />
     </div>
   );
 }

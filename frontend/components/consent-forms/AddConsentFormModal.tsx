@@ -1,36 +1,46 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { listPatients, type Patient } from "@/lib/patients-api";
+import {
+  createConsentForm,
+  type ConsentFormStatus,
+  type CreateConsentFormInput,
+} from "@/lib/consent-forms-api";
 
-const patientOptions = [
-  "Ayşe Demir",
-  "Mehmet Kaya",
-  "Zeynep Aydın",
-  "Ali Yıldız",
-  "Fatma Öz",
-  "Elif Arslan",
+const consentFormTemplates: { title: string; formType: string }[] = [
+  { title: "İmplant Tedavisi Onam Formu", formType: "İmplant" },
+  { title: "Diş Çekimi Onam Formu", formType: "Cerrahi" },
+  { title: "Ortodontik Tedavi Onam Formu", formType: "Ortodonti" },
+  { title: "Kanal Tedavisi Onam Formu", formType: "Tedavi" },
+  { title: "KVKK Aydınlatma ve Onam Formu", formType: "KVKK" },
+  { title: "Genel Muayene Onam Formu", formType: "Muayene" },
 ];
 
-const formTypeOptions = ["Tedavi", "İmplant", "Ortodonti", "Cerrahi", "KVKK", "Muayene"];
-
-const statusOptions = ["İmzalandı", "Bekliyor", "Eksik"];
+const statusOptions: { value: ConsentFormStatus; label: string }[] = [
+  { value: "SIGNED", label: "İmzalandı" },
+  { value: "PENDING", label: "Bekliyor" },
+  { value: "MISSING", label: "Eksik" },
+];
 
 interface ConsentFormFormState {
-  patient: string;
-  formTitle: string;
+  patientId: string;
+  title: string;
   formType: string;
-  date: string;
+  content: string;
   status: string;
-  notes: string;
+  signedAt: string;
+  note: string;
 }
 
 const initialFormState: ConsentFormFormState = {
-  patient: "",
-  formTitle: "",
+  patientId: "",
+  title: "",
   formType: "",
-  date: "",
+  content: "",
   status: "",
-  notes: "",
+  signedAt: "",
+  note: "",
 };
 
 type ConsentFormFormErrors = Partial<Record<keyof ConsentFormFormState, string>>;
@@ -38,29 +48,43 @@ type ConsentFormFormErrors = Partial<Record<keyof ConsentFormFormState, string>>
 function validateConsentFormForm(values: ConsentFormFormState): ConsentFormFormErrors {
   const nextErrors: ConsentFormFormErrors = {};
 
-  if (!values.patient) {
-    nextErrors.patient = "Hasta seçimi zorunludur.";
+  if (!values.patientId) {
+    nextErrors.patientId = "Hasta seçimi zorunludur.";
   }
 
-  if (!values.formTitle.trim()) {
-    nextErrors.formTitle = "Form adı zorunludur.";
+  if (!values.title.trim()) {
+    nextErrors.title = "Form adı zorunludur.";
   }
 
   if (!values.formType) {
     nextErrors.formType = "Form türü zorunludur.";
   }
 
-  if (!values.status) {
-    nextErrors.status = "Form durumu zorunludur.";
+  if (!values.content.trim()) {
+    nextErrors.content = "Form içeriği zorunludur.";
+  }
+
+  if (values.status === "SIGNED" && !values.signedAt) {
+    nextErrors.signedAt = "İmzalanma tarihi zorunludur.";
   }
 
   return nextErrors;
 }
 
-export default function AddConsentFormModal() {
+interface AddConsentFormModalProps {
+  onCreated?: () => void | Promise<void>;
+}
+
+export default function AddConsentFormModal({ onCreated }: AddConsentFormModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [form, setForm] = useState<ConsentFormFormState>(initialFormState);
   const [errors, setErrors] = useState<ConsentFormFormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [isLoadingPatients, setIsLoadingPatients] = useState(false);
+  const [patientsError, setPatientsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -73,6 +97,32 @@ export default function AddConsentFormModal() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let cancelled = false;
+    setIsLoadingPatients(true);
+    setPatientsError(null);
+
+    listPatients()
+      .then((data) => {
+        if (cancelled) return;
+        setPatients(data);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setPatientsError("Hastalar yüklenirken bir hata oluştu.");
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setIsLoadingPatients(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [isOpen]);
 
   function updateField<K extends keyof ConsentFormFormState>(
@@ -88,21 +138,80 @@ export default function AddConsentFormModal() {
     });
   }
 
-  function closeModal() {
-    setIsOpen(false);
-    setErrors({});
+  function handleTitleChange(value: string) {
+    const template = consentFormTemplates.find((option) => option.title === value);
+
+    setForm((prev) => ({
+      ...prev,
+      title: value,
+      formType: template ? template.formType : "",
+    }));
+    setErrors((prev) => {
+      if (!prev.title && !prev.formType) return prev;
+      const next = { ...prev };
+      delete next.title;
+      delete next.formType;
+      return next;
+    });
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function handleStatusChange(value: string) {
+    setForm((prev) => ({
+      ...prev,
+      status: value,
+      signedAt: value === "SIGNED" ? prev.signedAt : "",
+    }));
+    setErrors((prev) => {
+      if (!prev.status && !prev.signedAt) return prev;
+      const next = { ...prev };
+      delete next.status;
+      if (value !== "SIGNED") {
+        delete next.signedAt;
+      }
+      return next;
+    });
+  }
+
+  function closeModal() {
+    setIsOpen(false);
+    setForm(initialFormState);
+    setErrors({});
+    setApiError(null);
+  }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setApiError(null);
+
     const validationErrors = validateConsentFormForm(form);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-    setForm(initialFormState);
-    setErrors({});
-    setIsOpen(false);
+
+    const input: CreateConsentFormInput = {
+      patientId: form.patientId,
+      title: form.title.trim(),
+      formType: form.formType,
+      content: form.content.trim(),
+      ...(form.status ? { status: form.status as ConsentFormStatus } : {}),
+      ...(form.status === "SIGNED" && form.signedAt ? { signedAt: form.signedAt } : {}),
+      ...(form.note.trim() ? { note: form.note.trim() } : {}),
+    };
+
+    setIsSubmitting(true);
+
+    try {
+      await createConsentForm(input);
+      setForm(initialFormState);
+      setErrors({});
+      setIsOpen(false);
+      await onCreated?.();
+    } catch {
+      setApiError("Onam formu eklenirken bir hata oluştu.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -148,51 +257,65 @@ export default function AddConsentFormModal() {
             </div>
 
             <form onSubmit={handleSubmit} className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
+              {patientsError && (
+                <p className="rounded-xl bg-[#FEF2F2] px-4 py-2.5 text-sm text-[#EF4444] sm:col-span-2">
+                  {patientsError}
+                </p>
+              )}
+
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Hasta</label>
                 <select
-                  value={form.patient}
-                  onChange={(event) => updateField("patient", event.target.value)}
+                  value={form.patientId}
+                  onChange={(event) => updateField("patientId", event.target.value)}
+                  disabled={isLoadingPatients}
                   className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
-                    errors.patient ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                    errors.patientId ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
                   }`}
                 >
-                  <option value="">Hasta seçin</option>
-                  {patientOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
+                  <option value="">{isLoadingPatients ? "Yükleniyor..." : "Hasta seçin"}</option>
+                  {patients.map((patient) => (
+                    <option key={patient.id} value={patient.id}>
+                      {`${patient.firstName} ${patient.lastName}`.trim()}
                     </option>
                   ))}
                 </select>
-                {errors.patient && <p className="mt-1 text-sm text-[#EF4444]">{errors.patient}</p>}
+                {errors.patientId && <p className="mt-1 text-sm text-[#EF4444]">{errors.patientId}</p>}
               </div>
 
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Form Adı</label>
-                <input
-                  type="text"
-                  value={form.formTitle}
-                  onChange={(event) => updateField("formTitle", event.target.value)}
-                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
-                    errors.formTitle ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                <select
+                  value={form.title}
+                  onChange={(event) => handleTitleChange(event.target.value)}
+                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                    errors.title ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
                   }`}
-                />
-                {errors.formTitle && <p className="mt-1 text-sm text-[#EF4444]">{errors.formTitle}</p>}
+                >
+                  <option value="">Form adı seçin</option>
+                  {consentFormTemplates.map((option) => (
+                    <option key={option.title} value={option.title}>
+                      {option.title}
+                    </option>
+                  ))}
+                </select>
+                {errors.title && <p className="mt-1 text-sm text-[#EF4444]">{errors.title}</p>}
               </div>
 
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Form Türü</label>
                 <select
                   value={form.formType}
-                  onChange={(event) => updateField("formType", event.target.value)}
-                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                  disabled
+                  onChange={() => {}}
+                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 disabled:cursor-not-allowed disabled:bg-[#F7F8FF] disabled:text-[#667085] ${
                     errors.formType ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
                   }`}
                 >
-                  <option value="">Form türü seçin</option>
-                  {formTypeOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
+                  <option value="">Form adı seçildiğinde otomatik belirlenir</option>
+                  {consentFormTemplates.map((option) => (
+                    <option key={option.formType} value={option.formType}>
+                      {option.formType}
                     </option>
                   ))}
                 </select>
@@ -200,54 +323,67 @@ export default function AddConsentFormModal() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Tarih</label>
-                <input
-                  type="date"
-                  value={form.date}
-                  onChange={(event) => updateField("date", event.target.value)}
-                  autoComplete="off"
-                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
-                />
-              </div>
-
-              <div>
                 <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Durum</label>
                 <select
                   value={form.status}
-                  onChange={(event) => updateField("status", event.target.value)}
-                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
-                    errors.status ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
-                  }`}
+                  onChange={(event) => handleStatusChange(event.target.value)}
+                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                 >
-                  <option value="">Durum seçin</option>
+                  <option value="">Durum seçin (varsayılan: Bekliyor)</option>
                   {statusOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
+                    <option key={option.value} value={option.value}>
+                      {option.label}
                     </option>
                   ))}
                 </select>
-                {errors.status && <p className="mt-1 text-sm text-[#EF4444]">{errors.status}</p>}
               </div>
 
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Dosya</label>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm text-[#0B1F55] file:mr-3 file:rounded-lg file:border-0 file:bg-[#EEF0FF] file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-[#5B4DE3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
+              {form.status === "SIGNED" && (
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">İmzalanma Tarihi</label>
+                  <input
+                    type="date"
+                    value={form.signedAt}
+                    onChange={(event) => updateField("signedAt", event.target.value)}
+                    autoComplete="off"
+                    className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                      errors.signedAt ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                    }`}
+                  />
+                  {errors.signedAt && <p className="mt-1 text-sm text-[#EF4444]">{errors.signedAt}</p>}
+                </div>
+              )}
+
+              <div className="sm:col-span-2">
+                <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Form İçeriği</label>
+                <textarea
+                  value={form.content}
+                  onChange={(event) => updateField("content", event.target.value)}
+                  placeholder="Onam formunun metnini buraya yazın..."
+                  rows={4}
+                  className={`w-full resize-y rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
+                    errors.content ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
+                  }`}
                 />
+                {errors.content && <p className="mt-1 text-sm text-[#EF4444]">{errors.content}</p>}
               </div>
 
               <div className="sm:col-span-2">
                 <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Notlar</label>
                 <textarea
-                  value={form.notes}
-                  onChange={(event) => updateField("notes", event.target.value)}
+                  value={form.note}
+                  onChange={(event) => updateField("note", event.target.value)}
                   placeholder="Ek notlarınızı buraya yazabilirsiniz..."
                   rows={4}
                   className="w-full resize-y rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
                 />
               </div>
+
+              {apiError && (
+                <p className="rounded-xl bg-[#FEF2F2] px-4 py-2.5 text-sm text-[#EF4444] sm:col-span-2">
+                  {apiError}
+                </p>
+              )}
 
               <div className="flex items-center justify-end gap-3 sm:col-span-2">
                 <button
@@ -259,9 +395,10 @@ export default function AddConsentFormModal() {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#4c3fd1]"
+                  disabled={isSubmitting}
+                  className="rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#4c3fd1] disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  Onam Formu Kaydet
+                  {isSubmitting ? "Kaydediliyor..." : "Onam Formu Kaydet"}
                 </button>
               </div>
             </form>
