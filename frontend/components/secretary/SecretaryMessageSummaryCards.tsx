@@ -1,14 +1,14 @@
-import { secretaryMessageSummary } from "@/data/secretaryMessages";
+import type { Message } from "@/lib/messages-api";
 import type { FilterValue } from "@/components/secretary/SecretaryMessagesPanel";
 
 type SummaryIcon = "total" | "unread" | "today" | "urgent";
 
-const iconByCardId: Record<string, SummaryIcon> = {
-  total: "total",
-  unread: "unread",
-  today: "today",
-  urgent: "urgent",
-};
+interface SummaryCard {
+  id: string;
+  icon: SummaryIcon;
+  title: string;
+  value: number;
+}
 
 const colorByCardId: Record<string, string> = {
   total: "bg-[#DBEAFE] text-[#2563EB]",
@@ -18,9 +18,7 @@ const colorByCardId: Record<string, string> = {
 };
 
 const filterByCardId: Record<string, FilterValue> = {
-  total: "Tümü",
   unread: "Okunmamış",
-  today: "Tümü",
   urgent: "Acil",
 };
 
@@ -63,20 +61,70 @@ function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
   }
 }
 
+function isToday(value: string) {
+  const date = new Date(value);
+  const now = new Date();
+  return (
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate()
+  );
+}
+
 interface SecretaryMessageSummaryCardsProps {
+  messages: Message[];
+  currentUserId: string;
   activeFilter: FilterValue;
   onFilterChange: (filter: FilterValue) => void;
 }
 
 export default function SecretaryMessageSummaryCards({
+  messages,
+  currentUserId,
   activeFilter,
   onFilterChange,
 }: SecretaryMessageSummaryCardsProps) {
+  const totalCount = messages.length;
+  const unreadCount = messages.filter((message) => message.receiverId === currentUserId && !message.isRead).length;
+  const todayCount = messages.filter(
+    (message) => message.receiverId === currentUserId && isToday(message.createdAt)
+  ).length;
+  const urgentCount = messages.filter((message) => message.priority === "URGENT").length;
+
+  const cards: SummaryCard[] = [
+    { id: "total", icon: "total", title: "Toplam Mesaj", value: totalCount },
+    { id: "unread", icon: "unread", title: "Okunmamış", value: unreadCount },
+    { id: "today", icon: "today", title: "Bugün Gelen", value: todayCount },
+    { id: "urgent", icon: "urgent", title: "Acil", value: urgentCount },
+  ];
+
   return (
     <div className="grid grid-cols-2 gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-[#EAF0F8]/60">
-      {secretaryMessageSummary.map((card) => {
-        const filterValue = filterByCardId[card.id] ?? "Tümü";
-        const isSelected = card.id === "today" ? false : activeFilter === filterValue;
+      {cards.map((card) => {
+        const filterValue = filterByCardId[card.id];
+        const isSelected = filterValue !== undefined && activeFilter === filterValue;
+
+        const content = (
+          <>
+            <span
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${colorByCardId[card.id] ?? "bg-[#EEF0FF] text-[#5B4DE3]"}`}
+            >
+              <SummaryIconGlyph icon={card.icon} />
+            </span>
+            <div>
+              <p className="text-xl font-bold text-[#0B1F55]">{card.value}</p>
+              <p className="text-xs text-[#667085]">{card.title}</p>
+            </div>
+          </>
+        );
+
+        if (filterValue === undefined) {
+          return (
+            <div key={card.id} className="flex items-center gap-3 rounded-xl px-2 py-1.5 text-left sm:px-5">
+              {content}
+            </div>
+          );
+        }
 
         return (
           <button
@@ -87,15 +135,7 @@ export default function SecretaryMessageSummaryCards({
               isSelected ? "bg-[#F7F8FF]" : "hover:bg-[#F7F8FF]"
             }`}
           >
-            <span
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${colorByCardId[card.id] ?? "bg-[#EEF0FF] text-[#5B4DE3]"}`}
-            >
-              <SummaryIconGlyph icon={iconByCardId[card.id] ?? "total"} />
-            </span>
-            <div>
-              <p className="text-xl font-bold text-[#0B1F55]">{card.value}</p>
-              <p className="text-xs text-[#667085]">{card.title}</p>
-            </div>
+            {content}
           </button>
         );
       })}

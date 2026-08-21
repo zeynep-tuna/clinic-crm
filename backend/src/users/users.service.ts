@@ -34,6 +34,23 @@ export class UsersService {
     });
   }
 
+  findColleagues(clinicId: string, currentUserId: string) {
+    return this.prisma.user.findMany({
+      where: {
+        clinicId,
+        isActive: true,
+        id: { not: currentUserId },
+      },
+      orderBy: { fullName: 'asc' },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        role: true,
+      },
+    });
+  }
+
   async findOne(id: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },

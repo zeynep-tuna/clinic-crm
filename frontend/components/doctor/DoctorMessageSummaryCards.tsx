@@ -1,14 +1,14 @@
-import { doctorMessageSummary } from "@/data/doctorMessages";
+import type { Message } from "@/lib/messages-api";
 import type { FilterValue } from "@/components/doctor/DoctorMessagesPanel";
 
 type SummaryIcon = "total" | "unread" | "today" | "urgent";
 
-const iconByCardId: Record<string, SummaryIcon> = {
-  total: "total",
-  unread: "unread",
-  today: "today",
-  urgent: "urgent",
-};
+interface SummaryCard {
+  id: string;
+  icon: SummaryIcon;
+  title: string;
+  value: number;
+}
 
 const colorByCardId: Record<string, string> = {
   total: "bg-[#DBEAFE] text-[#2563EB]",
@@ -18,7 +18,6 @@ const colorByCardId: Record<string, string> = {
 };
 
 const filterByCardId: Record<string, FilterValue> = {
-  total: "Tümü",
   unread: "Okunmamış",
   urgent: "Acil",
 };
@@ -62,18 +61,46 @@ function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
   }
 }
 
+function isToday(value: string) {
+  const date = new Date(value);
+  const now = new Date();
+  return (
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate()
+  );
+}
+
 interface DoctorMessageSummaryCardsProps {
+  messages: Message[];
+  currentUserId: string;
   activeFilter: FilterValue;
   onFilterChange: (filter: FilterValue) => void;
 }
 
 export default function DoctorMessageSummaryCards({
+  messages,
+  currentUserId,
   activeFilter,
   onFilterChange,
 }: DoctorMessageSummaryCardsProps) {
+  const totalCount = messages.length;
+  const unreadCount = messages.filter((message) => message.receiverId === currentUserId && !message.isRead).length;
+  const todayCount = messages.filter(
+    (message) => message.receiverId === currentUserId && isToday(message.createdAt)
+  ).length;
+  const urgentCount = messages.filter((message) => message.priority === "URGENT").length;
+
+  const cards: SummaryCard[] = [
+    { id: "total", icon: "total", title: "Toplam Mesaj", value: totalCount },
+    { id: "unread", icon: "unread", title: "Okunmamış", value: unreadCount },
+    { id: "today", icon: "today", title: "Bugün Gelen", value: todayCount },
+    { id: "urgent", icon: "urgent", title: "Acil", value: urgentCount },
+  ];
+
   return (
     <div className="grid grid-cols-2 gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-[#EEF2F8]">
-      {doctorMessageSummary.map((card) => {
+      {cards.map((card) => {
         const filterValue = filterByCardId[card.id];
         const isSelected = filterValue !== undefined && activeFilter === filterValue;
 
@@ -82,7 +109,7 @@ export default function DoctorMessageSummaryCards({
             <span
               className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${colorByCardId[card.id] ?? "bg-[#EEF0FF] text-[#5B4DE3]"}`}
             >
-              <SummaryIconGlyph icon={iconByCardId[card.id] ?? "total"} />
+              <SummaryIconGlyph icon={card.icon} />
             </span>
             <div>
               <p className="text-xl font-bold text-[#0B1F55]">{card.value}</p>

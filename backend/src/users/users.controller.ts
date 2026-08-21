@@ -7,12 +7,16 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import {
+  JwtAuthGuard,
+  type RequestWithUser,
+} from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 
@@ -32,6 +36,15 @@ export class UsersController {
     }
 
     return this.usersService.findAll(clinicId, includeInactive === 'true');
+  }
+
+  @Roles('ADMIN', 'SECRETARY', 'DOCTOR')
+  @Get('colleagues')
+  findColleagues(@Req() request: RequestWithUser) {
+    return this.usersService.findColleagues(
+      request.user!.clinicId,
+      request.user!.id,
+    );
   }
 
   @Get(':id')

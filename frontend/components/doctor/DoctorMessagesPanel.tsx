@@ -1,43 +1,47 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { doctorMessageRows, type DoctorMessageRow } from "@/data/doctorMessages";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { getCurrentUser, type AuthUser } from "@/lib/auth";
+import { listMessages, updateMessage, type Message, type MessageUserRole } from "@/lib/messages-api";
 import DoctorMessageDetail from "@/components/doctor/DoctorMessageDetail";
 import DoctorMessageSummaryCards from "@/components/doctor/DoctorMessageSummaryCards";
+import AddDoctorMessageModal from "@/components/doctor/AddDoctorMessageModal";
 import EmptyState from "@/components/common/EmptyState";
-import ConfirmDialog from "@/components/common/ConfirmDialog";
 
-export type FilterValue = "Tümü" | "Okunmamış" | "Hasta" | "Sekreter" | "Acil";
+export type FilterValue = "Tümü" | "Okunmamış" | "Sekreter" | "Yönetim" | "Acil";
 
-const filters: FilterValue[] = ["Tümü", "Okunmamış", "Hasta", "Sekreter", "Acil"];
+const filters: FilterValue[] = ["Tümü", "Okunmamış", "Sekreter", "Yönetim", "Acil"];
 
 const statusBadgeClass: Record<string, string> = {
   Okunmamış: "bg-[#EEF0FF] text-[#5B4DE3]",
   Okundu: "bg-[#F3F4F6] text-[#667085]",
 };
 
-const priorityBadgeClass: Record<string, string> = {
-  Acil: "bg-[#FEE2E2] text-[#EF4444]",
-  Normal: "bg-[#DBEAFE] text-[#2563EB]",
-  Düşük: "bg-[#F3F4F6] text-[#667085]",
+const priorityLabels: Record<Message["priority"], string> = {
+  URGENT: "Acil",
+  HIGH: "Yüksek",
+  NORMAL: "Normal",
+  LOW: "Düşük",
 };
 
-export function getSenderAvatarColor(message: DoctorMessageRow) {
-  if (message.priority === "Acil") {
-    return "bg-[#FEE2E2] text-[#EF4444]";
-  }
+const priorityBadgeClass: Record<Message["priority"], string> = {
+  URGENT: "bg-[#FEE2E2] text-[#EF4444]",
+  HIGH: "bg-[#FEF3C7] text-[#F59E0B]",
+  NORMAL: "bg-[#DBEAFE] text-[#2563EB]",
+  LOW: "bg-[#F3F4F6] text-[#667085]",
+};
 
-  switch (message.senderType) {
-    case "Hasta":
-      return "bg-[#CCFBF1] text-[#0F766E]";
-    case "Sekreter":
-      return "bg-[#EEF0FF] text-[#5B4DE3]";
-    case "Yönetim":
-      return "bg-[#DBEAFE] text-[#2563EB]";
-    default:
-      return "bg-[#F3F4F6] text-[#475467]";
-  }
-}
+const roleLabels: Record<MessageUserRole, string> = {
+  ADMIN: "Yönetim",
+  DOCTOR: "Doktor",
+  SECRETARY: "Sekreter",
+};
+
+const roleAvatarClass: Record<MessageUserRole, string> = {
+  ADMIN: "bg-[#DBEAFE] text-[#2563EB]",
+  DOCTOR: "bg-[#DBEAFE] text-[#2563EB]",
+  SECRETARY: "bg-[#EEF0FF] text-[#5B4DE3]",
+};
 
 function initials(name: string) {
   return name
@@ -48,42 +52,127 @@ function initials(name: string) {
     .toUpperCase();
 }
 
+function otherPartyOf(message: Message, currentUserId: string) {
+  return message.receiverId === currentUserId ? message.sender : message.receiver;
+}
+
+const timeFormatter = new Intl.DateTimeFormat("tr-TR", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
 export default function DoctorMessagesPanel() {
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
-  const [selectedId, setSelectedId] = useState(doctorMessageRows[0]?.id ?? "");
-  const [messageList, setMessageList] = useState(doctorMessageRows);
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState("");
+
+  const loadMessages = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const [user, data] = await Promise.all([getCurrentUser(), listMessages()]);
+      setCurrentUser(user);
+      setMessages(data);
+    } catch {
+      setError("Mesajlar yüklenirken bir hata oluştu.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadMessages();
+  }, [loadMessages]);
+
+  const currentUserId = currentUser?.id ?? "";
 
   const filteredMessages = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    return messageList.filter((message) => {
+    return messages.filter((message) => {
+      const otherParty = otherPartyOf(message, currentUserId);
+      const status: "Okunmamış" | "Okundu" = message.isRead ? "Okundu" : "Okunmamış";
+
       const matchesFilter =
         activeFilter === "Tümü" ||
-        (activeFilter === "Okunmamış" && message.status === "Okunmamış") ||
-        (activeFilter === "Hasta" && message.senderType === "Hasta") ||
-        (activeFilter === "Sekreter" && message.senderType === "Sekreter") ||
-        (activeFilter === "Acil" && message.priority === "Acil");
+        (activeFilter === "Okunmamış" && status === "Okunmamış") ||
+        (activeFilter === "Sekreter" && otherParty.role === "SECRETARY") ||
+        (activeFilter === "Yönetim" && otherParty.role === "ADMIN") ||
+        (activeFilter === "Acil" && message.priority === "URGENT");
 
       const matchesSearch =
         term === "" ||
-        message.senderName.toLowerCase().includes(term) ||
+        message.sender.fullName.toLowerCase().includes(term) ||
+        message.receiver.fullName.toLowerCase().includes(term) ||
         message.subject.toLowerCase().includes(term) ||
-        message.body.toLowerCase().includes(term);
+        message.content.toLowerCase().includes(term);
 
       return matchesFilter && matchesSearch;
     });
-  }, [search, activeFilter, messageList]);
+  }, [search, activeFilter, messages, currentUserId]);
 
   const selectedMessage =
     filteredMessages.find((message) => message.id === selectedId) ??
     filteredMessages[0] ??
-    messageList[0];
+    messages[0];
+
+  async function handleSelect(message: Message) {
+    setSelectedId(message.id);
+
+    if (message.receiverId === currentUserId && !message.isRead) {
+      try {
+        await updateMessage(message.id, { isRead: true });
+        await loadMessages();
+      } catch {
+        // read-status update failure is non-blocking for viewing the message
+      }
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-10 text-center shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+        <p className="text-sm text-[#667085]">Mesajlar yükleniyor...</p>
+      </div>
+    );
+  }
+
+  if (error || !currentUser) {
+    return (
+      <div className="flex flex-col items-center gap-3 rounded-[20px] border border-[#EAF0F8] bg-white p-10 text-center shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+        <p className="text-sm text-[#EF4444]">{error ?? "Mesajlar yüklenirken bir hata oluştu."}</p>
+        <button
+          type="button"
+          onClick={loadMessages}
+          className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+        >
+          Tekrar Dene
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-5">
-      <DoctorMessageSummaryCards activeFilter={activeFilter} onFilterChange={setActiveFilter} />
+      <div className="flex justify-end">
+        <AddDoctorMessageModal onSent={loadMessages} />
+      </div>
+
+      <DoctorMessageSummaryCards
+        messages={messages}
+        currentUserId={currentUserId}
+        activeFilter={activeFilter}
+        onFilterChange={setActiveFilter}
+      />
 
       <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[1.1fr_1fr]">
         <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
@@ -102,7 +191,7 @@ export default function DoctorMessagesPanel() {
               type="text"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Bu listede hasta, konu veya mesaj ara..."
+              placeholder="Bu listede kişi, konu veya mesaj ara..."
               className="w-full rounded-xl border border-[#EAF0F8] bg-white py-2 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
             />
           </div>
@@ -128,22 +217,22 @@ export default function DoctorMessagesPanel() {
             })}
           </div>
 
-          {messageList.length === 0 && (
+          {messages.length === 0 && (
             <div className="mt-4">
               <EmptyState
                 variant="empty"
                 title="Henüz mesaj bulunmuyor"
-                description="Hastalar, sekreterya veya klinik içi görüşmeler başladığında mesajlar burada görüntülenir."
+                description="Sekreterya veya klinik yönetimiyle mesajlaşmalar başladığında mesajlar burada görüntülenir."
               />
             </div>
           )}
 
-          {messageList.length > 0 && filteredMessages.length === 0 && (
+          {messages.length > 0 && filteredMessages.length === 0 && (
             <div className="mt-4">
               <EmptyState
                 variant="search"
                 title="Eşleşen mesaj bulunamadı"
-                description="Hasta adı, konu veya mesaj içeriğini değiştirerek tekrar deneyin."
+                description="Kişi adı, konu veya mesaj içeriğini değiştirerek tekrar deneyin."
                 action={
                   <button
                     type="button"
@@ -162,13 +251,16 @@ export default function DoctorMessagesPanel() {
 
           <div className="mt-4 space-y-2">
             {filteredMessages.map((message) => {
-              const isSelected = message.id === selectedMessage.id;
+              const otherParty = otherPartyOf(message, currentUserId);
+              const status: "Okunmamış" | "Okundu" = message.isRead ? "Okundu" : "Okunmamış";
+              const isIncoming = message.receiverId === currentUserId;
+              const isSelected = selectedMessage && message.id === selectedMessage.id;
 
               return (
                 <button
                   key={message.id}
                   type="button"
-                  onClick={() => setSelectedId(message.id)}
+                  onClick={() => handleSelect(message)}
                   className={`w-full rounded-xl border px-3 py-2.5 text-left transition-colors ${
                     isSelected
                       ? "border-[#5B4DE3]/40 bg-[#F7F8FF]"
@@ -177,36 +269,41 @@ export default function DoctorMessagesPanel() {
                 >
                   <div className="flex items-start gap-3">
                     <div
-                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${getSenderAvatarColor(message)}`}
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${roleAvatarClass[otherParty.role]}`}
                     >
-                      {initials(message.senderName)}
+                      {initials(otherParty.fullName)}
                     </div>
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
                         <p
                           className={`truncate text-sm ${
-                            message.status === "Okunmamış" ? "font-bold text-[#0B1F55]" : "font-medium text-[#0B1F55]"
+                            status === "Okunmamış" && isIncoming ? "font-bold text-[#0B1F55]" : "font-medium text-[#0B1F55]"
                           }`}
                         >
-                          {message.senderName}
+                          {otherParty.fullName}
+                          <span className="ml-1.5 text-xs font-normal text-[#98A2B3]">
+                            {isIncoming ? "· Gelen" : "· Giden"}
+                          </span>
                         </p>
-                        <span className="shrink-0 text-xs text-[#667085]">{message.timeLabel}</span>
+                        <span className="shrink-0 text-xs text-[#667085]">
+                          {timeFormatter.format(new Date(message.createdAt))}
+                        </span>
                       </div>
 
                       <p className="mt-0.5 truncate text-sm text-[#0B1F55]">{message.subject}</p>
-                      <p className="mt-0.5 truncate text-xs text-[#667085]">{message.body}</p>
+                      <p className="mt-0.5 truncate text-xs text-[#667085]">{message.content}</p>
 
                       <div className="mt-2 flex items-center gap-1.5">
                         <span
-                          className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${statusBadgeClass[message.status]}`}
+                          className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${statusBadgeClass[status]}`}
                         >
-                          {message.status}
+                          {status}
                         </span>
                         <span
                           className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${priorityBadgeClass[message.priority]}`}
                         >
-                          {message.priority}
+                          {priorityLabels[message.priority]}
                         </span>
                       </div>
                     </div>
@@ -218,25 +315,9 @@ export default function DoctorMessagesPanel() {
         </div>
 
         {selectedMessage && (
-          <DoctorMessageDetail
-            message={selectedMessage}
-            onDeleteClick={() => setPendingDeleteId(selectedMessage.id)}
-          />
+          <DoctorMessageDetail message={selectedMessage} currentUserId={currentUserId} onSent={loadMessages} />
         )}
       </div>
-
-      <ConfirmDialog
-        open={pendingDeleteId !== null}
-        title="Mesajı silmek istiyor musunuz?"
-        description="Seçili mesaj görüşme listesinden kaldırılacak. Bu işlem demo ortamında yalnızca arayüz üzerinde uygulanır."
-        confirmLabel="Mesajı Sil"
-        variant="danger"
-        onConfirm={() => {
-          setMessageList((prev) => prev.filter((message) => message.id !== pendingDeleteId));
-          setPendingDeleteId(null);
-        }}
-        onCancel={() => setPendingDeleteId(null)}
-      />
     </div>
   );
 }

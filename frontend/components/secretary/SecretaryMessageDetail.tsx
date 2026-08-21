@@ -1,28 +1,50 @@
 "use client";
 
 import { useState } from "react";
-import type { SecretaryMessageRow } from "@/data/secretaryMessages";
+import { createMessage, updateMessage, type Message, type MessageUserRole } from "@/lib/messages-api";
 
 const statusBadgeClass: Record<string, string> = {
   Okunmamış: "bg-[#EEF0FF] text-[#5B4DE3]",
   Okundu: "bg-[#F3F4F6] text-[#667085]",
 };
 
-const priorityBadgeClass: Record<string, string> = {
-  Acil: "bg-[#FEE2E2] text-[#EF4444]",
-  Yüksek: "bg-[#FEF3C7] text-[#F59E0B]",
-  Normal: "bg-[#DBEAFE] text-[#2563EB]",
+const priorityLabels: Record<Message["priority"], string> = {
+  URGENT: "Acil",
+  HIGH: "Yüksek",
+  NORMAL: "Normal",
+  LOW: "Düşük",
 };
 
-const senderTypeBadgeClass: Record<string, string> = {
-  Hasta: "bg-[#DCFCE7] text-[#16A34A]",
-  Doktor: "bg-[#DBEAFE] text-[#2563EB]",
-  Yönetim: "bg-[#EEF0FF] text-[#5B4DE3]",
+const priorityBadgeClass: Record<Message["priority"], string> = {
+  URGENT: "bg-[#FEE2E2] text-[#EF4444]",
+  HIGH: "bg-[#FEF3C7] text-[#F59E0B]",
+  NORMAL: "bg-[#DBEAFE] text-[#2563EB]",
+  LOW: "bg-[#F3F4F6] text-[#667085]",
 };
+
+const roleLabels: Record<MessageUserRole, string> = {
+  ADMIN: "Yönetim",
+  DOCTOR: "Doktor",
+  SECRETARY: "Sekreter",
+};
+
+const roleBadgeClass: Record<MessageUserRole, string> = {
+  ADMIN: "bg-[#EEF0FF] text-[#5B4DE3]",
+  DOCTOR: "bg-[#DBEAFE] text-[#2563EB]",
+  SECRETARY: "bg-[#DCFCE7] text-[#16A34A]",
+};
+
+const dateFormatter = new Intl.DateTimeFormat("tr-TR", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+});
 
 function initials(name: string) {
-  const parts = name.split(" ").filter((part) => part !== "Dr." && part !== "Dr");
-  return parts
+  return name
+    .split(" ")
     .map((part) => part.charAt(0))
     .join("")
     .slice(0, 2)
@@ -30,13 +52,26 @@ function initials(name: string) {
 }
 
 interface SecretaryMessageDetailProps {
-  message: SecretaryMessageRow;
-  onDeleteClick: () => void;
+  message: Message;
+  currentUserId: string;
+  onSent: () => void | Promise<void>;
+  onMarkedRead: () => void | Promise<void>;
 }
 
-export default function SecretaryMessageDetail({ message, onDeleteClick }: SecretaryMessageDetailProps) {
+export default function SecretaryMessageDetail({
+  message,
+  currentUserId,
+  onSent,
+  onMarkedRead,
+}: SecretaryMessageDetailProps) {
   const [reply, setReply] = useState("");
   const [replyError, setReplyError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMarkingRead, setIsMarkingRead] = useState(false);
+
+  const isIncoming = message.receiverId === currentUserId;
+  const otherParty = isIncoming ? message.sender : message.receiver;
+  const status: "Okunmamış" | "Okundu" = message.isRead ? "Okundu" : "Okunmamış";
 
   function handleReplyChange(value: string) {
     setReply(value);
@@ -45,7 +80,7 @@ export default function SecretaryMessageDetail({ message, onDeleteClick }: Secre
     }
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmedReply = reply.trim();
 
@@ -54,78 +89,92 @@ export default function SecretaryMessageDetail({ message, onDeleteClick }: Secre
       return;
     }
 
-    if (trimmedReply.length < 3) {
-      setReplyError("Mesaj en az 3 karakter olmalıdır.");
-      return;
-    }
+    if (isSubmitting) return;
 
-    console.log({ messageId: message.id, reply });
-    setReply("");
+    setIsSubmitting(true);
     setReplyError(null);
-  };
+
+    try {
+      const receiverId = isIncoming ? message.senderId : message.receiverId;
+      await createMessage({
+        receiverId,
+        subject: `Re: ${message.subject}`,
+        content: trimmedReply,
+      });
+      setReply("");
+      await onSent();
+    } catch {
+      setReplyError("Mesaj gönderilirken bir hata oluştu.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function handleMarkRead() {
+    if (isMarkingRead) return;
+
+    setIsMarkingRead(true);
+    try {
+      await updateMessage(message.id, { isRead: true });
+      await onMarkedRead();
+    } finally {
+      setIsMarkingRead(false);
+    }
+  }
 
   return (
     <div className="flex flex-col rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <div className="flex items-start justify-between gap-4 border-b border-[#EAF0F8] pb-4">
         <div className="flex items-center gap-3">
           <div
-            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${senderTypeBadgeClass[message.senderType]}`}
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${roleBadgeClass[otherParty.role]}`}
           >
-            {initials(message.senderName)}
+            {initials(otherParty.fullName)}
           </div>
           <div>
-            <p className="text-sm font-semibold text-[#0B1F55]">{message.senderName}</p>
+            <p className="text-sm font-semibold text-[#0B1F55]">{otherParty.fullName}</p>
             <span
-              className={`mt-1 inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${senderTypeBadgeClass[message.senderType]}`}
+              className={`mt-1 inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${roleBadgeClass[otherParty.role]}`}
             >
-              {message.senderType}
+              {roleLabels[otherParty.role]}
             </span>
           </div>
         </div>
 
         <div className="flex flex-col items-end gap-1.5">
           <span
-            className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${statusBadgeClass[message.status]}`}
+            className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${statusBadgeClass[status]}`}
           >
-            {message.status}
+            {status}
           </span>
           <span
             className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${priorityBadgeClass[message.priority]}`}
           >
-            {message.priority}
+            {priorityLabels[message.priority]}
           </span>
         </div>
       </div>
 
       <div className="mt-4">
         <p className="text-base font-bold text-[#0B1F55]">{message.subject}</p>
-        <p className="mt-1 text-xs text-[#667085]">{message.timeLabel}</p>
+        <p className="mt-1 text-xs text-[#667085]">{dateFormatter.format(new Date(message.createdAt))}</p>
 
         <div className="mt-3 rounded-xl bg-[#F7F8FF] p-4">
-          <p className="text-sm text-[#0B1F55]">{message.body}</p>
+          <p className="text-sm text-[#0B1F55]">{message.content}</p>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            className="flex h-9 items-center justify-center rounded-xl border border-[#EAF0F8] px-3.5 text-xs font-semibold text-[#0B1F55] transition-colors hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
-          >
-            Okundu İşaretle
-          </button>
-          <button
-            type="button"
-            className="flex h-9 items-center justify-center rounded-xl border border-[#EAF0F8] px-3.5 text-xs font-semibold text-[#0B1F55] transition-colors hover:border-[#DCD8FF] hover:bg-[#F7F8FF]"
-          >
-            Hasta Kartı
-          </button>
-          <button
-            type="button"
-            onClick={onDeleteClick}
-            className="flex h-9 items-center justify-center rounded-xl border border-[#EAF0F8] px-3.5 text-xs font-semibold text-[#EF4444] transition-colors hover:border-[#FCA5A5] hover:bg-[#FEE2E2]"
-          >
-            Mesajı Sil
-          </button>
-        </div>
+        {isIncoming && !message.isRead && (
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={handleMarkRead}
+              disabled={isMarkingRead}
+              className="flex h-9 items-center justify-center rounded-xl border border-[#EAF0F8] px-3.5 text-xs font-semibold text-[#0B1F55] transition-colors hover:border-[#DCD8FF] hover:bg-[#F7F8FF] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isMarkingRead ? "İşaretleniyor..." : "Okundu İşaretle"}
+            </button>
+          </div>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="mt-4 border-t border-[#EAF0F8] pt-4">
@@ -144,9 +193,10 @@ export default function SecretaryMessageDetail({ message, onDeleteClick }: Secre
         <div className="mt-3 flex justify-end">
           <button
             type="submit"
-            className="rounded-xl bg-[#5B4DE3] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.06)] transition-colors hover:bg-[#4c3fd1]"
+            disabled={isSubmitting}
+            className="rounded-xl bg-[#5B4DE3] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.06)] transition-colors hover:bg-[#4c3fd1] disabled:cursor-not-allowed disabled:opacity-70"
           >
-            Cevabı Gönder
+            {isSubmitting ? "Gönderiliyor..." : "Cevabı Gönder"}
           </button>
         </div>
       </form>

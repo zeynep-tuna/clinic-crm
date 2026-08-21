@@ -17,24 +17,24 @@ const roleLabels: Record<MessageUserRole, string> = {
   SECRETARY: "Sekreter",
 };
 
-interface SecretaryMessageFormState {
+interface DoctorMessageFormState {
   receiverId: string;
   subject: string;
   priority: string;
   content: string;
 }
 
-const initialFormState: SecretaryMessageFormState = {
+const initialFormState: DoctorMessageFormState = {
   receiverId: "",
   subject: "",
   priority: "",
   content: "",
 };
 
-type SecretaryMessageFormErrors = Partial<Record<keyof SecretaryMessageFormState, string>>;
+type DoctorMessageFormErrors = Partial<Record<keyof DoctorMessageFormState, string>>;
 
-function validateSecretaryMessageForm(values: SecretaryMessageFormState): SecretaryMessageFormErrors {
-  const nextErrors: SecretaryMessageFormErrors = {};
+function validateDoctorMessageForm(values: DoctorMessageFormState): DoctorMessageFormErrors {
+  const nextErrors: DoctorMessageFormErrors = {};
 
   if (!values.receiverId) {
     nextErrors.receiverId = "Alıcı seçimi zorunludur.";
@@ -51,14 +51,14 @@ function validateSecretaryMessageForm(values: SecretaryMessageFormState): Secret
   return nextErrors;
 }
 
-interface AddSecretaryMessageModalProps {
+interface AddDoctorMessageModalProps {
   onSent?: () => void | Promise<void>;
 }
 
-export default function AddSecretaryMessageModal({ onSent }: AddSecretaryMessageModalProps) {
+export default function AddDoctorMessageModal({ onSent }: AddDoctorMessageModalProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [form, setForm] = useState<SecretaryMessageFormState>(initialFormState);
-  const [errors, setErrors] = useState<SecretaryMessageFormErrors>({});
+  const [form, setForm] = useState<DoctorMessageFormState>(initialFormState);
+  const [errors, setErrors] = useState<DoctorMessageFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
 
@@ -105,9 +105,9 @@ export default function AddSecretaryMessageModal({ onSent }: AddSecretaryMessage
     };
   }, [isOpen]);
 
-  function updateField<K extends keyof SecretaryMessageFormState>(
+  function updateField<K extends keyof DoctorMessageFormState>(
     key: K,
-    value: SecretaryMessageFormState[K]
+    value: DoctorMessageFormState[K]
   ) {
     setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => {
@@ -129,7 +129,7 @@ export default function AddSecretaryMessageModal({ onSent }: AddSecretaryMessage
     event.preventDefault();
     setApiError(null);
 
-    const validationErrors = validateSecretaryMessageForm(form);
+    const validationErrors = validateDoctorMessageForm(form);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -164,30 +164,30 @@ export default function AddSecretaryMessageModal({ onSent }: AddSecretaryMessage
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="flex h-11 items-center justify-center rounded-xl bg-[#5B4DE3] px-5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_2px_8px_rgba(16,24,40,0.06)] transition-colors hover:bg-[#4c3fd1]"
+        className="flex h-11 items-center justify-center rounded-xl bg-[#5B4DE3] px-5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-colors hover:bg-[#4c3fd1]"
       >
         + Yeni Mesaj
       </button>
 
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
           onClick={closeModal}
         >
           <div
             role="dialog"
             aria-modal="true"
-            aria-labelledby="add-secretary-message-modal-title"
+            aria-labelledby="add-doctor-message-modal-title"
             onClick={(event) => event.stopPropagation()}
-            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[24px] border border-[#EEF2F8] bg-white p-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)]"
+            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[20px] border border-[#EAF0F8] bg-white p-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)]"
           >
             <div className="flex items-start justify-between">
               <div>
-                <h2 id="add-secretary-message-modal-title" className="text-xl font-bold text-[#0B1F55]">
+                <h2 id="add-doctor-message-modal-title" className="text-xl font-bold text-[#0B1F55]">
                   Yeni Mesaj Oluştur
                 </h2>
                 <p className="mt-1 text-sm text-[#667085]">
-                  Doktor veya klinik yönetimine yeni bir mesaj gönderin.
+                  Sekreter veya klinik yönetimine yeni bir mesaj gönderin.
                 </p>
               </div>
 
@@ -218,7 +218,7 @@ export default function AddSecretaryMessageModal({ onSent }: AddSecretaryMessage
                     errors.receiverId ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
                   }`}
                 >
-                  <option value="">{isLoadingRecipients ? "Yükleniyor..." : "Seçiniz"}</option>
+                  <option value="">{isLoadingRecipients ? "Alıcılar yükleniyor..." : "Seçiniz"}</option>
                   {recipients.map((recipient) => (
                     <option key={recipient.id} value={recipient.id}>
                       {`${recipient.fullName} · ${roleLabels[recipient.role]}`}
@@ -234,7 +234,7 @@ export default function AddSecretaryMessageModal({ onSent }: AddSecretaryMessage
                   type="text"
                   value={form.subject}
                   onChange={(event) => updateField("subject", event.target.value)}
-                  placeholder="Örn. Randevu hatırlatması"
+                  placeholder="Örn. Hasta dosyası hakkında"
                   className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
                     errors.subject ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
                   }`}
