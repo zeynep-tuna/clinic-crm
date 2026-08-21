@@ -1,17 +1,27 @@
-import type { DoctorStatCardData, DoctorStatIcon } from "@/data/doctorDashboard";
+import Link from "next/link";
+
+export type DoctorStatIcon = "appointments" | "treatments" | "review" | "messages";
+
+export interface DoctorStatCardProps {
+  title: string;
+  value: string;
+  icon: DoctorStatIcon;
+  href: string;
+  linkLabel: string;
+}
 
 const iconColorByType: Record<DoctorStatIcon, string> = {
   appointments: "bg-[#EEF0FF] text-[#5B4DE3]",
-  patients: "bg-[#DBEAFE] text-[#2563EB]",
-  notes: "bg-[#FFEDD5] text-[#C2410C]",
-  completed: "bg-[#DCFCE7] text-[#16A34A]",
+  treatments: "bg-[#DCFCE7] text-[#16A34A]",
+  review: "bg-[#FEF3C7] text-[#F59E0B]",
+  messages: "bg-[#DBEAFE] text-[#2563EB]",
 };
 
 const linkColorByType: Record<DoctorStatIcon, string> = {
   appointments: "text-[#5B4DE3]",
-  patients: "text-[#2563EB]",
-  notes: "text-[#C2410C]",
-  completed: "text-[#16A34A]",
+  treatments: "text-[#16A34A]",
+  review: "text-[#F59E0B]",
+  messages: "text-[#2563EB]",
 };
 
 function StatIconGlyph({ icon }: { icon: DoctorStatIcon }) {
@@ -23,30 +33,28 @@ function StatIconGlyph({ icon }: { icon: DoctorStatIcon }) {
           <path strokeLinecap="round" d="M4 10h16M8 3v4M16 3v4" />
         </svg>
       );
-    case "patients":
+    case "treatments":
       return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-5 w-5">
-          <circle cx="9" cy="8" r="3" />
-          <path strokeLinecap="round" d="M3.5 19c.6-3 2.7-5 5.5-5s4.9 2 5.5 5" />
-          <path strokeLinecap="round" d="M15.5 5.5a3 3 0 0 1 0 5.8M18 19c-.4-2.3-1.5-4-3.2-4.8" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v6M9 6h6" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M7 11h10l-1.2 8.4a2 2 0 0 1-2 1.6H10.2a2 2 0 0 1-2-1.6L7 11Z" />
         </svg>
       );
-    case "notes":
+    case "review":
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-5 w-5">
+          <circle cx="12" cy="12" r="8.5" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5V12l3 2" />
+        </svg>
+      );
+    case "messages":
       return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-5 w-5">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M7 3.5h7l3.5 3.5V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"
+            d="M4 5.5h16a1 1 0 0 1 1 1V16a1 1 0 0 1-1 1H9l-4 3.5V17H4a1 1 0 0 1-1-1V6.5a1 1 0 0 1 1-1Z"
           />
-          <path strokeLinecap="round" d="M9 11h6M9 15h6" />
-        </svg>
-      );
-    case "completed":
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-5 w-5">
-          <circle cx="12" cy="12" r="8.5" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M8.5 12.5l2.3 2.3 4.7-5.1" />
         </svg>
       );
     default:
@@ -54,7 +62,7 @@ function StatIconGlyph({ icon }: { icon: DoctorStatIcon }) {
   }
 }
 
-export default function DoctorStatCard({ title, value, icon, linkLabel }: DoctorStatCardData) {
+export default function DoctorStatCard({ title, value, icon, href, linkLabel }: DoctorStatCardProps) {
   return (
     <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <div className="flex items-start justify-between">
@@ -68,7 +76,9 @@ export default function DoctorStatCard({ title, value, icon, linkLabel }: Doctor
         </div>
       </div>
 
-      <p className={`mt-3 text-xs font-medium ${linkColorByType[icon]}`}>{linkLabel}</p>
+      <Link href={href} className={`mt-3 block text-xs font-medium ${linkColorByType[icon]} hover:underline`}>
+        {linkLabel}
+      </Link>
     </div>
   );
 }

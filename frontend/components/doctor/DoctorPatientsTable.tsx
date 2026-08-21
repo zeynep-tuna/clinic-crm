@@ -41,16 +41,6 @@ function formatNullable(value: string | null) {
   return value ?? "—";
 }
 
-function MoreIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-      <circle cx="5" cy="12" r="1.5" />
-      <circle cx="12" cy="12" r="1.5" />
-      <circle cx="19" cy="12" r="1.5" />
-    </svg>
-  );
-}
-
 export default function DoctorPatientsTable() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterValue>("Tümü");
@@ -195,11 +185,7 @@ export default function DoctorPatientsTable() {
                   <tr className="border-b border-[#EEF2F8] text-xs font-semibold tracking-wide text-[#667085] uppercase">
                     <th className="pb-2.5 font-medium">Hasta Adı</th>
                     <th className="pb-2.5 font-medium">Telefon</th>
-                    <th className="pb-2.5 font-medium">Son Ziyaret</th>
-                    <th className="pb-2.5 font-medium">Tedavi Durumu</th>
-                    <th className="pb-2.5 font-medium">Son Not</th>
                     <th className="pb-2.5 font-medium">Durum</th>
-                    <th className="pb-2.5 font-medium">İşlem</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -223,26 +209,12 @@ export default function DoctorPatientsTable() {
                         </div>
                       </td>
                       <td className="py-4 text-sm text-[#0B1F55]">{formatNullable(patient.phone)}</td>
-                      <td className="py-4 text-sm text-[#0B1F55]">—</td>
-                      <td className="py-4 text-sm text-[#0B1F55]">—</td>
-                      <td className="py-4 text-sm text-[#667085]">—</td>
                       <td className="py-4">
                         <span
                           className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${statusBadgeClass[status]}`}
                         >
                           {status}
                         </span>
-                      </td>
-                      <td className="py-4">
-                        <div className="flex items-center gap-2 text-[#667085]">
-                          <button
-                            type="button"
-                            aria-label="Diğer işlemler"
-                            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F1F4FA] hover:text-[#0B1F55]"
-                          >
-                            <MoreIcon />
-                          </button>
-                        </div>
                       </td>
                     </tr>
                     );

@@ -1,4 +1,14 @@
-import type { SecretaryStatCardData, SecretaryStatIcon } from "@/data/secretaryDashboard";
+import Link from "next/link";
+
+export type SecretaryStatIcon = "appointments" | "newPatient" | "payments" | "consent";
+
+export interface SecretaryStatCardProps {
+  title: string;
+  value: string;
+  icon: SecretaryStatIcon;
+  href: string;
+  linkLabel: string;
+}
 
 const iconColorByType: Record<SecretaryStatIcon, string> = {
   appointments: "bg-[#EEF0FF] text-[#5B4DE3]",
@@ -54,7 +64,7 @@ function StatIconGlyph({ icon }: { icon: SecretaryStatIcon }) {
   }
 }
 
-export default function SecretaryStatCard({ title, value, icon, linkLabel }: SecretaryStatCardData) {
+export default function SecretaryStatCard({ title, value, icon, href, linkLabel }: SecretaryStatCardProps) {
   return (
     <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <div className="flex items-start justify-between">
@@ -68,7 +78,9 @@ export default function SecretaryStatCard({ title, value, icon, linkLabel }: Sec
         </div>
       </div>
 
-      <p className={`mt-3 text-xs font-medium ${linkColorByType[icon]}`}>{linkLabel}</p>
+      <Link href={href} className={`mt-3 block text-xs font-medium ${linkColorByType[icon]} hover:underline`}>
+        {linkLabel}
+      </Link>
     </div>
   );
 }

@@ -1,11 +1,51 @@
-import { monthlyRevenue } from "@/data/reports";
+import type { Payment } from "@/lib/payments-api";
+
+const monthLabelFormatter = new Intl.DateTimeFormat("tr-TR", { month: "long" });
 
 function formatCurrency(amount: number) {
   return `₺${amount.toLocaleString("tr-TR")}`;
 }
 
-export default function MonthlyRevenueChart() {
-  const maxAmount = Math.max(...monthlyRevenue.map((point) => point.amount));
+interface MonthlyRevenuePoint {
+  key: string;
+  month: string;
+  amount: number;
+}
+
+function buildLastSixMonths(payments: Payment[]): MonthlyRevenuePoint[] {
+  const now = new Date();
+  const months: MonthlyRevenuePoint[] = [];
+
+  for (let offset = 5; offset >= 0; offset -= 1) {
+    const monthDate = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth();
+    const label = monthLabelFormatter.format(monthDate);
+
+    const amount = payments
+      .filter((payment) => payment.isActive)
+      .filter((payment) => {
+        const paymentDate = new Date(payment.paymentDate);
+        return paymentDate.getFullYear() === year && paymentDate.getMonth() === month;
+      })
+      .reduce((total, payment) => {
+        const value = Number(payment.amount);
+        return total + (Number.isFinite(value) ? value : 0);
+      }, 0);
+
+    months.push({ key: `${year}-${month}`, month: label.charAt(0).toUpperCase() + label.slice(1), amount });
+  }
+
+  return months;
+}
+
+interface MonthlyRevenueChartProps {
+  payments: Payment[];
+}
+
+export default function MonthlyRevenueChart({ payments }: MonthlyRevenueChartProps) {
+  const monthlyRevenue = buildLastSixMonths(payments);
+  const maxAmount = Math.max(1, ...monthlyRevenue.map((point) => point.amount));
 
   return (
     <div className="flex h-full flex-col rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
@@ -25,7 +65,7 @@ export default function MonthlyRevenueChart() {
         </div>
 
         {monthlyRevenue.map((point) => (
-          <div key={point.month} className="relative z-10 flex h-full flex-1 flex-col items-center justify-end">
+          <div key={point.key} className="relative z-10 flex h-full flex-1 flex-col items-center justify-end">
             <span className="mb-2 text-xs font-semibold text-[#0B1F55]">
               {formatCurrency(point.amount)}
             </span>

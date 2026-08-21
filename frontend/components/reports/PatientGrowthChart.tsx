@@ -1,11 +1,45 @@
-import { patientGrowth } from "@/data/reports";
+import type { Patient } from "@/lib/patients-api";
+
+const monthLabelFormatter = new Intl.DateTimeFormat("tr-TR", { month: "long" });
 
 const VIEW_WIDTH = 1100;
 const VIEW_HEIGHT = 130;
 const TOP_PADDING = 16;
 
-export default function PatientGrowthChart() {
-  const maxCount = Math.max(...patientGrowth.map((point) => point.count));
+interface PatientGrowthPoint {
+  key: string;
+  month: string;
+  count: number;
+}
+
+function buildLastSixMonths(patients: Patient[]): PatientGrowthPoint[] {
+  const now = new Date();
+  const months: PatientGrowthPoint[] = [];
+
+  for (let offset = 5; offset >= 0; offset -= 1) {
+    const monthDate = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth();
+    const label = monthLabelFormatter.format(monthDate);
+
+    const count = patients.filter((patient) => {
+      const createdAt = new Date(patient.createdAt);
+      return createdAt.getFullYear() === year && createdAt.getMonth() === month;
+    }).length;
+
+    months.push({ key: `${year}-${month}`, month: label.charAt(0).toUpperCase() + label.slice(1), count });
+  }
+
+  return months;
+}
+
+interface PatientGrowthChartProps {
+  patients: Patient[];
+}
+
+export default function PatientGrowthChart({ patients }: PatientGrowthChartProps) {
+  const patientGrowth = buildLastSixMonths(patients);
+  const maxCount = Math.max(1, ...patientGrowth.map((point) => point.count));
   const stepX = VIEW_WIDTH / (patientGrowth.length - 1);
 
   const points = patientGrowth.map((point, index) => {
@@ -46,7 +80,7 @@ export default function PatientGrowthChart() {
           />
           {points.map((point) => (
             <circle
-              key={point.month}
+              key={point.key}
               cx={point.x}
               cy={point.y}
               r={3.5}
@@ -59,7 +93,7 @@ export default function PatientGrowthChart() {
 
         <div className="mt-2 flex justify-between text-xs text-[#667085]">
           {patientGrowth.map((point) => (
-            <span key={point.month}>{point.month}</span>
+            <span key={point.key}>{point.month}</span>
           ))}
         </div>
       </div>
@@ -67,7 +101,7 @@ export default function PatientGrowthChart() {
       <p className="mt-3 text-xs text-[#667085]">
         Son 6 ayda yeni hasta sayısı{" "}
         <span className="font-medium text-[#0B1F55]">{first.count}</span>&apos;den{" "}
-        <span className="font-medium text-[#0B1F55]">{last.count}</span>&apos;e yükseldi.
+        <span className="font-medium text-[#0B1F55]">{last.count}</span>&apos;e değişti.
       </p>
     </div>
   );

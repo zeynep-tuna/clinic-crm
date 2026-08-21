@@ -1,17 +1,38 @@
-import {
-  appointmentStatusDistribution,
-  type AppointmentDistributionStatus,
-} from "@/data/reports";
+import type { Appointment, AppointmentStatus } from "@/lib/appointments-api";
 
-const statusColor: Record<AppointmentDistributionStatus, string> = {
+type UiStatus = "Bekliyor" | "Onaylandı" | "Tamamlandı" | "İptal Edildi" | "Gelmedi";
+
+const STATUS_LABELS: Record<AppointmentStatus, UiStatus> = {
+  SCHEDULED: "Bekliyor",
+  CONFIRMED: "Onaylandı",
+  COMPLETED: "Tamamlandı",
+  CANCELLED: "İptal Edildi",
+  NO_SHOW: "Gelmedi",
+};
+
+const statusOrder: AppointmentStatus[] = ["CONFIRMED", "SCHEDULED", "COMPLETED", "CANCELLED", "NO_SHOW"];
+
+const statusColor: Record<UiStatus, string> = {
   Onaylandı: "#16A34A",
   Bekliyor: "#F59E0B",
   Tamamlandı: "#2563EB",
-  İptal: "#EF4444",
+  "İptal Edildi": "#EF4444",
+  Gelmedi: "#667085",
 };
 
-export default function AppointmentStatusDistribution() {
-  const total = appointmentStatusDistribution.reduce((sum, item) => sum + item.count, 0);
+interface AppointmentStatusDistributionProps {
+  appointments: Appointment[];
+}
+
+export default function AppointmentStatusDistribution({ appointments }: AppointmentStatusDistributionProps) {
+  const activeAppointments = appointments.filter((appointment) => appointment.isActive);
+  const total = activeAppointments.length;
+
+  const distribution = statusOrder.map((status) => {
+    const count = activeAppointments.filter((appointment) => appointment.status === status).length;
+    const percent = total > 0 ? Math.round((count / total) * 100) : 0;
+    return { status: STATUS_LABELS[status], count, percent };
+  });
 
   return (
     <div className="flex h-full flex-col rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
@@ -21,7 +42,7 @@ export default function AppointmentStatusDistribution() {
       </div>
 
       <div className="mt-5 flex-1 space-y-4">
-        {appointmentStatusDistribution.map((item) => (
+        {distribution.map((item) => (
           <div key={item.status}>
             <div className="flex items-center justify-between text-sm">
               <span className="flex items-center gap-2 font-medium text-[#0B1F55]">

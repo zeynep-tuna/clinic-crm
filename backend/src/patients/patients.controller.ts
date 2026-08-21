@@ -33,7 +33,11 @@ export class PatientsController {
     @Query('includeInactive') includeInactive?: string,
   ) {
     return this.patientsService.findAll(
-      request.user!.clinicId,
+      {
+        userId: request.user!.id,
+        clinicId: request.user!.clinicId,
+        role: request.user!.role,
+      },
       search,
       includeInactive === 'true',
     );
@@ -42,7 +46,11 @@ export class PatientsController {
   @Roles('ADMIN', 'SECRETARY', 'DOCTOR')
   @Get(':id')
   findOne(@Req() request: RequestWithUser, @Param('id') id: string) {
-    return this.patientsService.findOne(id, request.user!.clinicId);
+    return this.patientsService.findOne(id, {
+      userId: request.user!.id,
+      clinicId: request.user!.clinicId,
+      role: request.user!.role,
+    });
   }
 
   @Roles('ADMIN', 'SECRETARY')

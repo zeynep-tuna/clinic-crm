@@ -1,6 +1,17 @@
-import type { StatCardData } from "@/data/dashboard";
+import Link from "next/link";
 
-function StatIconGlyph({ icon }: { icon: StatCardData["icon"] }) {
+export type StatIcon = "patients" | "appointments" | "payments" | "doctors";
+
+export interface StatCardProps {
+  title: string;
+  value: string;
+  icon: StatIcon;
+  href: string;
+  linkLabel: string;
+  iconVariant?: "primary" | "warning";
+}
+
+function StatIconGlyph({ icon }: { icon: StatIcon }) {
   switch (icon) {
     case "patients":
       return (
@@ -41,13 +52,11 @@ function StatIconGlyph({ icon }: { icon: StatCardData["icon"] }) {
 export default function StatCard({
   title,
   value,
-  trendDirection,
-  trendLabel,
   icon,
+  href,
+  linkLabel,
   iconVariant = "primary",
-}: StatCardData) {
-  const isUp = trendDirection === "up";
-
+}: StatCardProps) {
   return (
     <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <div className="flex items-start justify-between">
@@ -67,14 +76,9 @@ export default function StatCard({
         </div>
       </div>
 
-      <p
-        className={`mt-3 flex items-center gap-1 text-xs font-medium ${
-          isUp ? "text-[#16A34A]" : "text-[#EF4444]"
-        }`}
-      >
-        <span>{isUp ? "↑" : "↓"}</span>
-        <span>{trendLabel}</span>
-      </p>
+      <Link href={href} className="mt-3 flex items-center gap-1 text-xs font-medium text-[#5B4DE3] hover:underline">
+        {linkLabel}
+      </Link>
     </div>
   );
 }

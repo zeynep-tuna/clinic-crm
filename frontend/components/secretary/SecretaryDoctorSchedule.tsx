@@ -1,4 +1,6 @@
-import { secretaryDoctorSchedule } from "@/data/secretaryDashboard";
+import Link from "next/link";
+import type { Doctor } from "@/lib/doctors-api";
+import type { Appointment } from "@/lib/appointments-api";
 
 function ScheduleIcon() {
   return (
@@ -19,8 +21,22 @@ function DoctorIcon() {
   );
 }
 
-export default function SecretaryDoctorSchedule() {
-  const totalAppointments = secretaryDoctorSchedule.reduce((sum, item) => sum + item.appointmentCount, 0);
+interface SecretaryDoctorScheduleProps {
+  doctors: Doctor[];
+  todayAppointments: Appointment[];
+}
+
+export default function SecretaryDoctorSchedule({ doctors, todayAppointments }: SecretaryDoctorScheduleProps) {
+  const activeDoctors = doctors.filter((doctor) => doctor.isActive);
+
+  const schedule = activeDoctors.map((doctor) => ({
+    id: doctor.id,
+    name: doctor.fullName,
+    specialty: doctor.specialty ?? "—",
+    appointmentCount: todayAppointments.filter((appointment) => appointment.doctorId === doctor.id).length,
+  }));
+
+  const totalAppointments = schedule.reduce((sum, item) => sum + item.appointmentCount, 0);
 
   return (
     <div className="flex h-full flex-col rounded-[20px] border border-[#EAF0F8] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
@@ -33,39 +49,43 @@ export default function SecretaryDoctorSchedule() {
         </div>
 
         <span className="shrink-0 rounded-full bg-[#DBEAFE] px-2.5 py-1 text-xs font-semibold text-[#2563EB]">
-          {secretaryDoctorSchedule.length} aktif
+          {schedule.length} aktif
         </span>
       </div>
 
       <p className="mt-2 text-sm text-[#667085]">Bugün {totalAppointments} randevu planlandı</p>
 
-      <div className="mt-3 flex-1 divide-y divide-[#EAF0F8]">
-        {secretaryDoctorSchedule.map((doctor) => (
-          <div key={doctor.id} className="flex items-center justify-between gap-3 py-2.5">
-            <div className="flex items-center gap-2.5">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#DBEAFE] text-[#2563EB]">
-                <DoctorIcon />
-              </span>
-              <div>
-                <p className="text-sm font-medium text-[#0B1F55]">{doctor.name}</p>
-                <p className="text-xs text-[#667085]">{doctor.department}</p>
+      {schedule.length === 0 ? (
+        <p className="mt-4 flex-1 py-4 text-center text-sm text-[#667085]">Henüz aktif doktor bulunmuyor.</p>
+      ) : (
+        <div className="mt-3 flex-1 divide-y divide-[#EAF0F8]">
+          {schedule.map((doctor) => (
+            <div key={doctor.id} className="flex items-center justify-between gap-3 py-2.5">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#DBEAFE] text-[#2563EB]">
+                  <DoctorIcon />
+                </span>
+                <div>
+                  <p className="text-sm font-medium text-[#0B1F55]">{doctor.name}</p>
+                  <p className="text-xs text-[#667085]">{doctor.specialty}</p>
+                </div>
               </div>
+              <p className="shrink-0 text-right text-sm">
+                <span className="font-bold text-[#0B1F55]">{doctor.appointmentCount}</span>{" "}
+                <span className="text-[#667085]">randevu</span>
+              </p>
             </div>
-            <p className="shrink-0 text-right text-sm">
-              <span className="font-bold text-[#0B1F55]">{doctor.appointmentCount}</span>{" "}
-              <span className="text-[#667085]">randevu</span>
-            </p>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       <div className="mt-4 border-t border-[#EAF0F8] pt-3">
-        <button
-          type="button"
+        <Link
+          href="/secretary/doctor-schedule"
           className="text-xs font-semibold text-[#5B4DE3] transition-opacity hover:underline hover:opacity-80"
         >
           Tüm Doktor Takvimi →
-        </button>
+        </Link>
       </div>
     </div>
   );

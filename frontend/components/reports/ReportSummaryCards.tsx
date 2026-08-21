@@ -1,4 +1,11 @@
-import { reportSummaryStats, type ReportSummaryStat } from "@/data/reports";
+export type ReportStatFormat = "currency" | "number";
+
+export interface ReportSummaryStat {
+  id: string;
+  title: string;
+  value: number;
+  format: ReportStatFormat;
+}
 
 function formatValue(stat: ReportSummaryStat) {
   if (stat.format === "currency") {
@@ -29,12 +36,12 @@ function CalendarIcon() {
   );
 }
 
-function UserPlusIcon() {
+function PatientsIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-5 w-5">
       <circle cx="9" cy="8" r="3" />
       <path strokeLinecap="round" d="M3.5 19c.6-3 2.7-5 5.5-5s4.9 2 5.5 5" />
-      <path strokeLinecap="round" d="M18 8v5M15.5 10.5h5" />
+      <path strokeLinecap="round" d="M15.5 5.5a3 3 0 0 1 0 5.8M18 19c-.4-2.3-1.5-4-3.2-4.8" />
     </svg>
   );
 }
@@ -53,14 +60,18 @@ function DoctorIcon() {
 const icons = {
   "total-revenue": <WalletIcon />,
   "total-appointments": <CalendarIcon />,
-  "new-patients": <UserPlusIcon />,
+  "active-patients": <PatientsIcon />,
   "active-doctors": <DoctorIcon />,
 } as const;
 
-export default function ReportSummaryCards() {
+interface ReportSummaryCardsProps {
+  stats: ReportSummaryStat[];
+}
+
+export default function ReportSummaryCards({ stats }: ReportSummaryCardsProps) {
   return (
     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      {reportSummaryStats.map((stat) => (
+      {stats.map((stat) => (
         <div
           key={stat.id}
           className="rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)]"
@@ -75,11 +86,6 @@ export default function ReportSummaryCards() {
               {icons[stat.id as keyof typeof icons]}
             </div>
           </div>
-
-          <p className="mt-3 flex items-center gap-1 text-xs font-medium text-[#16A34A]">
-            <span>↑</span>
-            <span>{stat.trendPercent}% geçen aya göre</span>
-          </p>
         </div>
       ))}
     </div>

@@ -210,7 +210,7 @@ export default function SecretaryAppointmentsTable({
             type="text"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Bu listede hasta, doktor veya bölüm ara..."
+            placeholder="Bu listede hasta veya doktor ara..."
             className="w-full rounded-xl border border-[#EAF0F8] bg-white py-2 pl-10 pr-4 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
           />
         </div>
@@ -274,7 +274,6 @@ export default function SecretaryAppointmentsTable({
               <th className="pb-2.5 font-medium">Saat</th>
               <th className="pb-2.5 font-medium">Hasta</th>
               <th className="pb-2.5 font-medium">Doktor</th>
-              <th className="pb-2.5 font-medium">Bölüm</th>
               <th className="pb-2.5 font-medium">Tarih</th>
               <th className="pb-2.5 font-medium">Durum</th>
               <th className="pb-2.5 font-medium">İşlem</th>
@@ -309,7 +308,6 @@ export default function SecretaryAppointmentsTable({
                   </div>
                 </td>
                 <td className="py-4 text-sm text-[#0B1F55]">{getDoctorName(appointment)}</td>
-                <td className="py-4 text-sm text-[#667085]">—</td>
                 <td className="py-4 text-sm text-[#0B1F55]">
                   <p>{formatAppointmentDate(appointment.startAt)}</p>
                   <p className="text-xs text-[#667085]">{formatAppointmentWeekday(appointment.startAt)}</p>
@@ -350,7 +348,7 @@ export default function SecretaryAppointmentsTable({
               </tr>,
               rowUndoError && (
                 <tr key={`${appointment.id}-undo-error`} className="border-b border-[#EAF0F8]/60 last:border-0">
-                  <td colSpan={7} className="bg-[#FEF2F2] px-4 py-2.5 text-sm text-[#EF4444]">
+                  <td colSpan={6} className="bg-[#FEF2F2] px-4 py-2.5 text-sm text-[#EF4444]">
                     {rowUndoError}
                   </td>
                 </tr>
