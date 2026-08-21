@@ -32,7 +32,11 @@ export class PaymentsController {
     @Query('includeInactive') includeInactive?: string,
   ) {
     return this.paymentsService.findAll(
-      request.user!.clinicId,
+      {
+        userId: request.user!.id,
+        clinicId: request.user!.clinicId,
+        role: request.user!.role,
+      },
       includeInactive === 'true',
     );
   }
@@ -40,7 +44,11 @@ export class PaymentsController {
   @Roles('ADMIN', 'SECRETARY', 'DOCTOR')
   @Get(':id')
   findOne(@Req() request: RequestWithUser, @Param('id') id: string) {
-    return this.paymentsService.findOne(id, request.user!.clinicId);
+    return this.paymentsService.findOne(id, {
+      userId: request.user!.id,
+      clinicId: request.user!.clinicId,
+      role: request.user!.role,
+    });
   }
 
   @Roles('ADMIN', 'SECRETARY')

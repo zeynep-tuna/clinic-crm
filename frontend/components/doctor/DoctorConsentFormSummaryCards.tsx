@@ -1,14 +1,14 @@
-import { doctorConsentFormSummary } from "@/data/doctorConsentForms";
+import type { ConsentForm } from "@/lib/consent-forms-api";
 import type { FilterValue } from "@/components/doctor/DoctorConsentFormsTable";
 
 type SummaryIcon = "total" | "signed" | "pending" | "missing";
 
-const iconByCardId: Record<string, SummaryIcon> = {
-  total: "total",
-  signed: "signed",
-  pending: "pending",
-  missing: "missing",
-};
+interface SummaryCard {
+  id: string;
+  icon: SummaryIcon;
+  title: string;
+  value: number;
+}
 
 const colorByCardId: Record<string, string> = {
   total: "bg-[#EEF0FF] text-[#5B4DE3]",
@@ -67,15 +67,31 @@ function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
 interface DoctorConsentFormSummaryCardsProps {
   activeFilter: FilterValue;
   onFilterChange: (filter: FilterValue) => void;
+  consentForms: ConsentForm[];
 }
 
 export default function DoctorConsentFormSummaryCards({
   activeFilter,
   onFilterChange,
+  consentForms,
 }: DoctorConsentFormSummaryCardsProps) {
+  const activeForms = consentForms.filter((form) => form.isActive);
+
+  const totalCount = activeForms.length;
+  const signedCount = activeForms.filter((form) => form.status === "SIGNED").length;
+  const pendingCount = activeForms.filter((form) => form.status === "PENDING").length;
+  const missingCount = activeForms.filter((form) => form.status === "MISSING").length;
+
+  const cards: SummaryCard[] = [
+    { id: "total", icon: "total", title: "Toplam Form", value: totalCount },
+    { id: "signed", icon: "signed", title: "İmzalanan", value: signedCount },
+    { id: "pending", icon: "pending", title: "Bekleyen", value: pendingCount },
+    { id: "missing", icon: "missing", title: "Eksik", value: missingCount },
+  ];
+
   return (
     <div className="grid grid-cols-2 gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-[#EEF2F8]">
-      {doctorConsentFormSummary.map((card) => {
+      {cards.map((card) => {
         const filterValue = filterByCardId[card.id] ?? "Tümü";
         const isSelected = activeFilter === filterValue;
 
@@ -89,9 +105,9 @@ export default function DoctorConsentFormSummaryCards({
             }`}
           >
             <span
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${colorByCardId[card.id] ?? "bg-[#EEF0FF] text-[#5B4DE3]"}`}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${colorByCardId[card.id]}`}
             >
-              <SummaryIconGlyph icon={iconByCardId[card.id] ?? "total"} />
+              <SummaryIconGlyph icon={card.icon} />
             </span>
             <div>
               <p className="text-xl font-bold text-[#0B1F55]">{card.value}</p>

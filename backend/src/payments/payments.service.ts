@@ -1,6 +1,12 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import type { Prisma } from '../../generated/prisma/client';
+import type { UserRole } from '../auth/types/role.type';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import {
@@ -8,15 +14,29 @@ import {
   type PaymentMethodValue,
 } from './types/payment-method.type';
 
+export interface RequestingUser {
+  userId: string;
+  clinicId: string;
+  role: UserRole;
+}
+
 @Injectable()
 export class PaymentsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll(userClinicId: string, includeInactive?: boolean) {
+  async findAll(requestingUser: RequestingUser, includeInactive?: boolean) {
     const where: Prisma.PaymentWhereInput = {
-      clinicId: userClinicId,
+      clinicId: requestingUser.clinicId,
       ...(includeInactive ? {} : { isActive: true }),
     };
+
+    if (requestingUser.role === 'DOCTOR') {
+      const currentDoctor = await this.resolveCurrentDoctor(
+        requestingUser.userId,
+        requestingUser.clinicId,
+      );
+      where.appointment = { doctorId: currentDoctor.id };
+    }
 
     return this.prisma.payment.findMany({
       where,
@@ -25,9 +45,22 @@ export class PaymentsService {
     });
   }
 
-  async findOne(id: string, userClinicId: string) {
+  async findOne(id: string, requestingUser: RequestingUser) {
+    const where: Prisma.PaymentWhereInput = {
+      id,
+      clinicId: requestingUser.clinicId,
+    };
+
+    if (requestingUser.role === 'DOCTOR') {
+      const currentDoctor = await this.resolveCurrentDoctor(
+        requestingUser.userId,
+        requestingUser.clinicId,
+      );
+      where.appointment = { doctorId: currentDoctor.id };
+    }
+
     const payment = await this.prisma.payment.findFirst({
-      where: { id, clinicId: userClinicId },
+      where,
       include: { patient: true, appointment: true },
     });
 
@@ -65,7 +98,11 @@ export class PaymentsService {
   }
 
   async update(id: string, userClinicId: string, dto: UpdatePaymentDto) {
-    const existing = await this.findOne(id, userClinicId);
+    const existing = await this.findOne(id, {
+      userId: '',
+      clinicId: userClinicId,
+      role: 'ADMIN',
+    });
 
     const effectivePatientId = dto.patientId ?? existing.patientId;
 
@@ -116,7 +153,11 @@ export class PaymentsService {
   }
 
   async softDelete(id: string, userClinicId: string) {
-    await this.findOne(id, userClinicId);
+    await this.findOne(id, {
+      userId: '',
+      clinicId: userClinicId,
+      role: 'ADMIN',
+    });
 
     return this.prisma.payment.update({
       where: { id },
@@ -184,5 +225,24 @@ export class PaymentsService {
     }
 
     return date;
+  }
+
+  private async resolveCurrentDoctor(
+    authenticatedUserId: string,
+    userClinicId: string,
+  ) {
+    const doctor = await this.prisma.doctor.findFirst({
+      where: {
+        userId: authenticatedUserId,
+        clinicId: userClinicId,
+        isActive: true,
+      },
+    });
+
+    if (!doctor) {
+      throw new ForbiddenException('Doctor profile not found');
+    }
+
+    return doctor;
   }
 }

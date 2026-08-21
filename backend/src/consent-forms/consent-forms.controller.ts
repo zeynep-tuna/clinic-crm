@@ -33,17 +33,28 @@ export class ConsentFormsController {
     @Query('patientId') patientId?: string,
     @Query('status') status?: string,
   ) {
-    return this.consentFormsService.findAll(request.user!.clinicId, {
-      includeInactive: includeInactive === 'true',
-      patientId,
-      status,
-    });
+    return this.consentFormsService.findAll(
+      {
+        userId: request.user!.id,
+        clinicId: request.user!.clinicId,
+        role: request.user!.role,
+      },
+      {
+        includeInactive: includeInactive === 'true',
+        patientId,
+        status,
+      },
+    );
   }
 
   @Roles('ADMIN', 'SECRETARY', 'DOCTOR')
   @Get(':id')
   findOne(@Req() request: RequestWithUser, @Param('id') id: string) {
-    return this.consentFormsService.findOne(id, request.user!.clinicId);
+    return this.consentFormsService.findOne(id, {
+      userId: request.user!.id,
+      clinicId: request.user!.clinicId,
+      role: request.user!.role,
+    });
   }
 
   @Roles('ADMIN', 'SECRETARY')

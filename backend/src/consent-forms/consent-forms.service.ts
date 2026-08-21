@@ -1,12 +1,24 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import type { Prisma } from '../../generated/prisma/client';
+import type { UserRole } from '../auth/types/role.type';
 import {
   CONSENT_FORM_STATUSES,
   type ConsentFormStatusValue,
 } from './types/consent-form-status.type';
 import { CreateConsentFormDto } from './dto/create-consent-form.dto';
 import { UpdateConsentFormDto } from './dto/update-consent-form.dto';
+
+export interface RequestingUser {
+  userId: string;
+  clinicId: string;
+  role: UserRole;
+}
 
 export interface ConsentFormFilters {
   includeInactive?: boolean;
@@ -22,7 +34,10 @@ function isConsentFormStatus(value: string): value is ConsentFormStatusValue {
 export class ConsentFormsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll(userClinicId: string, filters: ConsentFormFilters = {}) {
+  async findAll(
+    requestingUser: RequestingUser,
+    filters: ConsentFormFilters = {},
+  ) {
     const { includeInactive, patientId, status } = filters;
 
     if (status !== undefined && !isConsentFormStatus(status)) {
@@ -30,11 +45,26 @@ export class ConsentFormsService {
     }
 
     const where: Prisma.ConsentFormWhereInput = {
-      clinicId: userClinicId,
+      clinicId: requestingUser.clinicId,
       ...(includeInactive ? {} : { isActive: true }),
       ...(patientId ? { patientId } : {}),
       ...(status ? { status } : {}),
     };
+
+    if (requestingUser.role === 'DOCTOR') {
+      const currentDoctor = await this.resolveCurrentDoctor(
+        requestingUser.userId,
+        requestingUser.clinicId,
+      );
+      const relatedPatientIds = await this.resolveRelatedPatientIds(
+        currentDoctor.id,
+        requestingUser.clinicId,
+      );
+
+      where.patientId = patientId
+        ? { in: relatedPatientIds.includes(patientId) ? [patientId] : [] }
+        : { in: relatedPatientIds };
+    }
 
     return this.prisma.consentForm.findMany({
       where,
@@ -43,9 +73,26 @@ export class ConsentFormsService {
     });
   }
 
-  async findOne(id: string, userClinicId: string) {
+  async findOne(id: string, requestingUser: RequestingUser) {
+    const where: Prisma.ConsentFormWhereInput = {
+      id,
+      clinicId: requestingUser.clinicId,
+    };
+
+    if (requestingUser.role === 'DOCTOR') {
+      const currentDoctor = await this.resolveCurrentDoctor(
+        requestingUser.userId,
+        requestingUser.clinicId,
+      );
+      const relatedPatientIds = await this.resolveRelatedPatientIds(
+        currentDoctor.id,
+        requestingUser.clinicId,
+      );
+      where.patientId = { in: relatedPatientIds };
+    }
+
     const consentForm = await this.prisma.consentForm.findFirst({
-      where: { id, clinicId: userClinicId },
+      where,
       include: { patient: true },
     });
 
@@ -82,7 +129,11 @@ export class ConsentFormsService {
   }
 
   async update(id: string, userClinicId: string, dto: UpdateConsentFormDto) {
-    await this.findOne(id, userClinicId);
+    await this.findOne(id, {
+      userId: '',
+      clinicId: userClinicId,
+      role: 'ADMIN',
+    });
 
     if (dto.patientId !== undefined) {
       await this.validatePatient(dto.patientId, userClinicId);
@@ -120,7 +171,11 @@ export class ConsentFormsService {
   }
 
   async softDelete(id: string, userClinicId: string) {
-    await this.findOne(id, userClinicId);
+    await this.findOne(id, {
+      userId: '',
+      clinicId: userClinicId,
+      role: 'ADMIN',
+    });
 
     return this.prisma.consentForm.update({
       where: { id },
@@ -213,5 +268,52 @@ export class ConsentFormsService {
     }
 
     return isActive;
+  }
+
+  private async resolveCurrentDoctor(
+    authenticatedUserId: string,
+    userClinicId: string,
+  ) {
+    const doctor = await this.prisma.doctor.findFirst({
+      where: {
+        userId: authenticatedUserId,
+        clinicId: userClinicId,
+        isActive: true,
+      },
+    });
+
+    if (!doctor) {
+      throw new ForbiddenException('Doctor profile not found');
+    }
+
+    return doctor;
+  }
+
+  private async resolveRelatedPatientIds(
+    doctorId: string,
+    clinicId: string,
+  ): Promise<string[]> {
+    const [appointmentPatients, treatmentPlanPatients] = await Promise.all([
+      this.prisma.appointment.findMany({
+        where: { doctorId, clinicId },
+        select: { patientId: true },
+        distinct: ['patientId'],
+      }),
+      this.prisma.treatmentPlan.findMany({
+        where: { doctorId, clinicId },
+        select: { patientId: true },
+        distinct: ['patientId'],
+      }),
+    ]);
+
+    const patientIds = new Set<string>();
+    for (const row of appointmentPatients) {
+      patientIds.add(row.patientId);
+    }
+    for (const row of treatmentPlanPatients) {
+      patientIds.add(row.patientId);
+    }
+
+    return Array.from(patientIds);
   }
 }
