@@ -8,7 +8,6 @@ export interface PatientProfileData {
   phone: string;
   email: string;
   birthDate: string;
-  bloodType: string;
   lastVisit: string;
 }
 
@@ -18,7 +17,7 @@ const statusBadgeClass: Record<PatientStatus, string> = {
   Pasif: "bg-[#F3F4F6] text-[#667085]",
 };
 
-function InfoIcon({ type }: { type: "age" | "gender" | "phone" | "email" | "calendar" | "blood" | "visit" }) {
+function InfoIcon({ type }: { type: "age" | "gender" | "phone" | "email" | "calendar" | "visit" }) {
   const common = {
     viewBox: "0 0 24 24",
     fill: "none",
@@ -57,12 +56,6 @@ function InfoIcon({ type }: { type: "age" | "gender" | "phone" | "email" | "cale
           <path strokeLinecap="round" strokeLinejoin="round" d="M4 6.5l8 6 8-6" />
         </svg>
       );
-    case "blood":
-      return (
-        <svg {...common}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 3s6 6.5 6 11a6 6 0 1 1-12 0c0-4.5 6-11 6-11Z" />
-        </svg>
-      );
     default:
       return null;
   }
@@ -73,7 +66,7 @@ function InfoItem({
   label,
   value,
 }: {
-  icon: "age" | "gender" | "phone" | "email" | "calendar" | "blood" | "visit";
+  icon: "age" | "gender" | "phone" | "email" | "calendar" | "visit";
   label: string;
   value: string;
 }) {
@@ -119,9 +112,6 @@ export default function PatientProfileCard({ patient }: { patient: PatientProfil
               <InfoItem icon="calendar" label="Doğum Tarihi" value={patient.birthDate} />
             </div>
             <div className="sm:col-start-2">
-              <InfoItem icon="blood" label="Kan Grubu" value={patient.bloodType} />
-            </div>
-            <div className="sm:col-start-3">
               <InfoItem icon="visit" label="Son Ziyaret" value={patient.lastVisit} />
             </div>
           </div>

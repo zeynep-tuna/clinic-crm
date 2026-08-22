@@ -7,15 +7,14 @@ import EmptyState from "@/components/common/EmptyState";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import AddSecretaryPatientModal from "@/components/secretary/AddSecretaryPatientModal";
 
-type UiStatus = "Aktif" | "Kontrol Bekliyor" | "Pasif";
+type UiStatus = "Aktif" | "Pasif";
 
 export type FilterValue = "Tümü" | UiStatus;
 
-const filters: FilterValue[] = ["Tümü", "Aktif", "Kontrol Bekliyor", "Pasif"];
+const filters: FilterValue[] = ["Tümü", "Aktif", "Pasif"];
 
 const statusBadgeClass: Record<UiStatus, string> = {
   Aktif: "bg-[#DCFCE7] text-[#16A34A]",
-  "Kontrol Bekliyor": "bg-[#FEF3C7] text-[#F59E0B]",
   Pasif: "bg-[#F3F4F6] text-[#667085]",
 };
 

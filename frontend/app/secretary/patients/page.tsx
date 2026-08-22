@@ -24,15 +24,6 @@ function CheckCircleIcon() {
   );
 }
 
-function ClockIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4.5 w-4.5">
-      <circle cx="12" cy="12" r="8.5" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5V12l3 2" />
-    </svg>
-  );
-}
-
 function PauseCircleIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4.5 w-4.5">
@@ -68,8 +59,6 @@ export default function SecretaryPatientsPage() {
 
   const total = patients.length;
   const activeCount = patients.filter((patient) => patient.isActive).length;
-  // Backend'de "Kontrol Bekliyor" durumunun karşılığı yok.
-  const pendingCount = 0;
   const inactiveCount = patients.filter((patient) => !patient.isActive).length;
 
   const summaryItems: { label: string; value: number; icon: React.ReactNode; color: string; filterValue: FilterValue }[] = [
@@ -80,13 +69,6 @@ export default function SecretaryPatientsPage() {
       icon: <CheckCircleIcon />,
       color: "bg-[#DCFCE7] text-[#16A34A]",
       filterValue: "Aktif",
-    },
-    {
-      label: "Kontrol Bekliyor",
-      value: pendingCount,
-      icon: <ClockIcon />,
-      color: "bg-[#FEF3C7] text-[#F59E0B]",
-      filterValue: "Kontrol Bekliyor",
     },
     {
       label: "Pasif Hastalar",
@@ -139,7 +121,7 @@ export default function SecretaryPatientsPage() {
 
       {!isLoading && !error && (
         <>
-          <div className="grid grid-cols-2 gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-[#EAF0F8]/60">
+          <div className="grid grid-cols-1 gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-[#EAF0F8]/60">
             {summaryItems.map((item) => {
               const isSelected = activeFilter === item.filterValue;
 

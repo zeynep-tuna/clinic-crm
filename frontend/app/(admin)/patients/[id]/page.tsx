@@ -116,7 +116,22 @@ function calculateAge(birthDate: string | null): number | null {
   return age;
 }
 
-function toPatientProfileData(patient: Patient): PatientProfileData {
+function getLastVisitLabel(appointments: Appointment[]): string {
+  const now = new Date();
+  const pastCompletedVisits = appointments
+    .filter((appointment) => appointment.isActive)
+    .filter((appointment) => appointment.status === "COMPLETED")
+    .filter((appointment) => new Date(appointment.startAt) <= now)
+    .sort((a, b) => new Date(b.startAt).getTime() - new Date(a.startAt).getTime());
+
+  if (pastCompletedVisits.length === 0) {
+    return "—";
+  }
+
+  return treatmentDateFormatter.format(new Date(pastCompletedVisits[0].startAt));
+}
+
+function toPatientProfileData(patient: Patient, appointments: Appointment[]): PatientProfileData {
   const age = calculateAge(patient.birthDate);
 
   return {
@@ -127,8 +142,7 @@ function toPatientProfileData(patient: Patient): PatientProfileData {
     phone: patient.phone ?? "—",
     email: patient.email ?? "—",
     birthDate: formatBirthDate(patient.birthDate),
-    bloodType: "—",
-    lastVisit: "—",
+    lastVisit: getLastVisitLabel(appointments),
   };
 }
 
@@ -289,7 +303,7 @@ export default function PatientDetailPage() {
         <ActionButtons />
       </div>
 
-      <PatientProfileCard patient={toPatientProfileData(patient)} />
+      <PatientProfileCard patient={toPatientProfileData(patient, appointments)} />
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         {isLoadingTreatmentPlans && (

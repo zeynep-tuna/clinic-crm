@@ -27,9 +27,9 @@ const DEMO_CLINIC = {
 };
 
 const DEMO_USERS = [
-  { fullName: 'Beyza Admin', email: 'admin@cliniccrm.com', role: 'ADMIN' as const },
-  { fullName: 'Zeynep Sekreter', email: 'sekreter@cliniccrm.com', role: 'SECRETARY' as const },
-  { fullName: 'Elif Doktor', email: 'doktor@cliniccrm.com', role: 'DOCTOR' as const },
+  { fullName: 'Beyza Tuncer', email: 'admin@cliniccrm.com', role: 'ADMIN' as const },
+  { fullName: 'Zeynep Kaya', email: 'sekreter@cliniccrm.com', role: 'SECRETARY' as const },
+  { fullName: 'Elif Kaya', email: 'doktor@cliniccrm.com', role: 'DOCTOR' as const },
 ];
 
 const DEMO_PASSWORD = '123456';
@@ -62,6 +62,9 @@ const CONSENT_HASAN_SIGNED_ID = '99999999-9999-4999-8999-999999999994';
 const TREATMENT_PLAN_MEHMET_ACTIVE_ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1';
 const TREATMENT_PLAN_AYSE_REVIEW_ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2';
 const TREATMENT_PLAN_AYSE_COMPLETED_ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa3';
+const TREATMENT_PLAN_HASAN_COMPLETED_ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa4';
+
+const APPOINTMENT_HASAN_CAN_ID = '77777777-7777-4777-8777-777777777777';
 
 const MESSAGE_SECRETARY_TO_DOCTOR_ID = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1';
 const MESSAGE_DOCTOR_TO_SECRETARY_ID = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb2';
@@ -137,6 +140,7 @@ async function main() {
         fullName: doctorUser.fullName,
         specialty: 'Diş Hekimi',
         phone: '0555 222 33 44',
+        email: 'doktor@cliniccrm.com',
         clinicId: clinic.id,
         isActive: true,
       },
@@ -146,6 +150,7 @@ async function main() {
         fullName: doctorUser.fullName,
         specialty: 'Diş Hekimi',
         phone: '0555 222 33 44',
+        email: 'doktor@cliniccrm.com',
         isActive: true,
       },
     });
@@ -160,6 +165,7 @@ async function main() {
       fullName: 'Can Demir',
       specialty: 'Ortodonti',
       phone: '0555 333 44 55',
+      email: 'can.demir@cliniccrm.com',
       clinicId: clinic.id,
       isActive: true,
     },
@@ -168,6 +174,7 @@ async function main() {
       fullName: 'Can Demir',
       specialty: 'Ortodonti',
       phone: '0555 333 44 55',
+      email: 'can.demir@cliniccrm.com',
       clinicId: clinic.id,
       isActive: true,
     },
@@ -175,8 +182,7 @@ async function main() {
 
   // --- Patients -----------------------------------------------------------
   // Ayşe & Mehmet: related to Elif Doktor (appointments/treatment plans below).
-  // Fatma: related only to Can Demir — must stay hidden from Elif's patient list.
-  // Hasan: no appointments or treatment plans at all — also hidden from Elif.
+  // Fatma & Hasan: related only to Can Demir — must stay hidden from Elif's patient list.
   // Hakan: inactive record, unrelated to any doctor — isActive filter regression.
   await prisma.patient.upsert({
     where: { id: PATIENT_AYSE_ID },
@@ -186,6 +192,7 @@ async function main() {
       phone: '0555 111 22 33',
       email: 'ayse.yilmaz@example.com',
       birthDate: new Date(1992, 3, 15),
+      gender: 'Kadın',
       address: 'Sakarya',
       notes: 'Demo patient',
       isActive: true,
@@ -198,6 +205,7 @@ async function main() {
       phone: '0555 111 22 33',
       email: 'ayse.yilmaz@example.com',
       birthDate: new Date(1992, 3, 15),
+      gender: 'Kadın',
       address: 'Sakarya',
       notes: 'Demo patient',
       isActive: true,
@@ -213,6 +221,7 @@ async function main() {
       phone: '0555 444 55 66',
       email: 'mehmet.kaya@example.com',
       birthDate: new Date(1987, 8, 20),
+      gender: 'Erkek',
       address: 'Sakarya',
       notes: 'Demo patient',
       isActive: true,
@@ -225,6 +234,7 @@ async function main() {
       phone: '0555 444 55 66',
       email: 'mehmet.kaya@example.com',
       birthDate: new Date(1987, 8, 20),
+      gender: 'Erkek',
       address: 'Sakarya',
       notes: 'Demo patient',
       isActive: true,
@@ -240,6 +250,7 @@ async function main() {
       phone: '0555 666 77 88',
       email: 'fatma.demir@example.com',
       birthDate: new Date(1995, 1, 10),
+      gender: 'Kadın',
       address: 'Sakarya',
       notes: 'Demo patient (Can Demir hastası)',
       isActive: true,
@@ -252,6 +263,7 @@ async function main() {
       phone: '0555 666 77 88',
       email: 'fatma.demir@example.com',
       birthDate: new Date(1995, 1, 10),
+      gender: 'Kadın',
       address: 'Sakarya',
       notes: 'Demo patient (Can Demir hastası)',
       isActive: true,
@@ -267,8 +279,9 @@ async function main() {
       phone: '0555 777 88 99',
       email: 'hasan.sahin@example.com',
       birthDate: new Date(1980, 5, 5),
+      gender: 'Erkek',
       address: 'Sakarya',
-      notes: 'Demo patient (henüz randevusu yok)',
+      notes: 'Demo patient (Can Demir hastası)',
       isActive: true,
       clinicId: clinic.id,
     },
@@ -279,8 +292,9 @@ async function main() {
       phone: '0555 777 88 99',
       email: 'hasan.sahin@example.com',
       birthDate: new Date(1980, 5, 5),
+      gender: 'Erkek',
       address: 'Sakarya',
-      notes: 'Demo patient (henüz randevusu yok)',
+      notes: 'Demo patient (Can Demir hastası)',
       isActive: true,
       clinicId: clinic.id,
     },
@@ -294,6 +308,7 @@ async function main() {
       phone: '0555 888 99 00',
       email: 'hakan.oz@example.com',
       birthDate: new Date(1975, 10, 2),
+      gender: 'Erkek',
       address: 'Sakarya',
       notes: 'Demo patient (pasif kayıt)',
       isActive: false,
@@ -306,6 +321,7 @@ async function main() {
       phone: '0555 888 99 00',
       email: 'hakan.oz@example.com',
       birthDate: new Date(1975, 10, 2),
+      gender: 'Erkek',
       address: 'Sakarya',
       notes: 'Demo patient (pasif kayıt)',
       isActive: false,
@@ -434,6 +450,7 @@ async function main() {
     const pastCancelledStart = localDateTime(-2, 14, 0);
     const canDemirFatmaStart = localDateTime(0, 13, 0);
     const softDeletedStart = localDateTime(-5, 9, 0);
+    const canDemirHasanStart = localDateTime(-4, 10, 0);
 
     await prisma.appointment.upsert({
       where: { id: APPOINTMENT_TODAY_AYSE_ID },
@@ -611,6 +628,36 @@ async function main() {
       },
     });
 
+    // Hasan's completed visit with Can Demir — must stay invisible to Elif Doktor's scope.
+    await prisma.appointment.upsert({
+      where: { id: APPOINTMENT_HASAN_CAN_ID },
+      update: {
+        title: 'Ortodonti Değerlendirmesi',
+        reason: 'İlk değerlendirme ve kontrol',
+        startAt: canDemirHasanStart,
+        endAt: addMinutes(canDemirHasanStart, 30),
+        status: 'COMPLETED',
+        notes: 'Demo appointment (Can Demir)',
+        isActive: true,
+        clinicId: clinic.id,
+        patientId: PATIENT_HASAN_ID,
+        doctorId: secondDoctor.id,
+      },
+      create: {
+        id: APPOINTMENT_HASAN_CAN_ID,
+        title: 'Ortodonti Değerlendirmesi',
+        reason: 'İlk değerlendirme ve kontrol',
+        startAt: canDemirHasanStart,
+        endAt: addMinutes(canDemirHasanStart, 30),
+        status: 'COMPLETED',
+        notes: 'Demo appointment (Can Demir)',
+        isActive: true,
+        clinicId: clinic.id,
+        patientId: PATIENT_HASAN_ID,
+        doctorId: secondDoctor.id,
+      },
+    });
+
     // --- Payments ---------------------------------------------------------
     await prisma.payment.upsert({
       where: { id: PAYMENT_AYSE_CARD_ID },
@@ -688,29 +735,29 @@ async function main() {
       },
     });
 
-    // Unlinked to any appointment — also hidden from Elif Doktor's payment scope.
+    // Hidden from Elif Doktor: tied to Can Demir's appointment.
     await prisma.payment.upsert({
       where: { id: PAYMENT_HASAN_UNLINKED_ID },
       update: {
         amount: new Prisma.Decimal('500.00'),
         paymentMethod: 'CARD',
-        paymentDate: localDateTime(-1, 16, 0),
-        note: 'Demo payment (randevusuz)',
+        paymentDate: addMinutes(canDemirHasanStart, 30),
+        note: 'Demo payment (Can Demir kapsamı)',
         isActive: true,
         clinicId: clinic.id,
         patientId: PATIENT_HASAN_ID,
-        appointmentId: null,
+        appointmentId: APPOINTMENT_HASAN_CAN_ID,
       },
       create: {
         id: PAYMENT_HASAN_UNLINKED_ID,
         amount: new Prisma.Decimal('500.00'),
         paymentMethod: 'CARD',
-        paymentDate: localDateTime(-1, 16, 0),
-        note: 'Demo payment (randevusuz)',
+        paymentDate: addMinutes(canDemirHasanStart, 30),
+        note: 'Demo payment (Can Demir kapsamı)',
         isActive: true,
         clinicId: clinic.id,
         patientId: PATIENT_HASAN_ID,
-        appointmentId: null,
+        appointmentId: APPOINTMENT_HASAN_CAN_ID,
       },
     });
 
@@ -787,6 +834,32 @@ async function main() {
         clinicId: clinic.id,
         patientId: PATIENT_AYSE_ID,
         doctorId: doctor.id,
+      },
+    });
+
+    // Hasan's plan belongs to Can Demir — must never carry doctor.id (Elif Kaya) here.
+    await prisma.treatmentPlan.upsert({
+      where: { id: TREATMENT_PLAN_HASAN_COMPLETED_ID },
+      update: {
+        description: 'Ortodontik kontrol ve tedavi değerlendirmesi',
+        priority: 'NORMAL',
+        status: 'COMPLETED',
+        startDate: canDemirHasanStart,
+        isActive: true,
+        clinicId: clinic.id,
+        patientId: PATIENT_HASAN_ID,
+        doctorId: secondDoctor.id,
+      },
+      create: {
+        id: TREATMENT_PLAN_HASAN_COMPLETED_ID,
+        description: 'Ortodontik kontrol ve tedavi değerlendirmesi',
+        priority: 'NORMAL',
+        status: 'COMPLETED',
+        startDate: canDemirHasanStart,
+        isActive: true,
+        clinicId: clinic.id,
+        patientId: PATIENT_HASAN_ID,
+        doctorId: secondDoctor.id,
       },
     });
   }
