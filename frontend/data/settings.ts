@@ -15,9 +15,6 @@ export interface SettingsFormState {
   systemNotifications: boolean;
   twoFactorAuth: boolean;
   sessionTimeout: string;
-  currentPassword: string;
-  newPassword: string;
-  confirmPassword: string;
 }
 
 export const initialSettingsFormState: SettingsFormState = {
@@ -34,7 +31,4 @@ export const initialSettingsFormState: SettingsFormState = {
   systemNotifications: true,
   twoFactorAuth: false,
   sessionTimeout: "30 dakika",
-  currentPassword: "",
-  newPassword: "",
-  confirmPassword: "",
 };

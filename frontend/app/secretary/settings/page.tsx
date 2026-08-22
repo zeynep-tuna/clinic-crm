@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getCurrentUser, type AuthUser } from "@/lib/auth";
 import SecretarySettingsProfileCard from "@/components/secretary/SecretarySettingsProfileCard";
 import SecretarySettingsForm from "@/components/secretary/SecretarySettingsForm";
+import ChangePasswordForm from "@/components/account/ChangePasswordForm";
 
 export default function SecretarySettingsPage() {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
@@ -61,10 +62,13 @@ export default function SecretarySettingsPage() {
       )}
 
       {!isLoading && !error && currentUser && (
-        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1fr_2fr]">
-          <SecretarySettingsProfileCard currentUser={currentUser} />
-          <SecretarySettingsForm currentUser={currentUser} />
-        </div>
+        <>
+          <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1fr_2fr]">
+            <SecretarySettingsProfileCard currentUser={currentUser} />
+            <SecretarySettingsForm currentUser={currentUser} />
+          </div>
+          <ChangePasswordForm />
+        </>
       )}
     </div>
   );

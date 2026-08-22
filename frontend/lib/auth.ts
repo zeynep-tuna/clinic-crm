@@ -37,6 +37,20 @@ export async function getCurrentUser(): Promise<AuthUser> {
   return apiFetch<AuthUser>("/auth/me");
 }
 
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export async function changePassword(
+  payload: ChangePasswordPayload
+): Promise<{ message: string }> {
+  return apiFetch<{ message: string }>("/auth/change-password", {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+}
+
 export async function validateCurrentUser(): Promise<AuthUser | null> {
   if (!getAccessToken()) {
     return null;

@@ -24,19 +24,6 @@ const timeFormatter = new Intl.DateTimeFormat("tr-TR", {
   minute: "2-digit",
 });
 
-function EyeIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z"
-      />
-      <circle cx="12" cy="12" r="2.75" />
-    </svg>
-  );
-}
-
 function getPatientName(appointment: Appointment) {
   return `${appointment.patient.firstName} ${appointment.patient.lastName}`.trim();
 }
@@ -69,7 +56,6 @@ export default function TodayAppointments({ appointments }: TodayAppointmentsPro
                 <th className="pb-3 font-medium">Hasta</th>
                 <th className="pb-3 font-medium">Doktor</th>
                 <th className="pb-3 font-medium">Durum</th>
-                <th className="pb-3 font-medium">İşlem</th>
               </tr>
             </thead>
             <tbody>
@@ -87,15 +73,6 @@ export default function TodayAppointments({ appointments }: TodayAppointmentsPro
                       >
                         {status}
                       </span>
-                    </td>
-                    <td className="py-4">
-                      <Link
-                        href="/appointments"
-                        aria-label="Randevu detayı"
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-[#667085] transition-colors hover:bg-[#F1F4FA] hover:text-[#0B1F55]"
-                      >
-                        <EyeIcon />
-                      </Link>
                     </td>
                   </tr>
                 );

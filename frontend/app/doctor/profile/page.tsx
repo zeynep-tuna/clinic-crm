@@ -5,6 +5,7 @@ import { getCurrentUser, type AuthUser } from "@/lib/auth";
 import { listDoctors, type Doctor } from "@/lib/doctors-api";
 import DoctorProfileCard from "@/components/doctor/DoctorProfileCard";
 import DoctorProfileForm from "@/components/doctor/DoctorProfileForm";
+import ChangePasswordForm from "@/components/account/ChangePasswordForm";
 
 export default function DoctorProfilePage() {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
@@ -64,6 +65,7 @@ export default function DoctorProfilePage() {
         <>
           <DoctorProfileCard currentUser={currentUser} doctor={doctor} />
           <DoctorProfileForm currentUser={currentUser} doctor={doctor} />
+          <ChangePasswordForm />
         </>
       )}
     </div>
