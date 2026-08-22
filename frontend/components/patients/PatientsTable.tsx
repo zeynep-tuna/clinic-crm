@@ -362,7 +362,6 @@ export default function PatientsTable({ refreshKey }: PatientsTableProps) {
                     <th className="pb-2.5 font-medium">E-posta</th>
                     <th className="pb-2.5 font-medium">Doğum Tarihi</th>
                     <th className="pb-2.5 font-medium">Cinsiyet</th>
-                    <th className="pb-2.5 font-medium">Son Ziyaret</th>
                     <th className="pb-2.5 font-medium">Durum</th>
                     <th className="pb-2.5 font-medium">İşlem</th>
                   </tr>
@@ -392,7 +391,6 @@ export default function PatientsTable({ refreshKey }: PatientsTableProps) {
                       <td className="py-4 text-sm text-[#667085]">{formatNullable(patient.email)}</td>
                       <td className="py-4 text-sm text-[#0B1F55]">{formatBirthDate(patient.birthDate)}</td>
                       <td className="py-4 text-sm text-[#0B1F55]">{formatNullable(patient.gender)}</td>
-                      <td className="py-4 text-sm text-[#0B1F55]">—</td>
                       <td className="py-4">
                         <span
                           className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${statusBadgeClass[status]}`}

@@ -6,25 +6,23 @@ import { useParams } from "next/navigation";
 import { ApiError } from "@/lib/api";
 import { getPatient, type Patient } from "@/lib/patients-api";
 import { listTreatmentPlans, type TreatmentPlan } from "@/lib/treatment-plans-api";
-import type {
-  TreatmentRecord,
-  UpcomingAppointment,
-  PatientPaymentSummary,
-  DoctorNote,
-} from "@/data/patient-detail";
+import { listAppointments, type Appointment, type AppointmentStatus } from "@/lib/appointments-api";
+import { listPayments, type Payment } from "@/lib/payments-api";
+import type { TreatmentRecord } from "@/data/patient-detail";
 import PatientProfileCard, {
   type PatientProfileData,
 } from "@/components/patient-detail/PatientProfileCard";
 import TreatmentHistoryCard from "@/components/patient-detail/TreatmentHistoryCard";
 import UpcomingAppointmentsCard from "@/components/patient-detail/UpcomingAppointmentsCard";
 import PatientPaymentSummaryCard from "@/components/patient-detail/PatientPaymentSummaryCard";
-import DoctorNotesCard from "@/components/patient-detail/DoctorNotesCard";
 
 const treatmentDateFormatter = new Intl.DateTimeFormat("tr-TR", {
   day: "2-digit",
   month: "2-digit",
   year: "numeric",
 });
+
+const OPERATIONAL_STATUSES: AppointmentStatus[] = ["SCHEDULED", "CONFIRMED"];
 
 function toTreatmentRecords(plans: TreatmentPlan[]): TreatmentRecord[] {
   return plans.map((plan) => ({
@@ -34,15 +32,6 @@ function toTreatmentRecords(plans: TreatmentPlan[]): TreatmentRecord[] {
     description: "—",
   }));
 }
-
-const EMPTY_UPCOMING_APPOINTMENTS: UpcomingAppointment[] = [];
-const EMPTY_PAYMENT_SUMMARY: PatientPaymentSummary = {
-  total: 0,
-  paid: 0,
-  pending: 0,
-  pendingInvoiceCount: 0,
-};
-const EMPTY_DOCTOR_NOTES: DoctorNote[] = [];
 
 function PageHeader() {
   return (
@@ -156,6 +145,11 @@ export default function PatientDetailPage() {
   const [isLoadingTreatmentPlans, setIsLoadingTreatmentPlans] = useState(true);
   const [treatmentPlansError, setTreatmentPlansError] = useState<string | null>(null);
 
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [isLoadingRelatedRecords, setIsLoadingRelatedRecords] = useState(true);
+  const [relatedRecordsError, setRelatedRecordsError] = useState<string | null>(null);
+
   const loadPatient = useCallback(async () => {
     setIsLoading(true);
     setNotFound(false);
@@ -189,6 +183,24 @@ export default function PatientDetailPage() {
     }
   }, [id]);
 
+  const loadRelatedRecords = useCallback(async () => {
+    setIsLoadingRelatedRecords(true);
+    setRelatedRecordsError(null);
+
+    try {
+      const [appointmentsData, paymentsData] = await Promise.all([
+        listAppointments({ patientId: id, includeInactive: true }),
+        listPayments({ includeInactive: true }),
+      ]);
+      setAppointments(appointmentsData);
+      setPayments(paymentsData);
+    } catch {
+      setRelatedRecordsError("Randevu ve ödeme bilgileri yüklenirken bir hata oluştu.");
+    } finally {
+      setIsLoadingRelatedRecords(false);
+    }
+  }, [id]);
+
   useEffect(() => {
     loadPatient();
   }, [loadPatient]);
@@ -196,6 +208,10 @@ export default function PatientDetailPage() {
   useEffect(() => {
     loadTreatmentHistory();
   }, [loadTreatmentHistory]);
+
+  useEffect(() => {
+    loadRelatedRecords();
+  }, [loadRelatedRecords]);
 
   if (isLoading) {
     return (
@@ -257,6 +273,15 @@ export default function PatientDetailPage() {
     );
   }
 
+  const now = new Date();
+  const upcomingAppointments = appointments
+    .filter((appointment) => appointment.isActive)
+    .filter((appointment) => OPERATIONAL_STATUSES.includes(appointment.status))
+    .filter((appointment) => new Date(appointment.startAt) > now)
+    .sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
+
+  const patientPayments = payments.filter((payment) => payment.patientId === id);
+
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -290,13 +315,33 @@ export default function PatientDetailPage() {
           <TreatmentHistoryCard history={toTreatmentRecords(treatmentPlans)} />
         )}
 
-        <UpcomingAppointmentsCard appointments={EMPTY_UPCOMING_APPOINTMENTS} />
+        {isLoadingRelatedRecords && (
+          <div className="flex items-center justify-center rounded-[20px] border border-[#EAF0F8] bg-white p-10 text-center shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+            <p className="text-sm text-[#667085]">Randevu bilgileri yükleniyor...</p>
+          </div>
+        )}
+
+        {!isLoadingRelatedRecords && relatedRecordsError && (
+          <div className="flex flex-col items-center justify-center gap-3 rounded-[20px] border border-[#EAF0F8] bg-white p-10 text-center shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+            <p className="text-sm text-[#EF4444]">{relatedRecordsError}</p>
+            <button
+              type="button"
+              onClick={loadRelatedRecords}
+              className="rounded-xl border border-[#EAF0F8] px-4 py-2 text-sm font-semibold text-[#0B1F55] transition-colors hover:bg-[#F7F8FF]"
+            >
+              Tekrar Dene
+            </button>
+          </div>
+        )}
+
+        {!isLoadingRelatedRecords && !relatedRecordsError && (
+          <UpcomingAppointmentsCard appointments={upcomingAppointments} />
+        )}
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <PatientPaymentSummaryCard summary={EMPTY_PAYMENT_SUMMARY} />
-        <DoctorNotesCard notes={EMPTY_DOCTOR_NOTES} />
-      </div>
+      {!isLoadingRelatedRecords && !relatedRecordsError && (
+        <PatientPaymentSummaryCard payments={patientPayments} />
+      )}
     </div>
   );
 }

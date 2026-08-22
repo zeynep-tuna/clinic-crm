@@ -191,8 +191,7 @@ export default function SecretaryConsentFormsTable({
               return (
               <tr
                 key={form.id}
-                onClick={() => console.log("Onam formu detayına git:", form.id)}
-                className="cursor-pointer border-b border-[#EAF0F8]/60 transition-colors last:border-0 hover:bg-[#F8F9FF]"
+                className="border-b border-[#EAF0F8]/60 transition-colors last:border-0 hover:bg-[#F8F9FF]"
               >
                 <td className="py-4">
                   <div className="flex items-center gap-3">

@@ -13,16 +13,11 @@ const specialtyOptions = [
   "Ağız, Diş ve Çene Cerrahisi Uzmanı",
 ];
 
-const statusOptions = ["Aktif", "İzinli", "Pasif"];
-
 interface DoctorFormState {
   fullName: string;
   specialty: string;
   phone: string;
   email: string;
-  todayAppointments: string;
-  status: string;
-  notes: string;
 }
 
 const initialFormState: DoctorFormState = {
@@ -30,9 +25,6 @@ const initialFormState: DoctorFormState = {
   specialty: "",
   phone: "",
   email: "",
-  todayAppointments: "",
-  status: "",
-  notes: "",
 };
 
 type DoctorFormErrors = Partial<Record<keyof DoctorFormState, string>>;
@@ -62,10 +54,6 @@ function validateDoctorForm(values: DoctorFormState): DoctorFormErrors {
     nextErrors.email = "E-posta adresi zorunludur.";
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
     nextErrors.email = "Geçerli bir e-posta adresi girin.";
-  }
-
-  if (!values.status) {
-    nextErrors.status = "Lütfen bir seçim yapın.";
   }
 
   return nextErrors;
@@ -242,47 +230,6 @@ export default function AddDoctorModal({ onCreated }: AddDoctorModalProps) {
                   }`}
                 />
                 {errors.email && <p className="mt-1 text-sm text-[#EF4444]">{errors.email}</p>}
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Bugünkü Randevu</label>
-                <input
-                  type="number"
-                  min={0}
-                  value={form.todayAppointments}
-                  onChange={(event) => updateField("todayAppointments", event.target.value)}
-                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Durum</label>
-                <select
-                  value={form.status}
-                  onChange={(event) => updateField("status", event.target.value)}
-                  className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20 ${
-                    errors.status ? "border-[#EF4444]/60" : "border-[#EAF0F8]"
-                  }`}
-                >
-                  <option value="">Durum seçin</option>
-                  {statusOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-                {errors.status && <p className="mt-1 text-sm text-[#EF4444]">{errors.status}</p>}
-              </div>
-
-              <div className="sm:col-span-2">
-                <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Notlar</label>
-                <textarea
-                  value={form.notes}
-                  onChange={(event) => updateField("notes", event.target.value)}
-                  placeholder="Ek notlarınızı buraya yazabilirsiniz..."
-                  rows={4}
-                  className="w-full resize-y rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] placeholder:text-[#98A2B3] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
-                />
               </div>
 
               {apiError && (

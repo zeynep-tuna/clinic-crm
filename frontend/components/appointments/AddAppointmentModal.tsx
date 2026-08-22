@@ -9,14 +9,6 @@ import {
   type CreateAppointmentInput,
 } from "@/lib/appointments-api";
 
-const departmentOptions = [
-  "Diş Hekimliği",
-  "Ortodonti",
-  "Endodonti",
-  "Periodontoloji",
-  "Çocuk Diş Hekimliği",
-];
-
 const appointmentTypeOptions = ["Muayene", "Kontrol", "Tedavi", "Konsültasyon"];
 
 const statusOptions = ["Onaylandı", "Bekliyor", "Tamamlandı", "İptal"];
@@ -33,7 +25,6 @@ const APPOINTMENT_DURATION_MINUTES = 30;
 interface AppointmentFormState {
   patientId: string;
   doctorId: string;
-  department: string;
   date: string;
   time: string;
   appointmentType: string;
@@ -44,7 +35,6 @@ interface AppointmentFormState {
 const initialFormState: AppointmentFormState = {
   patientId: "",
   doctorId: "",
-  department: "",
   date: "",
   time: "",
   appointmentType: "",
@@ -327,22 +317,6 @@ export default function AddAppointmentModal({ onCreated }: AddAppointmentModalPr
                   ))}
                 </select>
                 {errors.doctorId && <p className="mt-1 text-sm text-[#EF4444]">{errors.doctorId}</p>}
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Bölüm</label>
-                <select
-                  value={form.department}
-                  onChange={(event) => updateField("department", event.target.value)}
-                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
-                >
-                  <option value="">Bölüm seçin</option>
-                  {departmentOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
               </div>
 
               <div>

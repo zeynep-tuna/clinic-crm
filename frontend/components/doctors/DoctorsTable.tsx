@@ -6,15 +6,14 @@ import EmptyState from "@/components/common/EmptyState";
 import AddDoctorModal from "@/components/doctors/AddDoctorModal";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 
-type UiStatus = "Aktif" | "İzinli" | "Pasif";
+type UiStatus = "Aktif" | "Pasif";
 
 type FilterValue = "Tümü" | UiStatus;
 
-const filters: FilterValue[] = ["Tümü", "Aktif", "İzinli", "Pasif"];
+const filters: FilterValue[] = ["Tümü", "Aktif", "Pasif"];
 
 const statusBadgeClass: Record<UiStatus, string> = {
   Aktif: "bg-[#DCFCE7] text-[#16A34A]",
-  İzinli: "bg-[#FEF3C7] text-[#F59E0B]",
   Pasif: "bg-[#F3F4F6] text-[#667085]",
 };
 
@@ -66,38 +65,11 @@ function CheckCircleIcon() {
   );
 }
 
-function ClockIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4.5 w-4.5">
-      <circle cx="12" cy="12" r="8.5" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5V12l3 2" />
-    </svg>
-  );
-}
-
 function PauseCircleIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4.5 w-4.5">
       <circle cx="12" cy="12" r="8.5" />
       <path strokeLinecap="round" d="M10 9.5v5M14 9.5v5" />
-    </svg>
-  );
-}
-
-function EditIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 4.5a2.1 2.1 0 0 1 3 3L7 20l-4 1 1-4Z" />
-    </svg>
-  );
-}
-
-function MoreIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-      <circle cx="5" cy="12" r="1.5" />
-      <circle cx="12" cy="12" r="1.5" />
-      <circle cx="19" cy="12" r="1.5" />
     </svg>
   );
 }
@@ -155,8 +127,6 @@ export default function DoctorsTable({ refreshKey }: DoctorsTableProps) {
   const totalCount = doctorList.length;
   const activeCount = doctorList.filter((doctor) => doctor.isActive).length;
   const inactiveCount = doctorList.filter((doctor) => !doctor.isActive).length;
-  // Backend'de "İzinli" durumunun karşılığı yok.
-  const onLeaveCount = 0;
 
   const summaryItems: {
     label: string;
@@ -172,13 +142,6 @@ export default function DoctorsTable({ refreshKey }: DoctorsTableProps) {
       icon: <CheckCircleIcon />,
       color: "bg-[#DCFCE7] text-[#16A34A]",
       filterValue: "Aktif",
-    },
-    {
-      label: "İzinli",
-      value: onLeaveCount,
-      icon: <ClockIcon />,
-      color: "bg-[#FEF3C7] text-[#F59E0B]",
-      filterValue: "İzinli",
     },
     {
       label: "Pasif",
@@ -232,7 +195,7 @@ export default function DoctorsTable({ refreshKey }: DoctorsTableProps) {
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-[#EAF0F8]/60">
+          <div className="grid grid-cols-1 gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-[#EAF0F8]/60">
             {summaryItems.map((item) => {
               const isSelected = activeFilter === item.filterValue;
 
@@ -339,7 +302,6 @@ export default function DoctorsTable({ refreshKey }: DoctorsTableProps) {
                     <th className="w-44 pb-2.5 pr-4 font-medium">Uzmanlık</th>
                     <th className="w-40 pb-2.5 pr-4 font-medium">Telefon</th>
                     <th className="w-52 pb-2.5 pr-4 font-medium">E-posta</th>
-                    <th className="w-40 whitespace-nowrap pb-2.5 pr-4 text-center font-medium">Bugünkü Randevu</th>
                     <th className="w-32 pb-2.5 pr-4 font-medium">Durum</th>
                     <th className="w-28 pb-2.5 font-medium">İşlem</th>
                   </tr>
@@ -351,8 +313,7 @@ export default function DoctorsTable({ refreshKey }: DoctorsTableProps) {
                     return (
                     <tr
                       key={doctor.id}
-                      onClick={() => console.log("Doktor detayına git:", doctor.id)}
-                      className="cursor-pointer border-b border-[#EAF0F8]/60 transition-colors last:border-0 hover:bg-[#F8F9FF]"
+                      className="border-b border-[#EAF0F8]/60 transition-colors last:border-0 hover:bg-[#F8F9FF]"
                     >
                       <td className="py-4 pr-4">
                         <div className="flex items-center gap-3">
@@ -369,7 +330,6 @@ export default function DoctorsTable({ refreshKey }: DoctorsTableProps) {
                       </td>
                       <td className="truncate py-4 pr-4 text-sm text-[#0B1F55]">{formatNullable(doctor.phone)}</td>
                       <td className="truncate py-4 pr-4 text-sm text-[#667085]">{formatNullable(doctor.email)}</td>
-                      <td className="py-4 pr-4 text-center text-sm text-[#0B1F55]">—</td>
                       <td className="py-4 pr-4">
                         <span
                           className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold ${statusBadgeClass[status]}`}
@@ -382,28 +342,9 @@ export default function DoctorsTable({ refreshKey }: DoctorsTableProps) {
                         <div className="flex items-center gap-3 text-[#667085]">
                           <button
                             type="button"
-                            aria-label="Düzenle"
-                            onClick={(event) => event.stopPropagation()}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
-                          >
-                            <EditIcon />
-                          </button>
-                          <button
-                            type="button"
-                            aria-label="Diğer işlemler"
-                            onClick={(event) => event.stopPropagation()}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#F7F8FF] hover:text-[#0B1F55]"
-                          >
-                            <MoreIcon />
-                          </button>
-                          <button
-                            type="button"
                             aria-label="Hekimi pasifleştir"
                             disabled={deactivatingId === doctor.id}
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              setPendingDeactivateId(doctor.id);
-                            }}
+                            onClick={() => setPendingDeactivateId(doctor.id)}
                             className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#FEF3C7] hover:text-[#F59E0B] disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             <PauseCircleIcon />

@@ -1,39 +1,43 @@
-import { secretarySettingsProfile } from "@/data/secretarySettings";
+import type { AuthUser, UserRole } from "@/lib/auth";
 
-export default function SecretarySettingsProfileCard() {
+const ROLE_LABELS: Record<UserRole, string> = {
+  ADMIN: "Klinik Yöneticisi",
+  SECRETARY: "Sekreter",
+  DOCTOR: "Doktor",
+};
+
+function getInitials(fullName: string) {
+  const parts = fullName.trim().split(/\s+/).filter(Boolean);
+  const first = parts[0]?.charAt(0) ?? "";
+  const last = parts.length > 1 ? parts[parts.length - 1].charAt(0) : "";
+  return (first + last).toUpperCase();
+}
+
+interface SecretarySettingsProfileCardProps {
+  currentUser: AuthUser;
+}
+
+export default function SecretarySettingsProfileCard({ currentUser }: SecretarySettingsProfileCardProps) {
   return (
     <div className="rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <div className="flex items-center gap-3">
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#EEF0FF] text-lg font-bold text-[#5B4DE3]">
-          ZK
+          {getInitials(currentUser.fullName)}
         </div>
 
         <div className="min-w-0">
-          <p className="truncate text-base font-bold text-[#0B1F55]">{secretarySettingsProfile.fullName}</p>
-          <p className="text-sm text-[#667085]">{secretarySettingsProfile.role}</p>
+          <p className="truncate text-base font-bold text-[#0B1F55]">{currentUser.fullName}</p>
+          <p className="text-sm text-[#667085]">{ROLE_LABELS[currentUser.role]}</p>
         </div>
       </div>
 
-      <span className="mt-3 inline-block rounded-full bg-[#DCFCE7] px-3 py-1 text-xs font-semibold text-[#16A34A]">
-        {secretarySettingsProfile.workStatus}
+      <span
+        className={`mt-3 inline-block rounded-full px-3 py-1 text-xs font-semibold ${
+          currentUser.isActive ? "bg-[#DCFCE7] text-[#16A34A]" : "bg-[#F3F4F6] text-[#667085]"
+        }`}
+      >
+        {currentUser.isActive ? "Aktif" : "Pasif"}
       </span>
-
-      <div className="mt-4 space-y-2 border-t border-[#EAF0F8] pt-4">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-[#667085]">Bugünkü İşlem</span>
-          <span className="text-sm font-semibold text-[#0B1F55]">{secretarySettingsProfile.todayTasks}</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-[#667085]">Yönetilen Randevu</span>
-          <span className="text-sm font-semibold text-[#0B1F55]">
-            {secretarySettingsProfile.managedAppointments}
-          </span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-[#667085]">Bekleyen Görev</span>
-          <span className="text-sm font-semibold text-[#0B1F55]">{secretarySettingsProfile.pendingTasks}</span>
-        </div>
-      </div>
     </div>
   );
 }

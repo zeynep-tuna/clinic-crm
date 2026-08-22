@@ -1,15 +1,30 @@
-import type { AppointmentStatus, UpcomingAppointment } from "@/data/patient-detail";
+import type { Appointment, AppointmentStatus } from "@/lib/appointments-api";
 
-const statusBadgeClass: Record<AppointmentStatus, string> = {
-  Onaylandı: "bg-[#DCFCE7] text-[#16A34A]",
-  Beklemede: "bg-[#FEF3C7] text-[#F59E0B]",
+type UiStatus = "Bekliyor" | "Onaylandı";
+
+const STATUS_LABELS: Partial<Record<AppointmentStatus, UiStatus>> = {
+  SCHEDULED: "Bekliyor",
+  CONFIRMED: "Onaylandı",
 };
 
-export default function UpcomingAppointmentsCard({
-  appointments,
-}: {
-  appointments: UpcomingAppointment[];
-}) {
+const statusBadgeClass: Record<UiStatus, string> = {
+  Bekliyor: "bg-[#FEF3C7] text-[#F59E0B]",
+  Onaylandı: "bg-[#DCFCE7] text-[#16A34A]",
+};
+
+const dayFormatter = new Intl.DateTimeFormat("tr-TR", { day: "2-digit" });
+const monthFormatter = new Intl.DateTimeFormat("tr-TR", { month: "short" });
+const timeFormatter = new Intl.DateTimeFormat("tr-TR", { hour: "2-digit", minute: "2-digit" });
+
+function getStatusLabel(appointment: Appointment): UiStatus {
+  return STATUS_LABELS[appointment.status] ?? "Bekliyor";
+}
+
+interface UpcomingAppointmentsCardProps {
+  appointments: Appointment[];
+}
+
+export default function UpcomingAppointmentsCard({ appointments }: UpcomingAppointmentsCardProps) {
   return (
     <div className="flex h-full flex-col rounded-[20px] border border-[#EAF0F8] bg-white p-7 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
       <div className="flex items-center gap-2.5">
@@ -23,42 +38,42 @@ export default function UpcomingAppointmentsCard({
       </div>
 
       <div className="mt-5 flex-1 space-y-3">
-        {appointments.map((appointment, index) => (
-          <div
-            key={`${appointment.day}-${appointment.month}-${index}`}
-            className="flex items-center gap-4 rounded-2xl border border-[#EAF0F8] p-4"
-          >
-            <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-[#EEF0FF] text-[#5B4DE3]">
-              <span className="text-sm font-bold leading-none">{appointment.day}</span>
-              <span className="mt-0.5 text-[10px] font-semibold leading-none">{appointment.month}</span>
-            </div>
+        {appointments.map((appointment) => {
+          const status = getStatusLabel(appointment);
+          const startDate = new Date(appointment.startAt);
 
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-[#0B1F55]">
-                {appointment.time} · {appointment.treatment}
-              </p>
-              <p className="text-xs text-[#667085]">{appointment.doctor}</p>
-            </div>
-
-            <span
-              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${statusBadgeClass[appointment.status]}`}
+          return (
+            <div
+              key={appointment.id}
+              className="flex items-center gap-4 rounded-2xl border border-[#EAF0F8] p-4"
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-current" />
-              {appointment.status}
-            </span>
-          </div>
-        ))}
+              <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-[#EEF0FF] text-[#5B4DE3]">
+                <span className="text-sm font-bold leading-none">{dayFormatter.format(startDate)}</span>
+                <span className="mt-0.5 text-[10px] font-semibold uppercase leading-none">
+                  {monthFormatter.format(startDate)}
+                </span>
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-[#0B1F55]">
+                  {timeFormatter.format(startDate)} · {appointment.title ?? "—"}
+                </p>
+                <p className="text-xs text-[#667085]">{appointment.doctor.fullName}</p>
+              </div>
+
+              <span
+                className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${statusBadgeClass[status]}`}
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                {status}
+              </span>
+            </div>
+          );
+        })}
 
         {appointments.length === 0 && (
-          <p className="py-6 text-center text-sm text-[#667085]">Planlanmış randevu yok.</p>
+          <p className="py-6 text-center text-sm text-[#667085]">Yaklaşan randevu bulunmuyor.</p>
         )}
-      </div>
-
-      <div className="mt-5">
-        <a href="#" className="inline-flex items-center gap-1 text-sm font-medium text-[#5B4DE3] hover:underline">
-          Tüm randevuları görüntüle
-          <span aria-hidden>→</span>
-        </a>
       </div>
     </div>
   );

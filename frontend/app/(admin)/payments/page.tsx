@@ -13,7 +13,7 @@ export default function PaymentsPage() {
         <div>
           <h2 className="text-2xl font-bold text-[#0B1F55]">Ödemeler</h2>
           <p className="mt-2 text-sm text-[#667085]">
-            Diş kliniğinizdeki hasta ödemelerini, tahsilat durumlarını ve iade süreçlerini takip edin.
+            Diş kliniğinizdeki hasta ödemelerini ve tahsilat durumlarını takip edin.
           </p>
         </div>
 

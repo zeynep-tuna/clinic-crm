@@ -13,7 +13,7 @@ export default function ConsentFormsPage() {
         <div>
           <h2 className="text-2xl font-bold text-[#0B1F55]">Onam Formları</h2>
           <p className="mt-2 text-sm text-[#667085]">
-            Diş kliniğinizdeki dijital onam formlarını, imza durumlarını ve dosya süreçlerini takip edin.
+            Diş kliniğinizdeki dijital onam formlarını ve imza durumlarını takip edin.
           </p>
         </div>
 

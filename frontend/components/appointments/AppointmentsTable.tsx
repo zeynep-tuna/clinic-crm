@@ -459,8 +459,7 @@ export default function AppointmentsTable({ refreshKey }: AppointmentsTableProps
                     return [
                     <tr
                       key={appointment.id}
-                      onClick={() => console.log("Randevu detayına git:", appointment.id)}
-                      className="cursor-pointer border-b border-[#EAF0F8]/60 transition-colors last:border-0 hover:bg-[#F8F9FF]"
+                      className="border-b border-[#EAF0F8]/60 transition-colors last:border-0 hover:bg-[#F8F9FF]"
                     >
                       <td className="py-4">
                         <div className="flex items-center gap-2 text-sm font-medium text-[#0B1F55]">

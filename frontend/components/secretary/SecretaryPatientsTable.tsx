@@ -235,7 +235,6 @@ export default function SecretaryPatientsTable({
               <th className="pb-2.5 font-medium">Hasta</th>
               <th className="pb-2.5 font-medium">Telefon</th>
               <th className="pb-2.5 font-medium">E-posta</th>
-              <th className="pb-2.5 font-medium">Son Ziyaret</th>
               <th className="pb-2.5 font-medium">Kayıt Tarihi</th>
               <th className="pb-2.5 font-medium">Durum</th>
               <th className="pb-2.5 font-medium">İşlem</th>
@@ -264,7 +263,6 @@ export default function SecretaryPatientsTable({
                 </td>
                 <td className="py-4 text-sm text-[#0B1F55]">{formatNullable(patient.phone)}</td>
                 <td className="py-4 text-sm text-[#667085]">{formatNullable(patient.email)}</td>
-                <td className="py-4 text-sm text-[#0B1F55]">—</td>
                 <td className="py-4 text-sm text-[#0B1F55]">{formatRegisteredDate(patient.createdAt)}</td>
                 <td className="py-4">
                   <span

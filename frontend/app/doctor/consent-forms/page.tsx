@@ -6,7 +6,7 @@ export default function DoctorConsentFormsPage() {
       <div>
         <h1 className="text-2xl font-bold text-[#0B1F55]">Onam Formları</h1>
         <p className="mt-1 text-sm text-[#667085]">
-          Hastalarınıza ait dijital onam formlarını, imza durumlarını ve dosya süreçlerini takip edin.
+          Hastalarınıza ait dijital onam formlarını ve imza durumlarını takip edin.
         </p>
       </div>
 

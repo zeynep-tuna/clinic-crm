@@ -6,7 +6,7 @@ export default function DoctorPaymentsPage() {
       <div>
         <h1 className="text-2xl font-bold text-[#0B1F55]">Ödemeler</h1>
         <p className="mt-1 text-sm text-[#667085]">
-          Hastalarınıza ait tedavi ödemelerini, tahsilat durumlarını ve bekleyen ödemeleri takip edin.
+          Randevularınıza bağlı hasta ödemelerini ve tahsilat durumlarını takip edin.
         </p>
       </div>
 
