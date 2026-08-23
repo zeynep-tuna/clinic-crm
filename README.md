@@ -1,285 +1,180 @@
 # ClinicCRM
 
-ClinicCRM is a web-based clinic management system developed for small and medium-sized healthcare clinics.
+Diş klinikleri için hasta, doktor, randevu, ödeme, onam formu, tedavi planı ve klinik içi mesajlaşma yönetimi sunan rol tabanlı CRM.
 
-## Project Description
+## Tech Stack
 
-ClinicCRM is designed to help healthcare clinics manage patients, appointments, doctors and payment processes from a single platform.
-
-The project is being developed as a full-stack web application using modern technologies.
-
----
-
-## Technologies
-
-### Frontend
-
-- Next.js
-- React
+**Frontend**
+- Next.js 16
+- React 19
 - TypeScript
-- Tailwind CSS
+- Tailwind CSS 4
 
-### Backend
+**Backend**
+- NestJS 11
+- Prisma ORM 7
+- PostgreSQL
+- JWT Authentication (`@nestjs/jwt`)
 
-- ASP.NET Core Web API
-- Entity Framework Core
+**Database / Dev**
+- PostgreSQL 16 (Docker, `docker-compose.yml`)
 
-### Database
+## Roles
 
-- SQL Server
+ClinicCRM has three roles, each with its own scoped dashboard and screens.
 
----
+**ADMIN — Klinik Yöneticisi**
+Clinic genelinde tam yönetim: hastalar, doktorlar, randevular, ödemeler, onam formları ve raporlar.
 
-## Planned Features
+**SECRETARY — Sekreter**
+Hasta ve randevu operasyonları, doktor takvimi, ödemeler, onam formları ve mesajlaşma.
 
-- Patient Management
-- Appointment Management
-- Doctor Management
-- Payment Tracking
+**DOCTOR — Doktor**
+Yalnızca backend service scope'una göre kendisiyle ilişkili hastalar/randevular, kendi tedavi planları, kendi randevularına bağlı ödemeler, ilgili hastaların onam formları ve mesajlaşma. Doctor ekranları büyük ölçüde read-only/scoped'dur.
+
+## Major Features
+
+- JWT login + role-based access control (ADMIN / SECRETARY / DOCTOR)
+- Patients (create, update, soft delete / reactivate)
+- Doctors
+- Appointments
+- Payments
 - Consent Forms
-- Dashboard
-- Authentication & Authorization
-
----
-
-## User Roles
-
-The system supports three different user roles:
-
-| Role | Responsibility |
-|------|----------------|
-| Admin | Full system management |
-| Doctor | Manage own patients and appointments |
-| Secretary | Patient registration, appointments and payment tracking |
-
----
-
-## Main Modules
-
-- Dashboard
-- Patient Management
-- Appointment Management
-- Doctor Management
-- Payment Tracking
-- Digital Consent Forms
-
----
+- Treatment Plans
+- Internal messaging (User ↔ User)
+- Role-specific dashboards (Admin / Secretary / Doctor)
+- Admin Reports
+- Doctor Schedule (Secretary view)
+- Change Password (self-service, all roles)
+- Soft delete / reactivation for Patients, Doctors, Payments, Consent Forms, Treatment Plans
 
 ## Project Structure
 
-```text
-ClinicCRM
-│
-├── assets
-├── backend
-│
-├── database
-│   ├── doctor-fields.md
-│   ├── payment-fields.md
-│   ├── payment-methods.md
-│   ├── payment-status.md
-│   ├── consent-form-fields.md
-│   ├── consent-form-status.md
-│   ├── consent-form-types.md
-│   ├── role-permissions.md
-│   └── user-roles.md
-│
-├── docs
-│   ├── mock-data
-│   │   ├── doctors.json
-│   │   ├── payments.json
-│   │   └── consent-forms.json
-│   │
-│   ├── api-design.md
-│   ├── appointment-plan.md
-│   ├── dashboard-plan.md
-│   ├── patient-list-plan.md
-│   └── patient-model.md
-│
-├── frontend
-│   ├── app
-│   ├── components
-│   ├── data
-│   └── public
-│
-└── README.md
+```
+clinic-crm/
+  backend/
+    src/
+    prisma/
+  frontend/
+    app/
+    components/
+    lib/
 ```
 
----
+## Requirements
 
-## Week 1 Goals
+- Node.js
+- npm
+- PostgreSQL, or Docker Desktop (for the bundled `docker-compose.yml`)
 
-- Define the project scope.
-- Create the project structure.
-- Set up the Next.js project.
-- Build the first reusable React components.
-- Prepare the landing page.
-- Create the GitHub repository.
+## Environment Variables
 
----
+### Backend (`backend/.env.example`)
 
-## Completed in Week 1
-
-- Project repository created.
-- Next.js project initialized.
-- Folder structure prepared.
-- FeatureCard component created.
-- Landing page feature data prepared.
-- First reusable React component tested successfully.
-
----
-
-## Designed Screens
-
-- Landing Page
-- Login Page
-- Admin Dashboard
-- Doctor Dashboard
-- Secretary Dashboard
-- Patient List
-- Patient Detail
-- Add Patient
-- Appointments
-- Doctors
-- Payments
-- Consent Forms
-
----
-
-## Role-Based Access
-
-The ClinicCRM system uses role-based authorization to control access to different modules.
-
-| Module | Admin | Doctor | Secretary |
-|--------|:-----:|:------:|:---------:|
-| Dashboard | ✓ | ✓ | ✓ |
-| Patients | ✓ | Own Patients | ✓ |
-| Appointments | ✓ | Own Appointments | Create / Update |
-| Doctors | Manage | View | View Schedule |
-| Payments | Full Access | No Access | Update Status |
-| Consent Forms | Manage | View | Upload / Track |
-| Reports | ✓ | ✗ | ✗ |
-| Settings | ✓ | ✗ | ✗ |
-
----
-
-## Future Development
-
-- Patient CRUD
-- Appointment CRUD
-- Doctor CRUD
-- Dashboard
-- Authentication (JWT)
-- SQL Server Integration
-- REST API Development
-- Digital Consent Management
-- Role-Based Authorization
-
----
-
-## Documentation
-
-The project currently includes technical documentation for:
-
-### Doctor Module
-
-- Doctor entity fields
-- Doctor mock data
-
-### Payment Module
-
-- Payment entity fields
-- Payment status definitions
-- Payment method definitions
-- Payment mock data
-
-### Consent Forms Module
-
-- Consent form entity fields
-- Consent form status definitions
-- Consent form type definitions
-- Consent form mock data
-
-### User Management
-
-- User roles
-- Role permissions
-
-### General
-
-- Project folder structure
-
-Additional documentation will be added as the project progresses.
-
----
-
-## Installation
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/zeynep-tuna/clinic-crm.git
+```
+DATABASE_URL="postgresql://postgres:postgres@localhost:5433/cliniccrm?schema=public"
+PORT=5000
+JWT_SECRET="cliniccrm-dev-secret"
+JWT_EXPIRES_IN="1d"
 ```
 
-### 2. Navigate to the frontend folder
+### Frontend (`frontend/.env.example`)
 
-```bash
-cd ClinicCRM/frontend
+```
+NEXT_PUBLIC_API_URL=http://localhost:5000
 ```
 
-### 3. Install dependencies
+Copy each `.env.example` to `.env` (backend) / `.env.local` (frontend) and adjust values for your machine before running the apps.
 
-```bash
+## Database Setup (Docker)
+
+The repo ships a `docker-compose.yml` at the project root that runs PostgreSQL on `localhost:5433` with database `cliniccrm`. Make sure Docker Desktop is running, then from the project root:
+
+```
+docker compose up -d
+```
+
+This matches the default `DATABASE_URL` in `backend/.env.example`.
+
+## Backend — Install & Run
+
+```
+cd backend
 npm install
+npx prisma generate
+npx prisma migrate deploy
+npm run db:seed
+npm run start:dev
 ```
 
-### 4. Start the development server
+- `prisma migrate deploy` applies the committed migrations to your database (use this on a fresh clone — it does not create new migrations or prompt for input).
+- `npm run db:seed` runs `backend/prisma/seed.ts`, which is idempotent and safe to re-run.
+- Windows users: if `npm` isn't recognized in your shell, use `npm.cmd` instead.
 
-```bash
+Backend runs at **http://localhost:5000**.
+
+## Frontend — Install & Run
+
+```
+cd frontend
+npm install
 npm run dev
 ```
 
-After starting the server, open the following address in your browser:
+Frontend runs at **http://localhost:3000**.
+
+## Demo / Local Development Accounts
+
+The seed script creates the following accounts. **These are demo/local seed credentials only — never use them as production credentials.**
+
+| Role | Email | Password | Name |
+|---|---|---|---|
+| ADMIN | admin@cliniccrm.com | 123456 | Beyza Tuncer |
+| SECRETARY | sekreter@cliniccrm.com | 123456 | Zeynep Kaya |
+| DOCTOR | doktor@cliniccrm.com | 123456 | Elif Kaya |
+
+## Demo Data
+
+The seed is deterministic and idempotent (safe to run multiple times without creating duplicates). It creates a small, realistic demo dataset covering:
+
+- Multiple patients (active and inactive)
+- 2 doctors (one linked to a login account, one clinic-wide doctor with no login)
+- Past, today, and future appointments across different statuses
+- Payments across all payment methods
+- Consent forms across all statuses
+- Treatment plans
+- Internal messages between Secretary and Doctor
+- Doctor-scoped test data (patients/payments/consent forms deliberately outside the seeded Doctor's scope, to exercise access control)
+
+## Important Security Design Note
+
+Doctor access restrictions are **not** implemented as frontend filtering — they are enforced by backend service scope logic, which is the single source of truth:
+
+- **Doctor Patients** → patients related through the doctor's own appointments or treatment plans
+- **Doctor Appointments** → only appointments tied to the doctor's own profile
+- **Doctor Payments** → only payments linked to the doctor's own appointments
+- **Doctor Consent Forms** → only forms for the doctor's related patient set
+- **Messages** → only messages where the current user is the sender or receiver
+
+The frontend never sends a `doctorId` to scope these results — the backend resolves the requesting user's doctor profile from the authenticated JWT on every request.
+
+## Build / Verification
 
 ```
-http://localhost:3000
+cd backend
+npm run build
+
+cd frontend
+npm run build
 ```
 
----
+## Current Scope / Not Included
 
-## Project Status
+The following are intentionally out of scope for the current version — not bugs, just not built yet:
 
-Current Development Phase:
-
-- ✅ Project Planning Completed
-- ✅ UI/UX Design Completed
-- 🚧 Frontend Development In Progress
-- ⏳ Backend Development Planned
-- ⏳ Database Integration Planned
-- ⏳ Authentication & Authorization Planned
-
----
-
-## Screenshots
-
-Project design screenshots are stored in the following directory:
-
-```text
-docs/screenshots/
-```
-
-The folder contains exported UI designs from Figma that are used as references during frontend development.
-
----
-
-## Repository
-
-GitHub Repository:
-
-https://github.com/zeynep-tuna/clinic-crm
-
----
-
-## License
-
-This project was developed for educational purposes as a university software engineering project.
+- Realtime / WebSocket notifications
+- File / PDF consent form upload
+- Password reset via email
+- Patient-facing messaging (only User ↔ User messaging is supported)
+- Advanced report export (PDF / Excel)
+- Advanced clinic configuration
