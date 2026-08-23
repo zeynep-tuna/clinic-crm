@@ -3,9 +3,12 @@
 import { useState } from "react";
 import { createMessage, type Message, type MessageUserRole } from "@/lib/messages-api";
 
-const statusBadgeClass: Record<string, string> = {
+type ReadStatus = "Okunmamış" | "Okundu" | "Alıcı okumadı";
+
+const statusBadgeClass: Record<ReadStatus, string> = {
   Okunmamış: "bg-[#EEF0FF] text-[#5B4DE3]",
   Okundu: "bg-[#F3F4F6] text-[#667085]",
+  "Alıcı okumadı": "bg-[#FEF3C7] text-[#F59E0B]",
 };
 
 const priorityLabels: Record<Message["priority"], string> = {
@@ -64,7 +67,7 @@ export default function DoctorMessageDetail({ message, currentUserId, onSent }: 
 
   const isIncoming = message.receiverId === currentUserId;
   const otherParty = isIncoming ? message.sender : message.receiver;
-  const status: "Okunmamış" | "Okundu" = message.isRead ? "Okundu" : "Okunmamış";
+  const status: ReadStatus = message.isRead ? "Okundu" : isIncoming ? "Okunmamış" : "Alıcı okumadı";
 
   function handleReplyChange(value: string) {
     setReply(value);

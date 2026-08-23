@@ -6,7 +6,7 @@ export default function DoctorPatientsPage() {
       <div>
         <h1 className="text-2xl font-bold text-[#0B1F55]">Hastalarım</h1>
         <p className="mt-1 text-sm text-[#667085]">
-          Sorumlu olduğunuz hastaları, tedavi durumlarını ve son notlarını takip edin.
+          Sorumlu olduğunuz hastaları ve güncel kayıt durumlarını görüntüleyin.
         </p>
       </div>
 

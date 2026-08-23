@@ -22,14 +22,14 @@ const colorByCardId: Record<string, string> = {
   total: "bg-[#EEF0FF] text-[#5B4DE3]",
   confirmed: "bg-[#DCFCE7] text-[#16A34A]",
   pending: "bg-[#FEF3C7] text-[#F59E0B]",
-  completed: "bg-[#DBEAFE] text-[#2563EB]",
+  completed: "bg-[#F3F4F6] text-[#667085]",
 };
 
 const filterByCardId: Record<string, FilterValue> = {
   total: "Tümü",
   confirmed: "Onaylandı",
   pending: "Bekliyor",
-  completed: "Tamamlandı",
+  completed: "Kapanan",
 };
 
 function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
@@ -58,7 +58,9 @@ function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
     case "completed":
       return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4.5 w-4.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M4 12.5l4.5 4.5L20 6" />
+          <rect x="3.5" y="4" width="17" height="5" rx="1.5" />
+          <path strokeLinecap="round" d="M4.5 9v9a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V9" />
+          <path strokeLinecap="round" d="M10 13h4" />
         </svg>
       );
     default:
@@ -80,13 +82,16 @@ export default function DoctorAppointmentSummaryCards({
   const total = appointments.length;
   const confirmed = appointments.filter((appointment) => STATUS_LABELS[appointment.status] === "Onaylandı").length;
   const pending = appointments.filter((appointment) => STATUS_LABELS[appointment.status] === "Bekliyor").length;
-  const completed = appointments.filter((appointment) => STATUS_LABELS[appointment.status] === "Tamamlandı").length;
+  const completedOrCancelled = appointments.filter((appointment) => {
+    const status = STATUS_LABELS[appointment.status];
+    return status === "Tamamlandı" || status === "İptal" || status === "Gelmedi";
+  }).length;
 
   const cards: SummaryCard[] = [
     { id: "total", icon: "total", title: "Toplam Randevu", value: total },
-    { id: "confirmed", icon: "confirmed", title: "Onaylanan", value: confirmed },
-    { id: "pending", icon: "pending", title: "Bekleyen", value: pending },
-    { id: "completed", icon: "completed", title: "Tamamlanan", value: completed },
+    { id: "confirmed", icon: "confirmed", title: "Onaylandı", value: confirmed },
+    { id: "pending", icon: "pending", title: "Bekliyor", value: pending },
+    { id: "completed", icon: "completed", title: "Tamamlandı / İptal", value: completedOrCancelled },
   ];
 
   return (

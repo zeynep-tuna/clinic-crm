@@ -12,9 +12,12 @@ export type FilterValue = "Tümü" | "Okunmamış" | "Sekreter" | "Yönetim" | "
 
 const filters: FilterValue[] = ["Tümü", "Okunmamış", "Sekreter", "Yönetim", "Acil"];
 
-const statusBadgeClass: Record<string, string> = {
+type ReadStatus = "Okunmamış" | "Okundu" | "Alıcı okumadı";
+
+const statusBadgeClass: Record<ReadStatus, string> = {
   Okunmamış: "bg-[#EEF0FF] text-[#5B4DE3]",
   Okundu: "bg-[#F3F4F6] text-[#667085]",
+  "Alıcı okumadı": "bg-[#FEF3C7] text-[#F59E0B]",
 };
 
 const priorityLabels: Record<Message["priority"], string> = {
@@ -54,6 +57,14 @@ function initials(name: string) {
 
 function otherPartyOf(message: Message, currentUserId: string) {
   return message.receiverId === currentUserId ? message.sender : message.receiver;
+}
+
+function getReadStatus(message: Message, currentUserId: string): ReadStatus {
+  if (message.isRead) {
+    return "Okundu";
+  }
+
+  return message.receiverId === currentUserId ? "Okunmamış" : "Alıcı okumadı";
 }
 
 const timeFormatter = new Intl.DateTimeFormat("tr-TR", {
@@ -100,11 +111,11 @@ export default function DoctorMessagesPanel() {
 
     return messages.filter((message) => {
       const otherParty = otherPartyOf(message, currentUserId);
-      const status: "Okunmamış" | "Okundu" = message.isRead ? "Okundu" : "Okunmamış";
+      const isIncoming = message.receiverId === currentUserId;
 
       const matchesFilter =
         activeFilter === "Tümü" ||
-        (activeFilter === "Okunmamış" && status === "Okunmamış") ||
+        (activeFilter === "Okunmamış" && isIncoming && !message.isRead) ||
         (activeFilter === "Sekreter" && otherParty.role === "SECRETARY") ||
         (activeFilter === "Yönetim" && otherParty.role === "ADMIN") ||
         (activeFilter === "Acil" && message.priority === "URGENT");
@@ -252,8 +263,9 @@ export default function DoctorMessagesPanel() {
           <div className="mt-4 space-y-2">
             {filteredMessages.map((message) => {
               const otherParty = otherPartyOf(message, currentUserId);
-              const status: "Okunmamış" | "Okundu" = message.isRead ? "Okundu" : "Okunmamış";
               const isIncoming = message.receiverId === currentUserId;
+              const status = getReadStatus(message, currentUserId);
+              const isUnreadIncoming = isIncoming && !message.isRead;
               const isSelected = selectedMessage && message.id === selectedMessage.id;
 
               return (
@@ -278,7 +290,7 @@ export default function DoctorMessagesPanel() {
                       <div className="flex items-center justify-between gap-2">
                         <p
                           className={`truncate text-sm ${
-                            status === "Okunmamış" && isIncoming ? "font-bold text-[#0B1F55]" : "font-medium text-[#0B1F55]"
+                            isUnreadIncoming ? "font-bold text-[#0B1F55]" : "font-medium text-[#0B1F55]"
                           }`}
                         >
                           {otherParty.fullName}

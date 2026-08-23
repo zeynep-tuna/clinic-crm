@@ -5,7 +5,6 @@ import {
   deleteTreatmentPlan,
   listTreatmentPlans,
   type TreatmentPlan,
-  type TreatmentPlanPriority,
   type TreatmentPlanStatus,
 } from "@/lib/treatment-plans-api";
 import DoctorTreatmentPlanSummaryCards from "@/components/doctor/DoctorTreatmentPlanSummaryCards";
@@ -14,7 +13,6 @@ import EmptyState from "@/components/common/EmptyState";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 type UiStatus = "Aktif" | "Tamamlandı" | "Kontrol Bekliyor" | "Ertelendi";
-type UiPriority = "Yüksek" | "Normal" | "Düşük";
 
 export type FilterValue = "Tümü" | UiStatus;
 
@@ -27,23 +25,11 @@ const statusBadgeClass: Record<UiStatus, string> = {
   Ertelendi: "bg-[#FEE2E2] text-[#EF4444]",
 };
 
-const priorityBadgeClass: Record<UiPriority, string> = {
-  Yüksek: "bg-[#FEE2E2] text-[#EF4444]",
-  Normal: "bg-[#EEF0FF] text-[#5B4DE3]",
-  Düşük: "bg-[#F3F4F6] text-[#667085]",
-};
-
 const STATUS_LABELS: Record<TreatmentPlanStatus, UiStatus> = {
   ACTIVE: "Aktif",
   COMPLETED: "Tamamlandı",
   REVIEW_PENDING: "Kontrol Bekliyor",
   POSTPONED: "Ertelendi",
-};
-
-const PRIORITY_LABELS: Record<TreatmentPlanPriority, UiPriority> = {
-  HIGH: "Yüksek",
-  NORMAL: "Normal",
-  LOW: "Düşük",
 };
 
 const avatarPalette = [
@@ -73,10 +59,6 @@ function getStatusLabel(plan: TreatmentPlan): UiStatus {
   return STATUS_LABELS[plan.status];
 }
 
-function getPriorityLabel(plan: TreatmentPlan): UiPriority {
-  return PRIORITY_LABELS[plan.priority];
-}
-
 function formatDate(value: string) {
   return dateFormatter.format(new Date(value));
 }
@@ -96,7 +78,7 @@ export default function DoctorTreatmentPlansTable() {
     setError(null);
 
     try {
-      const data = await listTreatmentPlans({ includeInactive: true });
+      const data = await listTreatmentPlans();
       setPlanList(data);
     } catch {
       setError("Tedavi planları yüklenirken bir hata oluştu.");
@@ -260,10 +242,7 @@ export default function DoctorTreatmentPlansTable() {
                     <th className="pb-2.5 font-medium">Hasta</th>
                     <th className="pb-2.5 font-medium">Tedavi Planı</th>
                     <th className="pb-2.5 font-medium">Başlangıç Tarihi</th>
-                    <th className="pb-2.5 font-medium">Son Güncelleme</th>
-                    <th className="pb-2.5 font-medium">Öncelik</th>
                     <th className="pb-2.5 font-medium">Durum</th>
-                    <th className="pb-2.5 font-medium">Kayıt Durumu</th>
                     <th className="pb-2.5 font-medium">İşlem</th>
                   </tr>
                 </thead>
@@ -271,7 +250,6 @@ export default function DoctorTreatmentPlansTable() {
                   {filteredPlans.map((plan) => {
                     const patientName = getPatientName(plan);
                     const status = getStatusLabel(plan);
-                    const priority = getPriorityLabel(plan);
 
                     return (
                     <tr
@@ -290,28 +268,11 @@ export default function DoctorTreatmentPlansTable() {
                       </td>
                       <td className="py-4 text-sm text-[#0B1F55]">{plan.description}</td>
                       <td className="py-4 text-sm text-[#0B1F55]">{formatDate(plan.startDate)}</td>
-                      <td className="py-4 text-sm text-[#0B1F55]">{formatDate(plan.updatedAt)}</td>
-                      <td className="py-4">
-                        <span
-                          className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${priorityBadgeClass[priority]}`}
-                        >
-                          {priority}
-                        </span>
-                      </td>
                       <td className="py-4">
                         <span
                           className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${statusBadgeClass[status]}`}
                         >
                           {status}
-                        </span>
-                      </td>
-                      <td className="py-4">
-                        <span
-                          className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${
-                            plan.isActive ? "bg-[#DCFCE7] text-[#16A34A]" : "bg-[#F3F4F6] text-[#667085]"
-                          }`}
-                        >
-                          {plan.isActive ? "Aktif" : "Pasif"}
                         </span>
                       </td>
                       <td className="py-4">

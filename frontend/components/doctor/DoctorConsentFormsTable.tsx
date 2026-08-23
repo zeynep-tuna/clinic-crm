@@ -23,13 +23,6 @@ const STATUS_LABELS: Record<ConsentFormStatus, UiStatus> = {
   MISSING: "Eksik",
 };
 
-type RecordStatus = "Aktif" | "Pasif";
-
-const RECORD_STATUS_BADGE_CLASS: Record<RecordStatus, string> = {
-  Aktif: "bg-[#DCFCE7] text-[#16A34A]",
-  Pasif: "bg-[#F3F4F6] text-[#667085]",
-};
-
 const avatarPalette = [
   "bg-[#EEF0FF] text-[#5B4DE3]",
   "bg-[#DBEAFE] text-[#2563EB]",
@@ -57,10 +50,6 @@ function getStatusLabel(form: ConsentForm): UiStatus {
   return STATUS_LABELS[form.status];
 }
 
-function getRecordStatusLabel(form: ConsentForm): RecordStatus {
-  return form.isActive ? "Aktif" : "Pasif";
-}
-
 function formatCreatedDate(createdAt: string) {
   return dateFormatter.format(new Date(createdAt));
 }
@@ -77,7 +66,7 @@ export default function DoctorConsentFormsTable() {
     setError(null);
 
     try {
-      const data = await listConsentForms({ includeInactive: true });
+      const data = await listConsentForms();
       setConsentForms(data);
     } catch {
       setError("Onam formları yüklenirken bir hata oluştu.");
@@ -218,14 +207,12 @@ export default function DoctorConsentFormsTable() {
                 <th className="pb-2.5 font-medium">Form Türü</th>
                 <th className="pb-2.5 font-medium">Oluşturulma Tarihi</th>
                 <th className="pb-2.5 font-medium">Durum</th>
-                <th className="pb-2.5 font-medium">Kayıt Durumu</th>
               </tr>
             </thead>
             <tbody>
               {filteredForms.map((form) => {
                 const patientName = getPatientName(form);
                 const status = getStatusLabel(form);
-                const recordStatus = getRecordStatusLabel(form);
 
                 return (
                 <tr
@@ -254,13 +241,6 @@ export default function DoctorConsentFormsTable() {
                       className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${statusBadgeClass[status]}`}
                     >
                       {status}
-                    </span>
-                  </td>
-                  <td className="py-4">
-                    <span
-                      className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${RECORD_STATUS_BADGE_CLASS[recordStatus]}`}
-                    >
-                      {recordStatus}
                     </span>
                   </td>
                 </tr>

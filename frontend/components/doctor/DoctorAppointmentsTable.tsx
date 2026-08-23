@@ -7,9 +7,14 @@ import EmptyState from "@/components/common/EmptyState";
 
 type UiStatus = "Bekliyor" | "Onaylandı" | "Tamamlandı" | "İptal" | "Gelmedi";
 
-export type FilterValue = "Tümü" | UiStatus;
+// "Kapanan" is an internal-only combined filter used by the summary card
+// (Tamamlandı + İptal + Gelmedi). It is intentionally never added to `filters`,
+// so it never appears as a filter chip.
+export type FilterValue = "Tümü" | UiStatus | "Kapanan";
 
 const filters: FilterValue[] = ["Tümü", "Onaylandı", "Bekliyor", "Tamamlandı", "İptal"];
+
+const CLOSED_STATUSES: UiStatus[] = ["Tamamlandı", "İptal", "Gelmedi"];
 
 const statusBadgeClass: Record<UiStatus, string> = {
   Onaylandı: "bg-[#DCFCE7] text-[#16A34A]",
@@ -110,7 +115,9 @@ export default function DoctorAppointmentsTable() {
 
     return appointments.filter((appointment) => {
       const status = getStatusLabel(appointment);
-      const matchesFilter = activeFilter === "Tümü" || status === activeFilter;
+      const matchesFilter =
+        activeFilter === "Tümü" ||
+        (activeFilter === "Kapanan" ? CLOSED_STATUSES.includes(status) : status === activeFilter);
       const matchesSearch =
         term === "" ||
         getPatientName(appointment).toLowerCase().includes(term) ||

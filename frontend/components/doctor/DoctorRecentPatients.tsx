@@ -34,7 +34,12 @@ interface RecentPatientEntry {
   lastVisit: string;
 }
 
+function isPastCompletedVisit(appointment: Appointment, now: Date) {
+  return appointment.isActive && appointment.status === "COMPLETED" && new Date(appointment.startAt) < now;
+}
+
 function buildRecentPatients(appointments: Appointment[]): RecentPatientEntry[] {
+  const now = new Date();
   const byPatient = new Map<string, Appointment>();
 
   for (const appointment of appointments) {
@@ -44,14 +49,22 @@ function buildRecentPatients(appointments: Appointment[]): RecentPatientEntry[] 
     }
   }
 
-  return Array.from(byPatient.values())
+  const topPatients = Array.from(byPatient.values())
     .sort((a, b) => new Date(b.startAt).getTime() - new Date(a.startAt).getTime())
-    .slice(0, 5)
-    .map((appointment) => ({
+    .slice(0, 5);
+
+  return topPatients.map((appointment) => {
+    const pastCompletedVisits = appointments
+      .filter((item) => item.patientId === appointment.patientId)
+      .filter((item) => isPastCompletedVisit(item, now))
+      .sort((a, b) => new Date(b.startAt).getTime() - new Date(a.startAt).getTime());
+
+    return {
       patientId: appointment.patientId,
       name: `${appointment.patient.firstName} ${appointment.patient.lastName}`.trim(),
-      lastVisit: dateFormatter.format(new Date(appointment.startAt)),
-    }));
+      lastVisit: pastCompletedVisits.length > 0 ? dateFormatter.format(new Date(pastCompletedVisits[0].startAt)) : "—",
+    };
+  });
 }
 
 interface DoctorRecentPatientsProps {

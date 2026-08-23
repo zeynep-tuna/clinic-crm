@@ -6,7 +6,7 @@ export default function DoctorMessagesPage() {
       <div>
         <h1 className="text-2xl font-bold text-[#0B1F55]">Mesajlar</h1>
         <p className="mt-1 text-sm text-[#667085]">
-          Hastalarınızdan, sekreterden ve klinik yönetiminden gelen mesajları takip edin ve yanıtlayın.
+          Sekreter ve klinik yönetimiyle olan mesajlarınızı takip edin ve yanıtlayın.
         </p>
       </div>
 

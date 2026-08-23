@@ -15,13 +15,6 @@ const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   BANK_TRANSFER: "Havale / Banka Transferi",
 };
 
-type RecordStatus = "Aktif" | "Pasif";
-
-const RECORD_STATUS_BADGE_CLASS: Record<RecordStatus, string> = {
-  Aktif: "bg-[#DCFCE7] text-[#16A34A]",
-  Pasif: "bg-[#F3F4F6] text-[#667085]",
-};
-
 const avatarPalette = [
   "bg-[#EEF0FF] text-[#5B4DE3]",
   "bg-[#DBEAFE] text-[#2563EB]",
@@ -47,10 +40,6 @@ function getPatientName(payment: Payment) {
 
 function getPaymentMethodLabel(payment: Payment) {
   return PAYMENT_METHOD_LABELS[payment.paymentMethod];
-}
-
-function getRecordStatusLabel(payment: Payment): RecordStatus {
-  return payment.isActive ? "Aktif" : "Pasif";
 }
 
 function toAmountNumber(payment: Payment): number | null {
@@ -81,7 +70,7 @@ export default function DoctorPaymentsTable() {
     setError(null);
 
     try {
-      const data = await listPayments({ includeInactive: true });
+      const data = await listPayments();
       setPayments(data);
     } catch {
       setError("Ödemeler yüklenirken bir hata oluştu.");
@@ -209,53 +198,44 @@ export default function DoctorPaymentsTable() {
           )}
 
           {filteredPayments.length > 0 && (
-          <table className="w-full min-w-190 text-left">
+          <table className="w-full min-w-160 table-fixed text-left">
             <thead>
               <tr className="border-b border-[#EEF2F8] text-xs font-semibold tracking-wide text-[#667085] uppercase">
-                <th className="pb-2.5 font-medium">Hasta</th>
-                <th className="pb-2.5 text-right font-medium">Tutar</th>
-                <th className="pb-2.5 font-medium">Ödeme Yöntemi</th>
-                <th className="pb-2.5 font-medium">Tarih</th>
-                <th className="pb-2.5 font-medium">Kayıt Durumu</th>
+                <th className="w-52 pb-2.5 pr-4 font-medium">Hasta</th>
+                <th className="w-32 pb-2.5 pr-4 text-right font-medium">Tutar</th>
+                <th className="w-44 pb-2.5 pr-4 font-medium">Ödeme Yöntemi</th>
+                <th className="w-28 pb-2.5 font-medium">Tarih</th>
               </tr>
             </thead>
             <tbody>
               {filteredPayments.map((payment) => {
                 const patientName = getPatientName(payment);
                 const amount = toAmountNumber(payment);
-                const recordStatus = getRecordStatusLabel(payment);
 
                 return (
                 <tr
                   key={payment.id}
                   className="border-b border-[#EEF2F8] transition-colors last:border-0 hover:bg-[#F8F9FF]"
                 >
-                  <td className="py-4">
+                  <td className="py-4 pr-4">
                     <div className="flex items-center gap-3">
                       <div
                         className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${getAvatarColor(payment.id)}`}
                       >
                         {patientName.charAt(0)}
                       </div>
-                      <span className="text-sm font-medium text-[#0B1F55]">{patientName}</span>
+                      <span className="truncate text-sm font-medium text-[#0B1F55]">{patientName}</span>
                     </div>
                   </td>
-                  <td className="py-4 text-right text-sm font-bold text-[#0B1F55]">
+                  <td className="py-4 pr-4 text-right text-sm font-bold text-[#0B1F55]">
                     {amount !== null ? formatCurrency(amount) : "—"}
                   </td>
-                  <td className="py-4">
-                    <span className="inline-block rounded-full bg-[#F7F8FF] px-3 py-1 text-xs font-medium text-[#667085]">
+                  <td className="py-4 pr-4">
+                    <span className="inline-block truncate rounded-full bg-[#F7F8FF] px-3 py-1 text-xs font-medium text-[#667085]">
                       {getPaymentMethodLabel(payment)}
                     </span>
                   </td>
                   <td className="py-4 text-sm text-[#0B1F55]">{formatPaymentDate(payment.paymentDate)}</td>
-                  <td className="py-4">
-                    <span
-                      className={`inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold ${RECORD_STATUS_BADGE_CLASS[recordStatus]}`}
-                    >
-                      {recordStatus}
-                    </span>
-                  </td>
                 </tr>
                 );
               })}
