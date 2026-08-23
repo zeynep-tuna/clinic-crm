@@ -8,6 +8,7 @@ interface SummaryCard {
   icon: SummaryIcon;
   title: string;
   value: number;
+  selectable: boolean;
 }
 
 const STATUS_LABELS: Record<Appointment["status"], string> = {
@@ -22,14 +23,14 @@ const colorByCardId: Record<string, string> = {
   today: "bg-[#EEF0FF] text-[#5B4DE3]",
   confirmed: "bg-[#DCFCE7] text-[#16A34A]",
   pending: "bg-[#FEF3C7] text-[#F59E0B]",
-  cancelled: "bg-[#FEE2E2] text-[#EF4444]",
+  cancelled: "bg-[#F3F4F6] text-[#667085]",
 };
 
 const filterByCardId: Record<string, FilterValue> = {
   today: "Tümü",
   confirmed: "Onaylandı",
   pending: "Bekliyor",
-  cancelled: "İptal",
+  cancelled: "Tümü",
 };
 
 function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
@@ -58,8 +59,9 @@ function SummaryIconGlyph({ icon }: { icon: SummaryIcon }) {
     case "cancelled":
       return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4.5 w-4.5">
-          <circle cx="12" cy="12" r="8.5" />
-          <path strokeLinecap="round" d="M9.5 9.5l5 5m0-5-5 5" />
+          <rect x="3.5" y="4" width="17" height="5" rx="1.5" />
+          <path strokeLinecap="round" d="M4.5 9v9a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V9" />
+          <path strokeLinecap="round" d="M10 13h4" />
         </svg>
       );
     default:
@@ -81,20 +83,23 @@ export default function SecretaryAppointmentSummaryCards({
   const total = appointments.length;
   const confirmed = appointments.filter((appointment) => STATUS_LABELS[appointment.status] === "Onaylandı").length;
   const pending = appointments.filter((appointment) => STATUS_LABELS[appointment.status] === "Bekliyor").length;
-  const cancelled = appointments.filter((appointment) => STATUS_LABELS[appointment.status] === "İptal").length;
+  const completedOrCancelled = appointments.filter((appointment) => {
+    const status = STATUS_LABELS[appointment.status];
+    return status === "Tamamlandı" || status === "İptal" || status === "Gelmedi";
+  }).length;
 
   const cards: SummaryCard[] = [
-    { id: "today", icon: "today", title: "Toplam Randevu", value: total },
-    { id: "confirmed", icon: "confirmed", title: "Onaylandı", value: confirmed },
-    { id: "pending", icon: "pending", title: "Bekliyor", value: pending },
-    { id: "cancelled", icon: "cancelled", title: "İptal", value: cancelled },
+    { id: "today", icon: "today", title: "Toplam Randevu", value: total, selectable: true },
+    { id: "confirmed", icon: "confirmed", title: "Onaylandı", value: confirmed, selectable: true },
+    { id: "pending", icon: "pending", title: "Bekliyor", value: pending, selectable: true },
+    { id: "cancelled", icon: "cancelled", title: "Tamamlandı / İptal", value: completedOrCancelled, selectable: false },
   ];
 
   return (
     <div className="grid grid-cols-2 gap-4 rounded-[20px] border border-[#EAF0F8] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-[#EAF0F8]/60">
       {cards.map((card) => {
         const filterValue = filterByCardId[card.id] ?? "Tümü";
-        const isSelected = activeFilter === filterValue;
+        const isSelected = card.selectable && activeFilter === filterValue;
 
         return (
           <button

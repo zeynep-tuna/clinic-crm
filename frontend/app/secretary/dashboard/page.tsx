@@ -108,8 +108,8 @@ export default function SecretaryDashboardPage() {
   const activePatients = useMemo(() => patients.filter((patient) => patient.isActive), [patients]);
 
   const newPatientsToday = useMemo(
-    () => activePatients.filter((patient) => isToday(patient.createdAt)).length,
-    [activePatients]
+    () => patients.filter((patient) => isToday(patient.createdAt)).length,
+    [patients]
   );
 
   const totalCollected = useMemo(() => {
