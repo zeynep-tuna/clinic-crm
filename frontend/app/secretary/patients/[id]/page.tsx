@@ -15,6 +15,7 @@ import PatientProfileCard, {
 import TreatmentHistoryCard from "@/components/patient-detail/TreatmentHistoryCard";
 import UpcomingAppointmentsCard from "@/components/patient-detail/UpcomingAppointmentsCard";
 import PatientPaymentSummaryCard from "@/components/patient-detail/PatientPaymentSummaryCard";
+import RadiographsCard from "@/components/patient-detail/RadiographsCard";
 
 const treatmentDateFormatter = new Intl.DateTimeFormat("tr-TR", {
   day: "2-digit",
@@ -266,6 +267,8 @@ export default function SecretaryPatientDetailPage() {
       </div>
 
       <PatientProfileCard patient={toPatientProfileData(patient, appointments)} />
+
+      <RadiographsCard patientId={id} canUpload={patient.isActive} canDelete />
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         {isLoadingTreatmentPlans && (

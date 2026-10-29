@@ -8,8 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { hashPassword } from '../common/utils/password.util';
-
-const VALID_ROLES = ['ADMIN', 'SECRETARY', 'DOCTOR'];
+import type { AuthenticatedUser } from '../auth/types/authenticated-user.type';
 
 const userSelect = {
   id: true,
@@ -51,9 +50,9 @@ export class UsersService {
     });
   }
 
-  async findOne(id: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
+  async findOne(id: string, clinicId: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { id, clinicId },
       select: userSelect,
     });
 
@@ -64,23 +63,8 @@ export class UsersService {
     return user;
   }
 
-  async create(createUserDto: CreateUserDto) {
-    const { clinicId, fullName, email, password, role, isActive } =
-      createUserDto;
-
-    if (!VALID_ROLES.includes(role)) {
-      throw new BadRequestException(
-        `role must be one of: ${VALID_ROLES.join(', ')}`,
-      );
-    }
-
-    const clinic = await this.prisma.clinic.findUnique({
-      where: { id: clinicId },
-    });
-
-    if (!clinic) {
-      throw new NotFoundException(`Clinic with id ${clinicId} not found`);
-    }
+  async create(clinicId: string, createUserDto: CreateUserDto) {
+    const { fullName, email, password, role, isActive } = createUserDto;
 
     const existingUser = await this.prisma.user.findUnique({
       where: { email },
@@ -105,14 +89,23 @@ export class UsersService {
     });
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    await this.findOne(id);
+  async update(
+    id: string,
+    currentUser: AuthenticatedUser,
+    updateUserDto: UpdateUserDto,
+  ) {
+    await this.findOne(id, currentUser.clinicId);
 
     const { fullName, email, role, isActive } = updateUserDto;
 
-    if (role !== undefined && !VALID_ROLES.includes(role)) {
+    // An admin locking themselves out (deactivate / demote) would leave the
+    // clinic without anyone able to manage users.
+    if (
+      id === currentUser.id &&
+      (isActive === false || (role && role !== 'ADMIN'))
+    ) {
       throw new BadRequestException(
-        `role must be one of: ${VALID_ROLES.join(', ')}`,
+        'You cannot deactivate or change the role of your own account',
       );
     }
 

@@ -105,9 +105,16 @@ function addMinutesIso(iso: string, minutes: number): string {
 
 interface AddAppointmentModalProps {
   onCreated?: () => void;
+  // Preselects the patient, e.g. when opened from a patient's detail page.
+  initialPatientId?: string;
+  triggerLabel?: string;
 }
 
-export default function AddAppointmentModal({ onCreated }: AddAppointmentModalProps) {
+export default function AddAppointmentModal({
+  onCreated,
+  initialPatientId,
+  triggerLabel = "+ Yeni Randevu Ekle",
+}: AddAppointmentModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [form, setForm] = useState<AppointmentFormState>(initialFormState);
   const [errors, setErrors] = useState<AppointmentFormErrors>({});
@@ -234,10 +241,15 @@ export default function AddAppointmentModal({ onCreated }: AddAppointmentModalPr
     <>
       <button
         type="button"
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          if (initialPatientId) {
+            setForm((prev) => (prev.patientId ? prev : { ...prev, patientId: initialPatientId }));
+          }
+          setIsOpen(true);
+        }}
         className="flex h-11 items-center justify-center rounded-xl bg-[#5B4DE3] px-5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-colors hover:bg-[#4c3fd1]"
       >
-        + Yeni Randevu Ekle
+        {triggerLabel}
       </button>
 
       {isOpen && (

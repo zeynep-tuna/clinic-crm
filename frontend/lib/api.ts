@@ -19,13 +19,15 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiFetch<T>(
-  path: string,
-  options: RequestInit = {}
-): Promise<T> {
+async function request(path: string, options: RequestInit): Promise<Response> {
   const headers = new Headers(options.headers);
 
-  if (options.body && !headers.has("Content-Type")) {
+  // FormData bodies need the browser to set the multipart boundary itself.
+  if (
+    options.body &&
+    !(options.body instanceof FormData) &&
+    !headers.has("Content-Type")
+  ) {
     headers.set("Content-Type", "application/json");
   }
 
@@ -56,9 +58,28 @@ export async function apiFetch<T>(
     throw new ApiError(response.status, message);
   }
 
+  return response;
+}
+
+export async function apiFetch<T>(
+  path: string,
+  options: RequestInit = {}
+): Promise<T> {
+  const response = await request(path, options);
+
   if (response.status === 204) {
     return undefined as T;
   }
 
   return (await response.json()) as T;
+}
+
+// For authenticated binary responses (e.g. radiograph images), which can't be
+// loaded with a plain <img src> because the API requires a Bearer token.
+export async function apiFetchBlob(
+  path: string,
+  options: RequestInit = {}
+): Promise<Blob> {
+  const response = await request(path, options);
+  return response.blob();
 }

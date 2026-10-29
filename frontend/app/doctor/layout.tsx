@@ -12,7 +12,7 @@ export default function DoctorLayout({
       <div className="flex h-screen bg-[#F7F8FF]">
         <DoctorSidebar />
 
-        <div className="flex flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col">
           <DoctorTopbar />
 
           <main className="flex-1 overflow-y-auto p-10">{children}</main>
