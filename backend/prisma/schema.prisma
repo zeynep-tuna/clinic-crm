@@ -59,6 +59,30 @@ enum MessagePriority {
   LOW
 }
 
+enum RadiographType {
+  PANORAMIC
+  BITEWING
+  PERIAPICAL
+}
+
+enum RadiographAnalysisStatus {
+  NOT_ANALYZED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum FindingSource {
+  AI
+  DOCTOR
+}
+
+enum FindingReviewStatus {
+  SUGGESTED
+  CONFIRMED
+  REJECTED
+}
+
 model Clinic {
   id        String   @id @default(uuid())
   name      String
@@ -78,6 +102,8 @@ model Clinic {
   consentForms   ConsentForm[]
   treatmentPlans TreatmentPlan[]
   messages       Message[]
+  radiographs    Radiograph[]
+  findings       RadiographFinding[]
 }
 
 model User {
@@ -90,13 +116,16 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  clinicId     String
-  clinic       Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
   doctorProfile Doctor?
 
   sentMessages     Message[] @relation("MessageSender")
   receivedMessages Message[] @relation("MessageReceiver")
+
+  uploadedRadiographs Radiograph[]        @relation("RadiographUploader")
+  reviewedFindings    RadiographFinding[] @relation("FindingReviewer")
 
   @@index([clinicId])
 }
@@ -116,13 +145,14 @@ model Patient {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 
-  clinicId   String
-  clinic     Clinic    @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
   appointments   Appointment[]
   payments       Payment[]
   consentForms   ConsentForm[]
   treatmentPlans TreatmentPlan[]
+  radiographs    Radiograph[]
 
   @@index([clinicId])
   @@index([clinicId, isActive])
@@ -143,11 +173,11 @@ model Doctor {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  clinicId      String
-  clinic        Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
-  userId        String?  @unique
-  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   appointments   Appointment[]
   treatmentPlans TreatmentPlan[]
@@ -169,16 +199,16 @@ model Appointment {
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 
-  clinicId  String
-  clinic    Clinic  @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
   patientId String
   patient   Patient @relation(fields: [patientId], references: [id], onDelete: Restrict)
 
-  doctorId  String
-  doctor    Doctor  @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id], onDelete: Restrict)
 
-  payments  Payment[]
+  payments Payment[]
 
   @@index([clinicId])
   @@index([clinicId, startAt])
@@ -198,11 +228,11 @@ model Payment {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
-  clinicId      String
-  clinic        Clinic      @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
-  patientId     String
-  patient       Patient     @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Restrict)
 
   appointmentId String?
   appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
@@ -226,8 +256,8 @@ model ConsentForm {
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 
-  clinicId  String
-  clinic    Clinic  @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
   patientId String
   patient   Patient @relation(fields: [patientId], references: [id], onDelete: Restrict)
@@ -249,14 +279,14 @@ model TreatmentPlan {
   createdAt   DateTime              @default(now())
   updatedAt   DateTime              @updatedAt
 
-  clinicId  String
-  clinic    Clinic  @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
   patientId String
   patient   Patient @relation(fields: [patientId], references: [id], onDelete: Restrict)
 
-  doctorId  String
-  doctor    Doctor  @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id], onDelete: Restrict)
 
   @@index([clinicId])
   @@index([clinicId, patientId])
@@ -290,4 +320,72 @@ model Message {
   @@index([clinicId, senderId])
   @@index([clinicId, receiverId, isRead])
   @@index([clinicId, createdAt])
+}
+
+// A dental X-ray image attached to a patient. The file itself lives on disk
+// under UPLOAD_DIR; storageKey is its path relative to that directory.
+model Radiograph {
+  id               String                   @id @default(uuid())
+  type             RadiographType           @default(PANORAMIC)
+  storageKey       String                   @unique
+  originalFileName String
+  mimeType         String
+  fileSize         Int
+  takenAt          DateTime?
+  note             String?
+  analysisStatus   RadiographAnalysisStatus @default(NOT_ANALYZED)
+  modelVersion     String?
+  analyzedAt       DateTime?
+  isActive         Boolean                  @default(true)
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Restrict)
+
+  uploadedById String
+  uploadedBy   User   @relation("RadiographUploader", fields: [uploadedById], references: [id], onDelete: Restrict)
+
+  findings RadiographFinding[]
+
+  @@index([clinicId])
+  @@index([clinicId, patientId])
+  @@index([clinicId, isActive])
+  @@index([clinicId, createdAt])
+}
+
+// One marked region on a radiograph, suggested by the AI model or drawn by a
+// doctor. label is free text (e.g. "caries") so new classes need no migration.
+// Box coordinates are normalized to 0..1 of the image width/height.
+model RadiographFinding {
+  id           String              @id @default(uuid())
+  label        String
+  toothFdi     Int?
+  x            Float
+  y            Float
+  width        Float
+  height       Float
+  confidence   Float?
+  source       FindingSource
+  reviewStatus FindingReviewStatus @default(SUGGESTED)
+  reviewedAt   DateTime?
+  note         String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  radiographId String
+  radiograph   Radiograph @relation(fields: [radiographId], references: [id], onDelete: Cascade)
+
+  reviewedById String?
+  reviewedBy   User?   @relation("FindingReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@index([clinicId])
+  @@index([clinicId, radiographId])
+  @@index([clinicId, reviewStatus])
 }

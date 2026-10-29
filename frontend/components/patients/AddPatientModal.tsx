@@ -1,20 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createPatient, type CreatePatientInput } from "@/lib/patients-api";
+import {
+  createPatient,
+  updatePatient,
+  type CreatePatientInput,
+  type Patient,
+} from "@/lib/patients-api";
 
 const genderOptions = ["Kadın", "Erkek"];
-
-const bloodTypeOptions = [
-  "A Rh+",
-  "A Rh-",
-  "B Rh+",
-  "B Rh-",
-  "AB Rh+",
-  "AB Rh-",
-  "0 Rh+",
-  "0 Rh-",
-];
 
 interface PatientFormState {
   fullName: string;
@@ -22,7 +16,6 @@ interface PatientFormState {
   email: string;
   birthDate: string;
   gender: string;
-  bloodType: string;
   address: string;
   notes: string;
 }
@@ -33,7 +26,6 @@ const initialFormState: PatientFormState = {
   email: "",
   birthDate: "",
   gender: "",
-  bloodType: "",
   address: "",
   notes: "",
 };
@@ -86,11 +78,29 @@ function toIsoDate(ddmmyyyy: string) {
   return `${year}-${month}-${day}`;
 }
 
-interface AddPatientModalProps {
-  onCreated?: () => void;
+function toFormState(patient: Patient): PatientFormState {
+  const [year, month, day] = (patient.birthDate ?? "").slice(0, 10).split("-");
+
+  return {
+    fullName: `${patient.firstName} ${patient.lastName}`.trim(),
+    phone: patient.phone ?? "",
+    email: patient.email ?? "",
+    birthDate: year && month && day ? `${day}.${month}.${year}` : "",
+    gender: patient.gender ?? "",
+    address: patient.address ?? "",
+    notes: patient.notes ?? "",
+  };
 }
 
-export default function AddPatientModal({ onCreated }: AddPatientModalProps) {
+interface AddPatientModalProps {
+  onCreated?: () => void;
+  // When given, the modal edits this patient instead of creating a new one.
+  patient?: Patient;
+  onUpdated?: (patient: Patient) => void;
+}
+
+export default function AddPatientModal({ onCreated, patient, onUpdated }: AddPatientModalProps) {
+  const isEditMode = patient !== undefined;
   const [isOpen, setIsOpen] = useState(false);
   const [form, setForm] = useState<PatientFormState>(initialFormState);
   const [errors, setErrors] = useState<PatientFormErrors>({});
@@ -138,6 +148,33 @@ export default function AddPatientModal({ onCreated }: AddPatientModalProps) {
 
     const { firstName, lastName } = splitFullName(form.fullName);
 
+    if (patient) {
+      setIsSubmitting(true);
+
+      try {
+        // Optional text fields are always sent so that clearing one in the
+        // form also clears it on the record.
+        const updated = await updatePatient(patient.id, {
+          firstName,
+          lastName,
+          phone: form.phone.trim(),
+          email: form.email.trim(),
+          gender: form.gender,
+          address: form.address.trim(),
+          notes: form.notes.trim(),
+          ...(form.birthDate.trim() ? { birthDate: toIsoDate(form.birthDate.trim()) } : {}),
+        });
+        setErrors({});
+        setIsOpen(false);
+        onUpdated?.(updated);
+      } catch {
+        setApiError("Hasta bilgileri güncellenirken bir hata oluştu.");
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
+    }
+
     const input: CreatePatientInput = {
       firstName,
       lastName,
@@ -166,13 +203,29 @@ export default function AddPatientModal({ onCreated }: AddPatientModalProps) {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setIsOpen(true)}
-        className="flex h-11 items-center justify-center rounded-xl bg-[#5B4DE3] px-5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-colors hover:bg-[#4c3fd1]"
-      >
-        + Yeni Hasta Ekle
-      </button>
+      {isEditMode ? (
+        <button
+          type="button"
+          onClick={() => {
+            setForm(toFormState(patient));
+            setIsOpen(true);
+          }}
+          className="flex items-center gap-2 rounded-xl border border-[#EAF0F8] bg-white px-5 py-2.5 text-sm font-semibold text-[#0B1F55] hover:bg-[#F7F8FF]"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 4.5a2.1 2.1 0 0 1 3 3L7 20l-4 1 1-4Z" />
+          </svg>
+          Düzenle
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          className="flex h-11 items-center justify-center rounded-xl bg-[#5B4DE3] px-5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-colors hover:bg-[#4c3fd1]"
+        >
+          + Yeni Hasta Ekle
+        </button>
+      )}
 
       {isOpen && (
         <div
@@ -189,9 +242,11 @@ export default function AddPatientModal({ onCreated }: AddPatientModalProps) {
             <div className="flex items-start justify-between">
               <div>
                 <h2 id="add-patient-modal-title" className="text-xl font-bold text-[#0B1F55]">
-                  Yeni Hasta Ekle
+                  {isEditMode ? "Hasta Bilgilerini Düzenle" : "Yeni Hasta Ekle"}
                 </h2>
-                <p className="mt-1 text-sm text-[#667085]">Yeni hasta bilgilerini girin</p>
+                <p className="mt-1 text-sm text-[#667085]">
+                  {isEditMode ? "Hasta bilgilerini güncelleyin" : "Yeni hasta bilgilerini girin"}
+                </p>
               </div>
 
               <button
@@ -294,22 +349,6 @@ export default function AddPatientModal({ onCreated }: AddPatientModalProps) {
                 {errors.gender && <p className="mt-1 text-sm text-[#EF4444]">{errors.gender}</p>}
               </div>
 
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Kan Grubu</label>
-                <select
-                  value={form.bloodType}
-                  onChange={(event) => updateField("bloodType", event.target.value)}
-                  className="w-full rounded-xl border border-[#EAF0F8] px-4 py-2.5 text-sm text-[#0B1F55] focus:border-[#5B4DE3] focus:outline-none focus:ring-2 focus:ring-[#5B4DE3]/20"
-                >
-                  <option value="">Seçiniz</option>
-                  {bloodTypeOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
               <div className="sm:col-span-2">
                 <label className="mb-1.5 block text-sm font-medium text-[#0B1F55]">Adres</label>
                 <input
@@ -351,7 +390,13 @@ export default function AddPatientModal({ onCreated }: AddPatientModalProps) {
                   disabled={isSubmitting}
                   className="rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#4c3fd1] disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  {isSubmitting ? "Hasta ekleniyor..." : "Hasta Kaydet"}
+                  {isSubmitting
+                    ? isEditMode
+                      ? "Kaydediliyor..."
+                      : "Hasta ekleniyor..."
+                    : isEditMode
+                      ? "Değişiklikleri Kaydet"
+                      : "Hasta Kaydet"}
                 </button>
               </div>
             </form>

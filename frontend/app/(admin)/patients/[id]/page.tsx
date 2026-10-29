@@ -15,6 +15,9 @@ import PatientProfileCard, {
 import TreatmentHistoryCard from "@/components/patient-detail/TreatmentHistoryCard";
 import UpcomingAppointmentsCard from "@/components/patient-detail/UpcomingAppointmentsCard";
 import PatientPaymentSummaryCard from "@/components/patient-detail/PatientPaymentSummaryCard";
+import RadiographsCard from "@/components/patient-detail/RadiographsCard";
+import AddAppointmentModal from "@/components/appointments/AddAppointmentModal";
+import AddPatientModal from "@/components/patients/AddPatientModal";
 
 const treatmentDateFormatter = new Intl.DateTimeFormat("tr-TR", {
   day: "2-digit",
@@ -48,39 +51,24 @@ function PageHeader() {
   );
 }
 
-function ActionButtons() {
+interface ActionButtonsProps {
+  patient: Patient;
+  onPatientUpdated: (patient: Patient) => void;
+  onAppointmentCreated: () => void;
+}
+
+function ActionButtons({ patient, onPatientUpdated, onAppointmentCreated }: ActionButtonsProps) {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <button
-        type="button"
-        className="flex items-center gap-2 rounded-xl bg-[#5B4DE3] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(15,23,42,0.04)] hover:bg-[#4c3fd1]"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
-          <rect x="4" y="5" width="16" height="15" rx="2" />
-          <path strokeLinecap="round" d="M4 10h16M8 3v4M16 3v4M12 13v4M10 15h4" />
-        </svg>
-        Randevu Oluştur
-      </button>
+      {patient.isActive && (
+        <AddAppointmentModal
+          initialPatientId={patient.id}
+          triggerLabel="Randevu Oluştur"
+          onCreated={onAppointmentCreated}
+        />
+      )}
 
-      <button
-        type="button"
-        className="flex items-center gap-2 rounded-xl border border-[#EAF0F8] bg-white px-5 py-2.5 text-sm font-semibold text-[#0B1F55] hover:bg-[#F7F8FF]"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 4.5a2.1 2.1 0 0 1 3 3L7 20l-4 1 1-4Z" />
-        </svg>
-        Düzenle
-      </button>
-
-      <button
-        type="button"
-        className="flex items-center gap-2 rounded-xl border border-[#EAF0F8] bg-white px-5 py-2.5 text-sm font-semibold text-[#0B1F55] hover:bg-[#F7F8FF]"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M4 5.5h16v10a1 1 0 0 1-1 1H8l-4 3.5v-3.5H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1Z" />
-        </svg>
-        Mesaj Gönder
-      </button>
+      <AddPatientModal patient={patient} onUpdated={onPatientUpdated} />
     </div>
   );
 }
@@ -300,10 +288,16 @@ export default function PatientDetailPage() {
     <div className="space-y-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <PageHeader />
-        <ActionButtons />
+        <ActionButtons
+          patient={patient}
+          onPatientUpdated={setPatient}
+          onAppointmentCreated={loadRelatedRecords}
+        />
       </div>
 
       <PatientProfileCard patient={toPatientProfileData(patient, appointments)} />
+
+      <RadiographsCard patientId={id} canUpload={patient.isActive} canDelete />
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         {isLoadingTreatmentPlans && (

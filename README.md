@@ -47,6 +47,7 @@ Yalnızca backend service scope'una göre kendisiyle ilişkili hastalar/randevul
 - Doctor Schedule (Secretary view)
 - Change Password (self-service, all roles)
 - Soft delete / reactivation for Patients, Doctors, Payments, Consent Forms, Treatment Plans
+- Dental radiographs (panoramic / bitewing / periapical X-ray upload and viewing on the patient detail page) — groundwork for AI-assisted caries detection
 
 ## Project Structure
 
@@ -76,6 +77,8 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5433/cliniccrm?schema=pub
 PORT=5000
 JWT_SECRET="cliniccrm-dev-secret"
 JWT_EXPIRES_IN="1d"
+CORS_ORIGIN="http://localhost:3000"
+UPLOAD_DIR="uploads"
 ```
 
 ### Frontend (`frontend/.env.example`)
@@ -155,6 +158,13 @@ Doctor access restrictions are **not** implemented as frontend filtering — the
 - **Doctor Payments** → only payments linked to the doctor's own appointments
 - **Doctor Consent Forms** → only forms for the doctor's related patient set
 - **Messages** → only messages where the current user is the sender or receiver
+- **Doctor Radiographs** → only radiographs of the doctor's related patient set (same rule as Doctor Patients)
+
+Additional backend safeguards:
+
+- A global `ValidationPipe` (`whitelist` + `forbidNonWhitelisted`) rejects any request body field that is not declared on the DTO, so fields such as `clinicId` can never be injected by a client.
+- `clinicId` always comes from the JWT: `/clinics/me` exposes only the caller's own clinic, and `/users` is scoped to the admin's clinic.
+- Radiograph images are stored outside the web root (`UPLOAD_DIR`, git-ignored) and served only through `GET /radiographs/:id/file`, which applies the same auth and scope checks. Uploads are accepted only when the file signature is PNG or JPEG (max 20 MB).
 
 The frontend never sends a `doctorId` to scope these results — the backend resolves the requesting user's doctor profile from the authenticated JWT on every request.
 

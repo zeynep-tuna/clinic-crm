@@ -12,7 +12,7 @@ export default function AdminLayout({
       <div className="flex h-screen bg-[#F7F8FF]">
         <Sidebar />
 
-        <div className="flex flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col">
           <Topbar />
 
           <main className="flex-1 overflow-y-auto px-8 py-6">{children}</main>

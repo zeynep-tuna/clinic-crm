@@ -12,6 +12,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { ConsentFormsModule } from './consent-forms/consent-forms.module';
 import { TreatmentPlansModule } from './treatment-plans/treatment-plans.module';
 import { MessagesModule } from './messages/messages.module';
+import { RadiographsModule } from './radiographs/radiographs.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { MessagesModule } from './messages/messages.module';
     ConsentFormsModule,
     TreatmentPlansModule,
     MessagesModule,
+    RadiographsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
